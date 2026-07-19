@@ -1,0 +1,2 @@
+class OnetimeCacheVault:
+  cache: dict

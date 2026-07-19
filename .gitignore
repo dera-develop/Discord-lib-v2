@@ -1,0 +1,17 @@
+.vscode/
+__pycache__/
+vp/
+log/
+old/
+*test/
+
+*test*
+*.env
+*.log
+*.log
+*memo*
+
+main.py
+changelog_create.md
+
+/docs
