@@ -1,3 +1,18 @@
+"""
+READMEに掲載したものと同一のものです．
+Gateway接続後，Readyイベントを受け取った際に指定されたチャンネルに
+"Hello, World!"
+と送信します．
+
+以下の場所に，該当の物を設定します．
+"your_bot_token"        : ボットトークン
+"your_os"               : OS名（GatewayのIdentifyで使用します）
+"channel_id(snowflake)" : 送信チャンネルID
+
+ログは，このプログラムと同じ階層（./log/）へ保存されます．
+ディレクトリが無い場合は，自動的に新しく作られます．
+"""
+
 import os
 
 from discord_lib2.client import Bot
