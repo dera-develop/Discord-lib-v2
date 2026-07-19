@@ -33,7 +33,7 @@ class EventHandler:
     self.gateway_controller = websocket_controller
     self.exception_catcher = exception_catcher
     self.user_gateway_request = GatewayRequest(websocket_controller)
-    self.user_http_request = HttpRequest(http_request_controller, logger, http_request_loader)
+    self.user_http_request = HttpRequest(http_request_controller, http_request_loader)
     self.user_resources = UserEventResources(
       self.user_gateway_request,
       self.user_http_request,
