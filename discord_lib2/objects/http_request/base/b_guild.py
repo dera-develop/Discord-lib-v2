@@ -76,6 +76,11 @@ class RoleColors:
   tertiary_color: int | None
 
 @dataclass
+class UnavailableGuild:
+  id: snowflake
+  unavailable: bool
+
+@dataclass
 class WelcomeScreenChannel:
   channel_id: snowflake
   description: str
