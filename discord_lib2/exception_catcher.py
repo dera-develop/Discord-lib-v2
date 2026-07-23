@@ -18,9 +18,9 @@ class ExceptionCatcher:
   STOP = "stop"
   def __init__(self, logger: Logger) -> None:
     self.logger = logger.get_child("EXC")
-    self.name: str
-    self.close_code: int
-    self.close_reason: str
+    self.name: str = ""
+    self.close_code: int = 0
+    self.close_reason: str = ""
     self.flag = False
     self.exception_function = {
       self.RECONNECT: self.__reconnect,
@@ -35,7 +35,7 @@ class ExceptionCatcher:
     self.flag = True
 
   def get_v(self):
-    if self.flag:
+    if self.flag and self.name != "":
       raise self.exception_function[self.name]()
 
   def __stop(self):
@@ -44,4 +44,7 @@ class ExceptionCatcher:
   
   def __reconnect(self):
     self.flag = self.flag
-    raise ReConnection(self.close_code, self.close_reason)
+    code = self.close_code
+    reason = self.close_reason
+    self.name = ""
+    raise ReConnection(code, reason)
