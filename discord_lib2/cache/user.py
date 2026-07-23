@@ -1,30 +1,36 @@
+from dataclasses import dataclass
+
 snowflake = str
 ISO8601timestamp = str
 
 #########################################################################################
 # User Objects
 #########################################################################################
+@dataclass
 class UserObjectPrimaryGuild:
   identity_guild_id: snowflake | None
   identity_enaabled: bool | None
   tag: str | None
   badge: str | None
 
+@dataclass
 class UserObjectAvatarDecorationData:
   asset: str
   sku_id: snowflake
 
+@dataclass
 class UserObjectNameplate:
   sku_id: snowflake
   asset: str
   label: str
   palette: str
 
+@dataclass
 class UserObjectCollectibles:
   nameplate: UserObjectNameplate
 
+@dataclass
 class UserObject:
-  id: snowflake
   username: str
   discriminator: str
   global_name: str | None
@@ -51,6 +57,7 @@ class User:
 #########################################################################################
 # Channel Objects
 #########################################################################################
+@dataclass
 class GuildObjectGuildMember:
   user: User
   nick: str
@@ -68,12 +75,14 @@ class GuildObjectGuildMember:
   avatar_decoration_data: UserObjectAvatarDecorationData
   collectibles: UserObjectCollectibles
 
+@dataclass
 class ChannelObjectOverwrite:
   id: snowflake
   type: int
   allow: str
   deny: str
 
+@dataclass
 class ChannelObjectThreadMetadata:
   archived: bool
   auto_archive_duration: int
@@ -82,6 +91,7 @@ class ChannelObjectThreadMetadata:
   invitable: bool | None
   create_timestamp: ISO8601timestamp | None
 
+@dataclass
 class ChannelObjectThreadMember:
   id: snowflake | None
   user_id: snowflake | None
@@ -89,6 +99,7 @@ class ChannelObjectThreadMember:
   flags: int
   member: GuildObjectGuildMember | None
 
+@dataclass
 class ChannelObjectForumTag:
   id: snowflake
   name: str
@@ -96,10 +107,12 @@ class ChannelObjectForumTag:
   emoji_id: snowflake | None
   emoji_name: str | None
 
+@dataclass
 class ChannelObjectDefaultReaction:
   emoji_id: snowflake | None
   emoji_name: str | None
 
+@dataclass
 class ChannelObject:
   id: snowflake
   type: int
@@ -145,9 +158,9 @@ class Guild:
 #########################################################################################
 
 class Data:
-  users: dict[snowflake, User]
-  guilds: dict[snowflake, Guild]
+  users: dict[snowflake, User] = {}
+  guilds: dict[snowflake, Guild] = {}
 
 class DataCacheVault:
-  data: Data
+  data: Data = Data()
   additional = {}
