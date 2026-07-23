@@ -1,18 +1,23 @@
 import asyncio
 import json
+from dacite import from_dict
 
 from discord_lib2.logger import Logger
 from discord_lib2.exception_catcher import ExceptionCatcher
 from discord_lib2.cache.system.system import SystemCacheVault
 from discord_lib2.cache.user import DataCacheVault
-from discord_lib2.cache.onetime import OnetimeCacheVault
-from discord_lib2.Network.gateway.websocket import WebsocketController
-from discord_lib2.Network.http_request.http import HttpRequestController
 from discord_lib2.event import GatewayEvent
 from discord_lib2.objects.resources import UserEventResources
 from discord_lib2.objects.gateway.user_request import GatewayRequest
+from discord_lib2.Network.gateway.websocket import WebsocketController
 from discord_lib2.objects.http_request.user_request import HttpRequest
+from discord_lib2.Network.http_request.http import HttpRequestController
 from discord_lib2.Network.http_request.request_loader import RequestLoader
+
+from discord_lib2.cache.user import UserObject
+from discord_lib2.cache.user import User as UserCacheObject
+
+from discord_lib2.objects.gateway import event_objects
 
 class EventHandler:
   def __init__(
@@ -26,10 +31,9 @@ class EventHandler:
       http_request_loader: RequestLoader
   ) -> None:
     self.__task_event_handler = None
-    self.logger = logger.get_child("EHL")
+    self.logger = logger.get_child("GEH")
     self.cache_system = system_cache_vault
     self.cache_user = DataCacheVault()
-    self.cache_onetime = OnetimeCacheVault()
     self.gateway_controller = websocket_controller
     self.exception_catcher = exception_catcher
     self.user_gateway_request = GatewayRequest(websocket_controller)
@@ -38,7 +42,7 @@ class EventHandler:
       self.user_gateway_request,
       self.user_http_request,
       self.cache_user,
-      self.cache_onetime
+      logger
       )
     self.user_event_functions = user_event
 
@@ -119,7 +123,7 @@ class EventHandler:
         dispatch_dict = json.loads(dispatch_datas)
         event_name = dispatch_dict.get("t")
         event_data = dispatch_dict.get("d")
-        await self.event_name_functions[event_name](event_data)
+        await self.trigger(event_name, event_data)
     except asyncio.CancelledError:
       return
     except Exception as e:
@@ -139,8 +143,27 @@ class EventHandler:
         finally:
           self.logger.info(f"Task stopped | name=event_handler")
 
+  async def trigger(self, event_name: str, event_data: dict):
+    await self.event_name_functions[event_name](event_data)
+
   async def ready(self, event_data: dict):
-    await self.user_event_functions.ready(self.user_resources)
+    # system cache
+    event_data_object = from_dict(event_objects.Ready, event_data)
+    self.cache_system.resume.reconnect_gateway_url = event_data_object.resume_gateway_url
+    self.cache_system.resume.session_id = event_data_object.session_id
+    self.cache_system.gateway.gateway_url = event_data_object.resume_gateway_url
+
+    # user cache
+    user_data = event_data.get("user")
+    user_id = ""
+    if not isinstance(user_data, dict):
+      raise KeyError(user_data)
+    user_id = user_data.pop("id")
+    user_object = from_dict(UserObject, user_data)
+    self.cache_user.data.users[user_id] = UserCacheObject()
+    self.cache_user.data.users[user_id].user = user_object
+
+    await self.user_event_functions.ready(self.user_resources, event_data_object)
 
   async def resumed(self, event_data: dict):
     await self.user_event_functions.resumed(self.user_resources)
