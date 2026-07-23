@@ -1,10 +1,11 @@
 from discord_lib2.objects.resources import UserEventResources
+from discord_lib2.objects.gateway import event_objects
 
 class GatewayEvent:
   def __init__(self) -> None:
     pass
 
-  async def ready(self, resources: UserEventResources):
+  async def ready(self, resources: UserEventResources, ready_object: event_objects.Ready):
     pass
 
   async def resumed(self, resources: UserEventResources):
