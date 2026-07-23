@@ -8,7 +8,6 @@ Gateway接続後，Readyイベントを受け取った際に指定されたチ�
 from discord_lib2.client import Bot
 from discord_lib2.logger import Logger
 from discord_lib2.event import GatewayEvent
-from discord_lib2.objects.resources import UserEventResources
 
 bot = Bot("your_bot_token", "your_os")
 
@@ -16,7 +15,7 @@ logger = Logger()
 logger.create_default_handler("log_dir_path")
 
 class UserEvents(GatewayEvent):
-  async def ready(self, resources: UserEventResources):
+  async def ready(self, resources, ready_object):
     from discord_lib2.objects.http_request.base.b_message import CreateMessage
     message = CreateMessage(content="Hello, World!")
     request_informations = resources.http_api.load_request(message, channel_id="channel_id(snowflake)")

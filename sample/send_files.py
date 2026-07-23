@@ -7,7 +7,6 @@ Gateway接続後，Readyイベントを受け取った際に指定されたチ�
 from discord_lib2.client import Bot
 from discord_lib2.logger import Logger
 from discord_lib2.event import GatewayEvent
-from discord_lib2.objects.resources import UserEventResources
 
 bot = Bot("bot_token", "os_type")
 
@@ -15,7 +14,7 @@ logger = Logger()
 logger.create_default_handler("log_dir_path")
 
 class user_events(GatewayEvent):
-  async def ready(self, resources: UserEventResources):
+  async def ready(self, resources, ready_object):
     from discord_lib2.objects.http_request.base import b_message
     message = b_message.CreateMessage(content="Ready image")
     await message.files.add_file("picture_file_path")
