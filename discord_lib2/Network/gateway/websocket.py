@@ -180,7 +180,9 @@ class WebsocketController:
         s  = event_payload.get("s")
 
         self.logger.debug(f"received event | op: {op}, t: {t}, s: {s}")
-        self.system_cache_vault.gateway.last_recv_seq = s
+        last_seq = self.system_cache_vault.gateway.last_recv_seq
+        if not((last_seq is not None) and (s is None)):
+          self.system_cache_vault.gateway.last_recv_seq = s
         await self.op_event_functions[op](d=d, t=t)
 
     except asyncio.CancelledError:
@@ -235,7 +237,7 @@ class WebsocketController:
   # op event task functions
   # # # # # # # # # # # # # # # # # # # # # # # # # #
 
-  def reconnect(self, close_code: int=1000, close_reason: str="auto reconnect"):
+  def reconnect(self, close_code: int=4000, close_reason: str="auto reconnect"):
     self.exception_catcher.set_v(self.exception_catcher.RECONNECT, close_code, close_reason)
 
   def stconnect(self, close_code: int=1000, close_reason: str="auto shutdown"):
@@ -258,7 +260,7 @@ class WebsocketController:
     interval = d.get("heartbeat_interval")
     self.logger.debug(f"set heartbeat interval: {interval}")
     self.system_cache_vault.gateway.heartbeat_interval = interval
-    
+
     # first connection
     if self.system_cache_vault.resume.reconnect_gateway_url == "":
       event = event_creators.Identify(self.system_cache_vault.bot_token, self.system_cache_vault.bot_intents, self.system_cache_vault.os_type)
