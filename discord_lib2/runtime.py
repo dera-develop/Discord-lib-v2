@@ -1,21 +1,21 @@
 import asyncio
 import websockets
 
-from discord_lib2.logger import Logger
 from discord_lib2 import exception_catcher
+from discord_lib2.logger import Logger
 from discord_lib2.exception_catcher import ExceptionCatcher
 from discord_lib2.event import GatewayEvent
 from discord_lib2.cache.system.system import SystemCacheVault
 from discord_lib2.Network.gateway.websocket import WebsocketController
 from discord_lib2.Network.gateway.event_handler import EventHandler
 from discord_lib2.Network.http_request.http import HttpRequestController
-from discord_lib2.terminal import Terminal
 from discord_lib2.Network.http_request.request_loader import RequestLoader
+from discord_lib2.terminal import Terminal
 from discord_lib2.objects.http_request.base import b_gateway
 
 class Runtime:
   def __init__(self, bot_token: str, bot_intents: int, os_type: str, logger_master: Logger, bootcycle: int, user_event: GatewayEvent):
-    self.bootcycle            = bootcycle
+    self.bootcycle = bootcycle
     self.logger = logger_master.get_child("RTM")
 
     self.system_cache_vault = SystemCacheVault()
@@ -32,7 +32,8 @@ class Runtime:
 
     # terminal commands
     self.terminal_command_functions = {
-      "stop": self.__command_stop
+      "stop": self.__command_stop,
+      "reconnect": self.__command_reconnect
     }
 
   async def boot(self):
@@ -107,3 +108,6 @@ class Runtime:
 #############################################################################
   async def __command_stop(self):
     self.exception_catcher.set_v(self.exception_catcher.STOP, 1000, "auto shutdown")
+
+  async def __command_reconnect(self):
+    self.exception_catcher.set_v(self.exception_catcher.RECONNECT, 4000, "auto reconnection")
