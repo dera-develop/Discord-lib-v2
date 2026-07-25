@@ -9,15 +9,19 @@ from discord_lib2.cache.user import DataCacheVault
 from discord_lib2.event import GatewayEvent
 from discord_lib2.objects.resources import UserEventResources
 from discord_lib2.objects.gateway.user_request import GatewayRequest
+from discord_lib2.objects.gateway import gateway_payload
 from discord_lib2.Network.gateway.websocket import WebsocketController
 from discord_lib2.objects.http_request.user_request import HttpRequest
 from discord_lib2.Network.http_request.http import HttpRequestController
 from discord_lib2.Network.http_request.request_loader import RequestLoader
 
-from discord_lib2.cache.user import UserObject
-from discord_lib2.cache.user import User as UserCacheObject
-
+from discord_lib2.cache.user import User as CacheUser
 from discord_lib2.objects.gateway import event_objects
+
+from discord_lib2.objects.http_request.base import b_guild
+from discord_lib2.objects.http_request.base import b_user
+
+snowflake = str
 
 class EventHandler:
   def __init__(
@@ -148,22 +152,28 @@ class EventHandler:
 
   async def ready(self, event_data: dict):
     # system cache
-    event_data_object = from_dict(event_objects.Ready, event_data)
-    self.cache_system.resume.reconnect_gateway_url = event_data_object.resume_gateway_url
-    self.cache_system.resume.session_id = event_data_object.session_id
-    self.cache_system.gateway.gateway_url = event_data_object.resume_gateway_url
+    ready_object = from_dict(event_objects.Ready, event_data)
+    self.cache_system.resume.reconnect_gateway_url = ready_object.resume_gateway_url
+    self.cache_system.resume.session_id = ready_object.session_id
+    self.cache_system.gateway.gateway_url = ready_object.resume_gateway_url
 
     # user cache
     user_data = event_data.get("user")
-    user_id = ""
     if not isinstance(user_data, dict):
       raise KeyError(user_data)
-    user_id = user_data.pop("id")
-    user_object = from_dict(UserObject, user_data)
-    self.cache_user.data.users[user_id] = UserCacheObject()
+    user_id = user_data.get("id")
+    if not isinstance(user_id, snowflake):
+      raise TypeError(snowflake)
+    user_object = from_dict(b_user.User, user_data)
+    self.cache_user.data.users[user_id] = CacheUser()
     self.cache_user.data.users[user_id].user = user_object
 
-    await self.user_event_functions.ready(self.user_resources, event_data_object)
+    await self.user_event_functions.ready(self.user_resources, ready_object)
+
+    for guild in ready_object.guilds:
+      if guild.unavailable:
+        get_guild_member_object = gateway_payload.RequestGuildMembers(guild.id, 0, query="")
+        await self.gateway_controller.send(get_guild_member_object.get())
 
   async def resumed(self, event_data: dict):
     await self.user_event_functions.resumed(self.user_resources)
