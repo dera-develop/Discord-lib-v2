@@ -1,159 +1,25 @@
 from dataclasses import dataclass
 
+from discord_lib2.objects.http_request.base import b_user
+from discord_lib2.objects.http_request.base import b_guild
+from discord_lib2.objects.http_request.base import b_channel
+
 snowflake = str
 ISO8601timestamp = str
 
 #########################################################################################
 # User Objects
 #########################################################################################
-@dataclass
-class UserObjectPrimaryGuild:
-  identity_guild_id: snowflake | None
-  identity_enaabled: bool | None
-  tag: str | None
-  badge: str | None
-
-@dataclass
-class UserObjectAvatarDecorationData:
-  asset: str
-  sku_id: snowflake
-
-@dataclass
-class UserObjectNameplate:
-  sku_id: snowflake
-  asset: str
-  label: str
-  palette: str
-
-@dataclass
-class UserObjectCollectibles:
-  nameplate: UserObjectNameplate
-
-@dataclass
-class UserObject:
-  username: str
-  discriminator: str
-  global_name: str | None
-  avatar: str | None
-  bot: bool | None
-  system: bool | None
-  mfa_enabled: bool | None
-  banner: str | None
-  accent_color: int | None
-  locale: str | None
-  verified: bool | None
-  email: str | None
-  flags: int | None
-  premium_type: int | None
-  public_flags: int | None
-  avatar_decoration_data: UserObjectAvatarDecorationData | None
-  collectibles: UserObjectCollectibles | None
-  primary_guild: UserObjectPrimaryGuild | None
-
 class User:
-  user: UserObject | None = None
+  user: b_user.User | None = None
   joined_guilds: list[snowflake] | None = None
 
 #########################################################################################
 # Channel Objects
 #########################################################################################
-@dataclass
-class GuildObjectGuildMember:
-  user: User
-  nick: str
-  avatar: str
-  banner: str
-  roles: list[snowflake]
-  joined_at: ISO8601timestamp
-  premium_since: ISO8601timestamp
-  deaf: bool
-  mute: bool
-  flags: int
-  pending: bool
-  permissions: str
-  communication_disabled_until: ISO8601timestamp
-  avatar_decoration_data: UserObjectAvatarDecorationData
-  collectibles: UserObjectCollectibles
-
-@dataclass
-class ChannelObjectOverwrite:
-  id: snowflake
-  type: int
-  allow: str
-  deny: str
-
-@dataclass
-class ChannelObjectThreadMetadata:
-  archived: bool
-  auto_archive_duration: int
-  archive_timestamp: ISO8601timestamp
-  locked: bool
-  invitable: bool | None
-  create_timestamp: ISO8601timestamp | None
-
-@dataclass
-class ChannelObjectThreadMember:
-  id: snowflake | None
-  user_id: snowflake | None
-  join_timestamp: ISO8601timestamp
-  flags: int
-  member: GuildObjectGuildMember | None
-
-@dataclass
-class ChannelObjectForumTag:
-  id: snowflake
-  name: str
-  moderated: bool
-  emoji_id: snowflake | None
-  emoji_name: str | None
-
-@dataclass
-class ChannelObjectDefaultReaction:
-  emoji_id: snowflake | None
-  emoji_name: str | None
-
-@dataclass
-class ChannelObject:
-  id: snowflake
-  type: int
-  guild_id: snowflake | None
-  position: int | None
-  permission_overwrites: list[ChannelObjectOverwrite]
-  name: str | None
-  topic: str | None
-  nsfw: bool | None
-  last_message_id: snowflake | None
-  bitrate: int | None
-  user_limit: int | None
-  rate_limit_per_user: int | None
-  recipients: list[UserObject] | None
-  icon: str | None
-  awner_id: snowflake | None
-  application_id: snowflake | None
-  managed: bool | None
-  parent_id: snowflake | None
-  last_pin_timestamp: ISO8601timestamp | None
-  rtc_region: str | None
-  video_quality_mode: int | None
-  message_count: int | None
-  member_count: int | None
-  thread_metadata: ChannelObjectThreadMetadata | None
-  member: ChannelObjectThreadMember | None
-  default_auto_archive_duration: int
-  permissions: str
-  app_permissions: str
-  flags: int
-  total_message_sent: int
-  available_tags: list[ChannelObjectForumTag]
-  applied_tags: list[snowflake]
-  default_reaction_emoji: ChannelObjectDefaultReaction
-  default_thread_rate_limit_per_user: int
-  default_sort_order: int
-  default_forum_layout: int
-
 class Guild:
-  channels: dict[snowflake, ChannelObject]
-  users: dict[snowflake, UserObject]
+  channels: dict[snowflake, b_channel.Channel]
+  members: dict[snowflake, b_guild.GuildMember]
 
 #########################################################################################
 
