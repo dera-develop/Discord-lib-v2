@@ -139,6 +139,7 @@ class WebsocketController:
       return
     except Exception as e:
       self.logger.exception(f"Application error | reason: {str(e)}")
+      self.exception_catcher.set_v(ExceptionCatcher.STOP, 1000, "auto shutdown")
 
   # event receive
   async def __worker_recv(self):
@@ -167,6 +168,7 @@ class WebsocketController:
       return
     except Exception as e:
       self.logger.exception(f"Application error | reason: {str(e)}")
+      self.exception_catcher.set_v(ExceptionCatcher.STOP, 1000, "auto shutdown")
 
   # event trigger
   async def __worker_event_trigger(self):
@@ -189,6 +191,7 @@ class WebsocketController:
       return
     except Exception as e:
       self.logger.exception(f"Application error | reason: {str(e)}")
+      self.exception_catcher.set_v(ExceptionCatcher.STOP, 1000, "auto shutdown")
 
   # event send rate controller
   async def __worker_sendrate_controller(self):
@@ -201,6 +204,7 @@ class WebsocketController:
       return
     except Exception as e:
       self.logger.exception(f"Application error | reason: {str(e)}")
+      self.exception_catcher.set_v(ExceptionCatcher.STOP, 1000, "auto shutdown")
 
   # heartbeat
   async def __worker_heartbeat(self):
@@ -224,6 +228,7 @@ class WebsocketController:
       return
     except Exception as e:
       self.logger.exception(f"Application error | reason: {str(e)}")
+      self.exception_catcher.set_v(ExceptionCatcher.STOP, 1000, "auto shutdown")
 
   # # # # # # # # # # # # # # # # # # # # # # # # # #
 
@@ -233,15 +238,15 @@ class WebsocketController:
   async def get_event_queue(self) -> str:
     return await self.event_queue_dispatch.get()
 
-  # # # # # # # # # # # # # # # # # # # # # # # # # #
-  # op event task functions
-  # # # # # # # # # # # # # # # # # # # # # # # # # #
-
   def reconnect(self, close_code: int=4000, close_reason: str="auto reconnect"):
     self.exception_catcher.set_v(self.exception_catcher.RECONNECT, close_code, close_reason)
 
   def stconnect(self, close_code: int=1000, close_reason: str="auto shutdown"):
     self.exception_catcher.set_v(self.exception_catcher.STOP, close_code, close_reason)
+
+  # # # # # # # # # # # # # # # # # # # # # # # # # #
+  # op event task functions
+  # # # # # # # # # # # # # # # # # # # # # # # # # #
 
   async def __op_event_dispatch(self, d, t):
     await self.event_queue_dispatch.put(json.dumps({"t": t, "d": d}))
