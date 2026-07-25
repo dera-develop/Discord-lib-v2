@@ -6,6 +6,7 @@ from discord_lib2.objects.http_request.base.body_base import Exclude
 
 
 from discord_lib2.objects.http_request.base import b_channel
+from discord_lib2.objects.http_request.base import b_user
 from discord_lib2.objects.http_request.base import b_emoji as emoji_objects
 
 snowflake = str
@@ -108,6 +109,28 @@ class OnboardingPrompt:
   single_select: bool
   required: bool
   in_onboarding: bool
+
+@dataclass
+class GuildMemberUser:
+  id: snowflake
+
+@dataclass
+class GuildMember:
+  user: GuildMemberUser
+  nick: str
+  avatar: str
+  banner: str
+  roles: list[snowflake]
+  joined_at: ISO8601timestamp
+  premium_since: ISO8601timestamp
+  deaf: bool
+  mute: bool
+  flags: int
+  pending: bool
+  permissions: str
+  communication_disabled_until: ISO8601timestamp
+  avatar_decoration_data: b_user.AvatarDecorationData
+  collectibles: b_user.Collectibles
 
 @dataclass
 class GetGuild(__GuildBase):
