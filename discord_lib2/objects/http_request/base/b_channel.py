@@ -6,7 +6,6 @@ from discord_lib2.objects.http_request.base.body_base import Exclude
 from discord_lib2.objects.http_request.base.body_base import FormFile
 
 from discord_lib2.objects.http_request.base import b_message
-from discord_lib2.objects.http_request.base import b_guild
 from discord_lib2.objects.http_request.base import b_user
 from discord_lib2.objects.other import component
 
@@ -47,19 +46,6 @@ FLT_LIST_VIEW = 1
 FLT_GALLERY_VIEW = 2
 
 @dataclass
-class DefaultReaction:
-  emoji_id: snowflake
-  emoji_name: str
-
-@dataclass
-class ForumTag:
-  id: snowflake
-  name: str
-  moderated: bool
-  emoji_id: snowflake
-  emoji_name: str
-
-@dataclass
 class Overwrite:
   id: snowflake
   type: int
@@ -67,14 +53,7 @@ class Overwrite:
   deny: str
 
 @dataclass
-class ChannelObjectOverwrite:
-  id: snowflake
-  type: int
-  allow: str
-  deny: str
-
-@dataclass
-class ChannelObjectThreadMetadata:
+class ThreadMetadata:
   archived: bool
   auto_archive_duration: int
   archive_timestamp: ISO8601timestamp
@@ -83,15 +62,19 @@ class ChannelObjectThreadMetadata:
   create_timestamp: ISO8601timestamp | None
 
 @dataclass
-class ChannelObjectThreadMember:
+class GuildMember:
+  id: snowflake
+
+@dataclass
+class ThreadMember:
   id: snowflake | None
   user_id: snowflake | None
   join_timestamp: ISO8601timestamp
   flags: int
-  member: b_guild.GuildMember | None
+  member: GuildMember | None
 
 @dataclass
-class ChannelObjectForumTag:
+class ForumTag:
   id: snowflake
   name: str
   moderated: bool
@@ -99,7 +82,7 @@ class ChannelObjectForumTag:
   emoji_name: str | None
 
 @dataclass
-class ChannelObjectDefaultReaction:
+class DefaultReaction:
   emoji_id: snowflake | None
   emoji_name: str | None
 
@@ -109,7 +92,7 @@ class Channel:
   type: int
   guild_id: snowflake | None
   position: int | None
-  permission_overwrites: list[ChannelObjectOverwrite]
+  permission_overwrites: list[Overwrite]
   name: str | None
   topic: str | None
   nsfw: bool | None
@@ -128,16 +111,16 @@ class Channel:
   video_quality_mode: int | None
   message_count: int | None
   member_count: int | None
-  thread_metadata: ChannelObjectThreadMetadata | None
-  member: ChannelObjectThreadMember | None
+  thread_metadata: ThreadMetadata | None
+  member: ThreadMember | None
   default_auto_archive_duration: int
   permissions: str
   app_permissions: str
   flags: int
   total_message_sent: int
-  available_tags: list[ChannelObjectForumTag]
+  available_tags: list[ForumTag]
   applied_tags: list[snowflake]
-  default_reaction_emoji: ChannelObjectDefaultReaction
+  default_reaction_emoji: DefaultReaction
   default_thread_rate_limit_per_user: int
   default_sort_order: int
   default_forum_layout: int
