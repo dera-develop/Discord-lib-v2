@@ -4,7 +4,7 @@ from typing import ClassVar
 from discord_lib2.objects.http_request.base import body_base
 from discord_lib2.objects.http_request.base.body_base import Exclude
 
-from discord_lib2.objects.other import Permissions
+from discord_lib2.objects.other import permissions
 from discord_lib2.objects.http_request.base import b_user
 
 snowflake  = str
@@ -22,7 +22,7 @@ class __EmojiApplicationBase(body_base.BaseClass):
 class Emoji:
   id: snowflake | None
   name: str | None
-  roles: list[Permissions.Role] | Exclude = Exclude()
+  roles: list[permissions.Role] | Exclude = Exclude()
   user: b_user.User | Exclude = Exclude()
   require_colons: bool | Exclude = Exclude()
   managed: bool | Exclude = Exclude()
