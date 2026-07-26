@@ -70,6 +70,7 @@ bot.boot(event, logger)
 #### External Libraries
 - websockets
 - requests
+- dacite
 
 #### Standart Libraries
 - asyncio
