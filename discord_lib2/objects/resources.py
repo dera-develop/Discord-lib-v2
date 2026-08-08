@@ -1,4 +1,4 @@
-from discord_lib2.cache.user import DataCacheVault
+from discord_lib2.cache.user.data import DataCacheVault
 from discord_lib2.objects.gateway.user_request import GatewayRequest
 from discord_lib2.objects.http_request.user_request import HttpRequest
 from discord_lib2.logger import Logger

@@ -1,3 +1,6 @@
+"""
+Gatewayイベントの構造体（送信側）
+"""
 import json
 from dataclasses import dataclass, is_dataclass
 from typing import ClassVar
