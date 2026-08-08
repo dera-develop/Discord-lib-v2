@@ -175,11 +175,12 @@ resources.data.guilds["guild_id"].channels["channel_id"].name # -> channel name
 ```python  
 resources.cache.data.users["user_id"] # -> user cache object  
   
-resources.cache.data.users["user_id"].bot # -> bot flag  
-resources.cache.data.users["user_id"].global_name # -> user global name  
+resources.cache.data.users["user_id"].user.bot # -> bot flag  
+resources.cache.data.users["user_id"].user.global_name # -> user global name  
 ```  
 `DISPATCH`イベントの`USER_UPDATE`や，その他ギルドメンバーの情報を受け取るイベントが発生した際に更新されます．  
-キャッシュの構造は，User構造です．構造の詳細は，[Usersキャッシュソースコード](../discord_lib2/cache/user/user.py)や[Discord公式ドキュメント[Userオブジェクト]](https://docs.discord.com/developers/resources/user#user-object)を確認してください．  
+`data.users.joined_guilds`には，ユーザーが参加中かつボットが参加しているギルドのIDがリスト型で格納されます．  
+`data.users.user`のキャッシュ構造はUser構造です．構造の詳細は，[Usersキャッシュソースコード](../discord_lib2/cache/user/user.py)や[Discord公式ドキュメント[Userオブジェクト]](https://docs.discord.com/developers/resources/user#user-object)を確認してください．  
   
 ###### additional  
 ユーザーが自由に使用できる，辞書型の変数です．  
