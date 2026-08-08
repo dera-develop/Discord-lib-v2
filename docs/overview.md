@@ -242,7 +242,7 @@ Gateway接続を通じて送信するリクエストを送信します．
 ```python  
 from discord_lib2.objects.gateway import request_payload  
 request_data = request_payload.RequestGuildMembers("guild_id", 0, "", True)  
-await gateway.request_guild_member(request_data)  
+await resources.gateway.request_guild_member(request_data)  
 ```  
   
 ###### request_soundboard_sounds  
@@ -251,7 +251,7 @@ await gateway.request_guild_member(request_data)
 ```python  
 from discord_lib2.objects.gateway import request_payload  
 request_data = request_payload.RequestSoundboardSounds(["guild_id1", "guild_id2"])  
-await gateway.request_soundboard_sounds(request_data)  
+await resources.gateway.request_soundboard_sounds(request_data)  
 ```  
   
 ###### request_channel_info  
@@ -260,7 +260,7 @@ await gateway.request_soundboard_sounds(request_data)
 ```python  
 from discord_lib2.objects.gateway import request_payload  
 request_data = request_payload.RequestChannelInfo("guild_id", ["fiels1", "field2"])  
-await gateway.request_channel_info(request_data)  
+await resources.gateway.request_channel_info(request_data)  
 ```  
   
 ##### ロガー  
