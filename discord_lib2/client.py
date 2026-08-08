@@ -28,7 +28,7 @@ class Bot:
   __INTENT_V_GUILD_MESSAGE_POLLS            = 1 << 24
   __INTENT_V_DIRECT_MESSAGE_POLLS           = 1 << 25
 
-  enable_guilds                         = False
+  enable_guilds                         = True
   enable_guild_members                  = False
   enable_guild_moderation               = False
   enable_guild_expressions              = False
