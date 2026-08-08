@@ -35,7 +35,7 @@ bot.boot(event, logger)
 このライブラリを使用するために，最低以下の3つのクラスのimportが必要です．  
 - discord_lib2/client.py [Botクラス](#Botクラス)  
 - discord_lib2/logger.py [Loggerクラス](#Loggerクラス)  
-- discord_lib2/event.py [GatewayEventクラス](#GatewayEvent(ユーザーイベント)クラス)  
+- discord_lib2/event.py [GatewayEventクラス](#GatewayEventクラス)  
   
 ### Botクラス  
 ボットを動かすためのメインになるクラスです．  
