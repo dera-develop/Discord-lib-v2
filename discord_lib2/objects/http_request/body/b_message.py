@@ -1,9 +1,9 @@
 from dataclasses import dataclass
 from typing import ClassVar
 
-from discord_lib2.objects.http_request.base import body_base
-from discord_lib2.objects.http_request.base.body_base import Exclude
-from discord_lib2.objects.http_request.base.body_base import FormFile
+from discord_lib2.objects.http_request.body import body_base
+from discord_lib2.objects.http_request.body.body_base import Exclude
+from discord_lib2.objects.http_request.body.body_base import FormFile
 
 from discord_lib2.objects.other import component
 

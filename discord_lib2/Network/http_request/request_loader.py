@@ -5,7 +5,7 @@ import json
 
 from discord_lib2.logger import Logger
 
-from discord_lib2.objects.http_request.base import body_base
+from discord_lib2.objects.http_request.body import body_base
 from discord_lib2.objects.http_request.request_query import query_base
 
 class RequestInformation:

@@ -11,7 +11,7 @@ from discord_lib2.Network.gateway.event_handler import EventHandler
 from discord_lib2.Network.http_request.http import HttpRequestController
 from discord_lib2.Network.http_request.request_loader import RequestLoader
 from discord_lib2.terminal import Terminal
-from discord_lib2.objects.http_request.base import b_gateway
+from discord_lib2.objects.http_request.body import b_gateway
 
 class Runtime:
   def __init__(self, bot_token: str, bot_intents: int, os_type: str, logger_master: Logger, bootcycle: int, user_event: GatewayEvent):

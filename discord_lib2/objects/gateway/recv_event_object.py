@@ -4,7 +4,7 @@ Gatewayイベントの構造体（受信側）
 from dataclasses import dataclass, field
 from typing import Any
 
-from discord_lib2.objects.http_request.base import b_guild
+from discord_lib2.objects.http_request.body import b_guild
 
 snowflake = str
 ISO8601timestamp = str

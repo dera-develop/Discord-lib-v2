@@ -1,8 +1,8 @@
 from dataclasses import dataclass
 from typing import ClassVar
 
-from discord_lib2.objects.http_request.base.body_base import Exclude
-from discord_lib2.objects.http_request.base import b_emoji
+from discord_lib2.objects.http_request.body.body_base import Exclude
+from discord_lib2.objects.http_request.body import b_emoji
 
 snowflake = str
 

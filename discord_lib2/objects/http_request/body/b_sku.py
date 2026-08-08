@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import ClassVar
 
-from discord_lib2.objects.http_request.base import body_base
+from discord_lib2.objects.http_request.body import body_base
 
 @dataclass
 class ListSKUs(body_base.BaseClass):

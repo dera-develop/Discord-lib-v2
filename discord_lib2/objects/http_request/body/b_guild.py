@@ -1,13 +1,13 @@
 from dataclasses import dataclass
 from typing import Literal, ClassVar
 
-from discord_lib2.objects.http_request.base import body_base
-from discord_lib2.objects.http_request.base.body_base import Exclude
+from discord_lib2.objects.http_request.body import body_base
+from discord_lib2.objects.http_request.body.body_base import Exclude
 
 
-from discord_lib2.objects.http_request.base import b_channel
-from discord_lib2.objects.http_request.base import b_user
-from discord_lib2.objects.http_request.base import b_emoji as emoji_objects
+from discord_lib2.objects.http_request.body import b_channel
+from discord_lib2.objects.http_request.body import b_user
+from discord_lib2.objects.http_request.body import b_emoji as emoji_objects
 
 snowflake = str
 image_data = str

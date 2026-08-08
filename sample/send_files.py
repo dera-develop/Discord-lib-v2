@@ -15,7 +15,7 @@ logger.create_default_handler("log_dir_path")
 
 class user_events(GatewayEvent):
   async def ready(self, resources, ready_object):
-    from discord_lib2.objects.http_request.base import b_message
+    from discord_lib2.objects.http_request.body import b_message
     message = b_message.CreateMessage(content="Ready image")
     await message.files.add_file("picture_file_path")
     message.attachments = [b_message.AttachmentRequest(id=0, filename="picture_name")]

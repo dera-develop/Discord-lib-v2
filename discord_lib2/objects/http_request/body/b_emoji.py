@@ -1,11 +1,11 @@
 from dataclasses import dataclass
 from typing import ClassVar
 
-from discord_lib2.objects.http_request.base import body_base
-from discord_lib2.objects.http_request.base.body_base import Exclude
+from discord_lib2.objects.http_request.body import body_base
+from discord_lib2.objects.http_request.body.body_base import Exclude
 
 from discord_lib2.objects.other import permissions
-from discord_lib2.objects.http_request.base import b_user
+from discord_lib2.objects.http_request.body import b_user
 
 snowflake  = str
 image_data = str
