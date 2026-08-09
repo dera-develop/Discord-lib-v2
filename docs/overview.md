@@ -76,13 +76,13 @@ UserEventInstanceとLoggerInstanceには，それぞれ後述する[Loggerクラ
   
 ### Loggerクラス  
 ターミナルやファイルへのログ出力を管理するクラスです．`Logging`ライブラリをベースに作成しています．  
-`Loggint`ライブラリに対応する形であれば，ユーザーが自由にログの出力先や出力レベルを設定できます．  
+`Logging`ライブラリに対応する形であれば，ユーザーが自由にログの出力先や出力レベルを設定できます．  
   
 #### ユーザー設定  
 ユーザー自身で設定を行う際は，`Logger`クラス内の`logger`変数が，Loggingの親に設定されているので，そこへハンドラを追加してください．最小レベルは`Debug`になっています．  
 ```python  
-Logger = Logger()  
-Logger.logger # loggingの親変数 ここに設定していく  
+logger = Logger()  
+logger.logger # loggingの親変数 ここに設定していく  
 ```  
   
 ##### ⚠注意⚠  
