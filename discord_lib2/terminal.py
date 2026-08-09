@@ -39,4 +39,4 @@ class Terminal:
   async def get_input(self):
     inputted_command = self.input_queue.get_nowait()
     self.input_queue.task_done()
-    return inputted_command
+    return inputted_command.split(" ")

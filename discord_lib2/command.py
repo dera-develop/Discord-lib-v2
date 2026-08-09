@@ -1,20 +1,15 @@
-class FunctionNameDuplicationException(Exception):
-  def __init__(self, name: str) -> None:
-    super().__init__(name)
+from discord_lib2.objects.resources import UserTerminalCommandResources
+from typing import Callable, Awaitable
 
-class Terminal:
+class TerminalCommand:
+  class AlreadyDeclaredException(Exception):
+    def __init__(self, *args: object) -> None:
+      super().__init__(*args)
+
   def __init__(self) -> None:
-    self.__command_functions = {}
+    self.user_command_functions: dict[str, Callable[[list[str], UserTerminalCommandResources], Awaitable[None]]] = {}
 
-  def add_command(self, function: function):
-    command_name = function.__name__
-    if command_name in self.__command_functions:
-      raise FunctionNameDuplicationException(command_name)
-    self.__command_functions[command_name] = function
-
-  def get_terminal_command(self):
-    return self.__command_functions
-
-class Event:
-  def __init__(self) -> None:
-    pass
+  def add_command(self, command_name: str, function: Callable[[list[str], UserTerminalCommandResources], Awaitable[None]]):
+    if command_name in self.user_command_functions:
+      raise self.AlreadyDeclaredException(command_name)
+    self.user_command_functions[command_name] = function

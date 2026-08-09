@@ -27,6 +27,7 @@ class EventHandler:
       logger: Logger,
       exception_catcher: ExceptionCatcher,
       system_cache_vault: SystemCacheVault,
+      data_cache_vault: DataCacheVault,
       websocket_controller: WebsocketController,
       http_request_controller: HttpRequestController,
       user_event: GatewayEvent,
@@ -35,7 +36,7 @@ class EventHandler:
     self.__task_event_handler = None
     self.logger = logger.get_child("GEH")
     self.cache_system = system_cache_vault
-    self.cache_data = DataCacheVault()
+    self.cache_data = data_cache_vault
     self.gateway_controller = websocket_controller
     self.exception_catcher = exception_catcher
     self.user_gateway_request = GatewayRequest(websocket_controller)

@@ -6,19 +6,25 @@ from discord_lib2.logger import Logger
 from discord_lib2.exception_catcher import ExceptionCatcher
 from discord_lib2.event import GatewayEvent
 from discord_lib2.cache.system.system import SystemCacheVault
+from discord_lib2.cache.user.data import DataCacheVault
 from discord_lib2.Network.gateway.websocket import WebsocketController
 from discord_lib2.Network.gateway.event_handler import EventHandler
 from discord_lib2.Network.http_request.http import HttpRequestController
 from discord_lib2.Network.http_request.request_loader import RequestLoader
 from discord_lib2.terminal import Terminal
+from discord_lib2.command import TerminalCommand 
+from discord_lib2.objects.resources import UserTerminalCommandResources
+from discord_lib2.objects.gateway.user_request import GatewayRequest
 from discord_lib2.objects.http_request.body import b_gateway
+from discord_lib2.objects.http_request.user_request import HttpRequest
 
 class Runtime:
-  def __init__(self, bot_token: str, bot_intents: int, os_type: str, logger_master: Logger, bootcycle: int, user_event: GatewayEvent):
+  def __init__(self, bot_token: str, bot_intents: int, os_type: str, logger_master: Logger, bootcycle: int, user_event: GatewayEvent, user_terminal_command: TerminalCommand):
     self.bootcycle = bootcycle
     self.logger = logger_master.get_child("RTM")
 
     self.system_cache_vault = SystemCacheVault()
+    self.data_cache_vault = DataCacheVault()
     self.system_cache_vault.bot_token   = bot_token
     self.system_cache_vault.bot_intents = bot_intents
     self.system_cache_vault.os_type     = os_type
@@ -27,7 +33,7 @@ class Runtime:
     self.http_request_loader = RequestLoader(logger_master)
     self.http_request_controller = HttpRequestController(self.system_cache_vault, logger_master)
     self.gateway_controller = WebsocketController(logger_master, self.system_cache_vault, self.exception_catcher)
-    self.event_handler = EventHandler(logger_master, self.exception_catcher, self.system_cache_vault, self.gateway_controller, self.http_request_controller, user_event, self.http_request_loader)
+    self.event_handler = EventHandler(logger_master, self.exception_catcher, self.system_cache_vault, self.data_cache_vault, self.gateway_controller, self.http_request_controller, user_event, self.http_request_loader)
     self.terminal_controller = Terminal(logger_master)
 
     # terminal commands
@@ -35,6 +41,14 @@ class Runtime:
       "stop": self.__command_stop,
       "reconnect": self.__command_reconnect
     }
+
+    self.user_terminal_command = user_terminal_command
+    self.user_terminal_command_resources = UserTerminalCommandResources(
+      GatewayRequest(self.gateway_controller),
+      HttpRequest(self.http_request_controller, self.http_request_loader),
+      self.data_cache_vault,
+      logger_master
+    )
 
   async def boot(self):
     await self.terminal_controller.start()
@@ -64,10 +78,17 @@ class Runtime:
         while True:
           try:
             command = await self.terminal_controller.get_input()
-            if command in self.terminal_command_functions:
-              await self.terminal_command_functions[command]()
+            command_name = command[0]
+            if command_name in self.terminal_command_functions:
+              await self.terminal_command_functions[command_name](command)
+            elif command_name in self.user_terminal_command.user_command_functions:
+              await self.user_terminal_command.user_command_functions[command_name](command, self.user_terminal_command_resources)
+            else:
+              self.logger.warning(f"Command \"{command_name}\" not found")
           except asyncio.QueueEmpty:
             pass
+          except Exception as e:
+            self.logger.error(f"Command execution error | reason: {str(e)}")
 
           await asyncio.to_thread(self.exception_catcher.get_v)
           await asyncio.sleep(1)
@@ -100,14 +121,10 @@ class Runtime:
     await asyncio.to_thread(print, "application was shutdown. please pless Enter key...........")
 
 #############################################################################
-## User command functions
-#############################################################################
-
-#############################################################################
 ## Default command functions
 #############################################################################
-  async def __command_stop(self):
+  async def __command_stop(self, args: list[str]):
     self.exception_catcher.set_v(self.exception_catcher.STOP, 1000, "auto shutdown")
 
-  async def __command_reconnect(self):
+  async def __command_reconnect(self, args: list[str]):
     self.exception_catcher.set_v(self.exception_catcher.RECONNECT, 4000, "auto reconnection")

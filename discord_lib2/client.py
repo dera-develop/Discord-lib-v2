@@ -4,6 +4,7 @@ import asyncio
 from discord_lib2.logger import Logger
 from discord_lib2.runtime import Runtime
 from discord_lib2.event import GatewayEvent
+from discord_lib2.command import TerminalCommand
 
 class Bot:
   __INTENT_V_GUILDS                         = 1 << 0
@@ -81,7 +82,9 @@ class Bot:
     if self.enable_guild_message_polls:           self.bot_intent += self.__INTENT_V_GUILD_MESSAGE_POLLS
     if self.enable_direct_message_polls:          self.bot_intent += self.__INTENT_V_DIRECT_MESSAGE_POLLS
 
-  def boot(self, event: GatewayEvent, logger: Logger, bootcycle: int=-1):
+  def boot(self, event: GatewayEvent, logger: Logger, terminal_command: TerminalCommand | None=None, bootcycle: int=-1):
     self.__calc_bot_intent()
-    __runtime = Runtime(self.bot_token, self.bot_intent, self.os_type, logger, bootcycle, event)
+    if terminal_command is None:
+      terminal_command = TerminalCommand()
+    __runtime = Runtime(self.bot_token, self.bot_intent, self.os_type, logger, bootcycle, event, terminal_command)
     asyncio.run(__runtime.boot())
