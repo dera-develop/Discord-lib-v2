@@ -92,7 +92,7 @@ Discord_Lib2.0では，`asyncio`を使用した非同期処理を使用し構築
 #### デフォルト設定  
 もし設定が面倒である場合は，ログ出力の設定関数を用意してあるので，それを利用することができます．  
 ```python  
-Logger = Logger()  
+logger = Logger()  
 logger.create_default_handler("log_dir_path")  
 ```  
 `log_directory` `str(PATH)`  
