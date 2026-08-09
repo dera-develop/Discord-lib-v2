@@ -30,9 +30,9 @@ class User:
     identity_enabled: bool | None = None
     tag: str | None = None
     badge: str | None = None
-  id: snowflake | None = None
-  username: str | None = None
-  discriminator: str | None = None
+  id: snowflake
+  username: str
+  discriminator: str
   global_name: str | None = None
   avatar: str | None = None
   bot: bool | None = None
@@ -58,8 +58,8 @@ class Ready:
     flags: int | None = None
     flags_new: str | None = None
 
-  v: int | None = None
-  user: User = field(default_factory=User)
+  v: int
+  user: User
   guilds: list[b_guild.UnavailableGuild] = field(default_factory=list)
   session_id: str | None = None
   resume_gateway_url: str | None = None
@@ -351,7 +351,7 @@ class PresenceUpdate:
     mobile: str | None = None
     web: str | None = None
     vr: str | None = None
-  user: User = field(default_factory=User)
+  user: User
   guild_id: snowflake | None = None
   status: str | None = None
   activities: list[Activity] = field(default_factory=list)
@@ -465,8 +465,8 @@ class GuildMembersChunk:
 
 @dataclass
 class GuildMemberRemove:
-  guild_id: snowflake | None = None
-  user: User = field(default_factory=User)
+  guild_id: snowflake
+  user: User
 
 @dataclass
 class GuildScheduledEventUserAdd:
@@ -492,8 +492,8 @@ class GuildStickersUpdate:
 
 @dataclass
 class GuildBanEvent:
-  guild_id: snowflake | None = None
-  user: User = field(default_factory=User)
+  guild_id: snowflake
+  user: User
 
 @dataclass
 class GuildSoundboardSoundDelete:
@@ -549,10 +549,10 @@ class IntegrationDelete:
 class Team:
   @dataclass
   class Member:
-    membership_state: int | None = None
-    team_id: snowflake | None = None
-    user: User = field(default_factory=User)
-    role: str | None = None
+    membership_state: int
+    team_id: snowflake
+    user: User
+    role: str
   icon: str | None = None
   id: snowflake | None = None
   members: list[Member] = field(default_factory=list)
@@ -629,10 +629,10 @@ class Poll:
 
 @dataclass
 class PartialMessage:
-  id: snowflake | None = None
-  content: str | None = None
-  author: User | None = None
-  timestamp: ISO8601timestamp | None = None
+  id: snowflake
+  content: str
+  author: User
+  timestamp: ISO8601timestamp
 
 @dataclass
 class MiniMessage(PartialMessage):

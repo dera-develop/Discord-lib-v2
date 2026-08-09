@@ -243,13 +243,13 @@ class ModifyGuildMember(__GuildBase):
   req_url:  ClassVar[str] = "/members/<user.id>"
   req_type: ClassVar[str] = "patch"
 
-  nick: str
-  roles: list[snowflake]
-  mute: bool
-  deaf: bool
-  channel_id: snowflake
-  communication_disabled_until: ISO8601timestamp
-  flags: int
+  nick: str | None | Exclude = Exclude()
+  roles: list[snowflake] | None | Exclude = Exclude()
+  mute: bool | None | Exclude = Exclude()
+  deaf: bool | None | Exclude = Exclude()
+  channel_id: snowflake | None | Exclude = Exclude()
+  communication_disabled_until: ISO8601timestamp | None | Exclude = Exclude()
+  flags: int | None | Exclude = Exclude()
 
 @dataclass
 class ModifyCurrentMember(__GuildBase):
