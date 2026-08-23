@@ -156,7 +156,7 @@ class EventHandler:
       else:
         self.logger.warning(f"The event \"{event_name}\" has not been registered with the handler.")
     except Exception as e:
-      self.logger.error(f"event process error | reason: {str(e)}")
+      self.logger.exception(f"event process error | reason: {str(e)}")
 
 ########################################################################
 ## EVENT FUNCTIONS
@@ -223,6 +223,11 @@ class EventHandler:
           if not user_id in self.cache_data.data.guilds[guild_id].members:
             self.cache_data.data.guilds[guild_id].members[user_id] = DataCacheGuild.GuildMember()
           self.cache_data.data.guilds[guild_id].members[user_id].voice_state.update(voice_state)
+          joining_vcch_id = voice_state.get("channel_id")
+          if joining_vcch_id is None:
+            continue
+          if joining_vcch_id in self.cache_data.data.guilds[guild_id].channels:
+            self.cache_data.data.guilds[guild_id].channels[joining_vcch_id].join_member_count += 1
       # user cache
       ## presence
       presences = event_data.get("presences")
@@ -299,7 +304,7 @@ class EventHandler:
 
   async def channel_create(self, event_data: dict):
     guild_id = event_data.get("guild_id")
-    channel_id = event_data.get("channel_id")
+    channel_id = event_data.get("id")
     if isinstance(guild_id, snowflake) and isinstance(channel_id, snowflake):
       self.cache_data.data.guilds[guild_id].channels[channel_id] = DataCacheGuild.Channel()
       self.cache_data.data.guilds[guild_id].channels[channel_id].update(event_data)
@@ -308,7 +313,7 @@ class EventHandler:
 
   async def channel_update(self, event_data: dict):
     guild_id = event_data.get("guild_id")
-    channel_id = event_data.get("channel_id")
+    channel_id = event_data.get("id")
     if isinstance(guild_id, snowflake) and isinstance(channel_id, snowflake):
       if not channel_id in self.cache_data.data.guilds[guild_id].channels:
         self.cache_data.data.guilds[guild_id].channels[channel_id] = DataCacheGuild.Channel()
@@ -318,7 +323,7 @@ class EventHandler:
 
   async def channel_delete(self, event_data: dict):
     guild_id = event_data.get("guild_id")
-    channel_id = event_data.get("channel_id")
+    channel_id = event_data.get("id")
     if isinstance(guild_id, snowflake) and isinstance(channel_id, snowflake):
       if channel_id in self.cache_data.data.guilds[guild_id].channels:
         self.cache_data.data.guilds[guild_id].channels.pop(channel_id)
@@ -707,9 +712,18 @@ class EventHandler:
     guild_id = event_data.get("guild_id")
     user_id = event_data.get("user_id")
     if isinstance(guild_id, snowflake) and isinstance(user_id, snowflake):
+      before_joined_vcch_id = self.cache_data.data.guilds[guild_id].members[user_id].voice_state.channel_id
       if not user_id in self.cache_data.data.guilds[guild_id].members:
         self.cache_data.data.guilds[guild_id].members[user_id] = DataCacheGuild.GuildMember()
       self.cache_data.data.guilds[guild_id].members[user_id].voice_state.update(event_data)
+      current_vcch_id = self.cache_data.data.guilds[guild_id].members[user_id].voice_state.channel_id
+      if before_joined_vcch_id != current_vcch_id:
+        if before_joined_vcch_id is not None:
+          if before_joined_vcch_id in self.cache_data.data.guilds[guild_id].channels:
+            self.cache_data.data.guilds[guild_id].channels[before_joined_vcch_id].join_member_count -= 1
+        if current_vcch_id is not None:
+          if current_vcch_id in self.cache_data.data.guilds[guild_id].channels:
+            self.cache_data.data.guilds[guild_id].channels[current_vcch_id].join_member_count += 1
     data_object = from_dict(recv_event_object.VoiceState, event_data)
     await self.user_event_functions.voice_state_update(self.user_resources, data_object)
 

@@ -7,9 +7,10 @@ ISO8601timestamp = base.ISO8601timestamp
 
 #### ROLE ####
 class RoleColor(base.UserCacheBase):
-  primary_color: int | None = None
-  secondary_color: int | None = None
-  tertiary_color: int | None = None
+  def __init__(self) -> None:
+    self.primary_color: int | None = None
+    self.secondary_color: int | None = None
+    self.tertiary_color: int | None = None
   def update(self, data: dict):
     if "primary_color" in data:
       self.primary_color = data.get("primary_color")
@@ -21,12 +22,13 @@ class RoleColor(base.UserCacheBase):
       self.tertiary_color = data.get("tertiary_color")
 
 class RoleTags(base.UserCacheBase):
-  bot_id: snowflake | None = None
-  integration_id: snowflake | None = None
-  premium_subscriber: None = None
-  subscription_listing_id: snowflake | None = None
-  available_for_purchase: None = None
-  guild_connections: None = None
+  def __init__(self) -> None:
+    self.bot_id: snowflake | None = None
+    self.integration_id: snowflake | None = None
+    self.premium_subscriber: None = None
+    self.subscription_listing_id: snowflake | None = None
+    self.available_for_purchase: None = None
+    self.guild_connections: None = None
   def update(self, data: dict):
     if "bot_id" in data:
       self.bot_id = data.get("bot_id")
@@ -47,19 +49,20 @@ class RoleTags(base.UserCacheBase):
       self.guild_connections = data.get("guild_connections")
 
 class Role(base.UserCacheBase):
-  id: snowflake | None = None
-  name: str | None = None
-  color: int | None = None
-  colors: RoleColor = RoleColor()
-  hoist: bool | None = None
-  icon: str | None = None
-  unicode_emoji: str | None = None
-  position: int | None = None
-  permissions: str | None = None
-  managed: bool | None = None
-  mentionable: bool | None = None
-  tags: RoleTags = RoleTags()
-  flags: int | None = None
+  def __init__(self) -> None:
+    self.id: snowflake | None = None
+    self.name: str | None = None
+    self.color: int | None = None
+    self.colors: RoleColor = RoleColor()
+    self.hoist: bool | None = None
+    self.icon: str | None = None
+    self.unicode_emoji: str | None = None
+    self.position: int | None = None
+    self.permissions: str | None = None
+    self.managed: bool | None = None
+    self.mentionable: bool | None = None
+    self.tags: RoleTags = RoleTags()
+    self.flags: int | None = None
   def update(self, data: dict):
     if "id" in data:
       self.id = data.get("id")
@@ -107,14 +110,15 @@ class Role(base.UserCacheBase):
 
 #### EMOJI ####
 class Emoji(base.UserCacheBase):
-  id: snowflake | None = None
-  name: str | None = None
-  roles: list[snowflake] = []
-  user: snowflake | None = None   # user_id
-  require_colons: bool | None = None
-  managed: bool | None = None
-  animated: bool | None = None
-  available: bool | None = None
+  def __init__(self) -> None:
+    self.id: snowflake | None = None
+    self.name: str | None = None
+    self.roles: list[snowflake] = []
+    self.user: snowflake | None = None   # user_id
+    self.require_colons: bool | None = None
+    self.managed: bool | None = None
+    self.animated: bool | None = None
+    self.available: bool | None = None
   def update(self, data: dict):
     if "id" in data:
       self.id = data.get("id")
@@ -147,10 +151,11 @@ class Emoji(base.UserCacheBase):
 
 #### WELCOME SCREEN ####
 class WelcomeScreenChannel(base.UserCacheBase):
-  channel_id: snowflake | None = None
-  description: str | None = None
-  emoji_id: snowflake | None = None
-  emoji_name: str | None = None
+  def __init__(self) -> None:
+    self.channel_id: snowflake | None = None
+    self.description: str | None = None
+    self.emoji_id: snowflake | None = None
+    self.emoji_name: str | None = None
   def update(self, data: dict):
     if "channel_id" in data:
       self.channel_id = data.get("channel_id")
@@ -165,8 +170,9 @@ class WelcomeScreenChannel(base.UserCacheBase):
       self.emoji_name = data.get("emoji_name")
 
 class WelcomeScreen(base.UserCacheBase):
-  description: str | None = None
-  welcome_channels: dict[snowflake, WelcomeScreenChannel] = {} # key = channel_id
+  def __init__(self) -> None:
+    self.description: str | None = None
+    self.welcome_channels: dict[snowflake, WelcomeScreenChannel] = {} # key = channel_id
   def update(self, data: dict):
     if "description" in data:
       self.description = data.get("description")
@@ -189,17 +195,18 @@ class WelcomeScreen(base.UserCacheBase):
 
 #### STICKER ####
 class Sticker(base.UserCacheBase):
-  id: snowflake | None = None
-  pack_id: snowflake | None = None
-  name: str | None = None
-  description: str | None = None
-  tags: str | None = None
-  type: int | None = None
-  format_type: int | None = None
-  available: bool | None = None
-  guild_id: snowflake | None = None
-  user: snowflake | None = None   # user_id
-  sort_value: int | None = None
+  def __init__(self) -> None:
+    self.id: snowflake | None = None
+    self.pack_id: snowflake | None = None
+    self.name: str | None = None
+    self.description: str | None = None
+    self.tags: str | None = None
+    self.type: int | None = None
+    self.format_type: int | None = None
+    self.available: bool | None = None
+    self.guild_id: snowflake | None = None
+    self.user: snowflake | None = None   # user_id
+    self.sort_value: int | None = None
   def update(self, data: dict):
     if "id" in data:                                                                                                                                                                                                       
       self.id = data.get("id")                                                                                                                                                                                             
@@ -239,10 +246,11 @@ class Sticker(base.UserCacheBase):
 
 #### INCIDENTS DATA ####
 class IncidentsData(base.UserCacheBase):
-  invites_disabled_until: ISO8601timestamp | None = None
-  dms_disabled_until: ISO8601timestamp | None = None
-  dm_spam_detected_at: ISO8601timestamp | None = None
-  raid_detected_at: ISO8601timestamp | None = None
+  def __init__(self) -> None:
+    self.invites_disabled_until: ISO8601timestamp | None = None
+    self.dms_disabled_until: ISO8601timestamp | None = None
+    self.dm_spam_detected_at: ISO8601timestamp | None = None
+    self.raid_detected_at: ISO8601timestamp | None = None
   def update(self, data: dict):
     if "invites_disabled_until" in data:
       self.invites_disabled_until = data.get("invites_disabled_until")
@@ -259,19 +267,20 @@ class IncidentsData(base.UserCacheBase):
 
 #### VOICE STATE ####
 class VoiceState(base.UserCacheBase):
-  guild_id: snowflake | None = None
-  channel_id: snowflake | None = None
-  user_id: snowflake | None = None
-  member: snowflake | None = None   # guildmember_id(user_id)
-  session_id: str | None = None
-  deaf: bool | None = None
-  mute: bool | None = None
-  self_deaf: bool | None = None
-  self_mute: bool | None = None
-  self_stream: bool | None = None
-  self_video: bool | None = None
-  suppress: bool | None = None
-  request_to_speak_timestamp: ISO8601timestamp | None = None
+  def __init__(self) -> None:
+    self.guild_id: snowflake | None = None
+    self.channel_id: snowflake | None = None
+    self.user_id: snowflake | None = None
+    self.member: snowflake | None = None   # guildmember_id(user_id)
+    self.session_id: str | None = None
+    self.deaf: bool | None = None
+    self.mute: bool | None = None
+    self.self_deaf: bool | None = None
+    self.self_mute: bool | None = None
+    self.self_stream: bool | None = None
+    self.self_video: bool | None = None
+    self.suppress: bool | None = None
+    self.request_to_speak_timestamp: ISO8601timestamp | None = None
   def update(self, data: dict):
     if "guild_id" in data:
       self.guild_id = data.get("guild_id")
@@ -321,8 +330,9 @@ class VoiceState(base.UserCacheBase):
 
 #### GUILD MEMBER ####
 class AvatarDecorationData(base.UserCacheBase):
-  asset: str | None = None
-  sku_id: snowflake | None = None
+  def __init__(self) -> None:
+    self.asset: str | None = None
+    self.sku_id: snowflake | None = None
   def update(self, data: dict):
     if "asset" in data:
       self.asset = data.get("asset")
@@ -331,10 +341,11 @@ class AvatarDecorationData(base.UserCacheBase):
       self.sku_id = data.get("sku_id")
 
 class Nameplate(base.UserCacheBase):
-  sku_id: snowflake | None = None
-  asset: str | None = None
-  label: str | None = None
-  palette: str | None = None
+  def __init__(self) -> None:
+    self.sku_id: snowflake | None = None
+    self.asset: str | None = None
+    self.label: str | None = None
+    self.palette: str | None = None
   def update(self, data: dict):
     if "sku_id" in data:
       self.sku_id = data.get("sku_id")
@@ -349,7 +360,8 @@ class Nameplate(base.UserCacheBase):
       self.palette = data.get("palette")
 
 class Collectibles(base.UserCacheBase):
-  nameplate: Nameplate = Nameplate()
+  def __init__(self) -> None:
+    self.nameplate: Nameplate = Nameplate()
   def update(self, data: dict):
     if "nameplate" in data:
       nameplate = data.get("nameplate")
@@ -357,22 +369,23 @@ class Collectibles(base.UserCacheBase):
         self.nameplate.update(nameplate)
 
 class GuildMember(base.UserCacheBase):
-  user: snowflake | None = None # user_id
-  nick: str | None = None
-  avatar: str | None = None
-  banner: str | None = None
-  roles: list[snowflake] = []
-  joined_at: ISO8601timestamp | None = None
-  premium_since: ISO8601timestamp | None = None
-  deaf: bool | None = None
-  mute: bool | None = None
-  flags: int | None = None
-  pending: bool | None = None
-  permissions: str | None = None
-  communication_disabled_until: ISO8601timestamp | None = None
-  avatar_decoration_data: AvatarDecorationData = AvatarDecorationData()
-  collectibles: Collectibles = Collectibles()
-  voice_state: VoiceState = VoiceState()
+  def __init__(self) -> None:
+    self.user: snowflake | None = None # user_id
+    self.nick: str | None = None
+    self.avatar: str | None = None
+    self.banner: str | None = None
+    self.roles: list[snowflake] = []
+    self.joined_at: ISO8601timestamp | None = None
+    self.premium_since: ISO8601timestamp | None = None
+    self.deaf: bool | None = None
+    self.mute: bool | None = None
+    self.flags: int | None = None
+    self.pending: bool | None = None
+    self.permissions: str | None = None
+    self.communication_disabled_until: ISO8601timestamp | None = None
+    self.avatar_decoration_data: AvatarDecorationData = AvatarDecorationData()
+    self.collectibles: Collectibles = Collectibles()
+    self.voice_state: VoiceState = VoiceState()
   def update(self, data: dict):
     if "user" in data:
       user = data.get("user")
@@ -430,10 +443,11 @@ class GuildMember(base.UserCacheBase):
 
 #### CHANNEL ####
 class OverWrite(base.UserCacheBase):
-  id: snowflake | None = None
-  type: int | None = None
-  allow: str | None = None
-  deny: str | None = None
+  def __init__(self) -> None:
+    self.id: snowflake | None = None
+    self.type: int | None = None
+    self.allow: str | None = None
+    self.deny: str | None = None
   def update(self, data: dict):
     if "id" in data:
       self.id = data.get("id")
@@ -448,12 +462,13 @@ class OverWrite(base.UserCacheBase):
       self.deny = data.get("deny")
 
 class ThreadMetadata(base.UserCacheBase):
-  archived: bool | None = None
-  auto_archive_duration: int | None = None
-  archive_timestamp: ISO8601timestamp | None = None
-  locked: bool | None = None
-  invitable: bool | None = None
-  create_timestamp: ISO8601timestamp | None = None
+  def __init__(self) -> None:
+    self.archived: bool | None = None
+    self.auto_archive_duration: int | None = None
+    self.archive_timestamp: ISO8601timestamp | None = None
+    self.locked: bool | None = None
+    self.invitable: bool | None = None
+    self.create_timestamp: ISO8601timestamp | None = None
   def update(self, data: dict):
     if "archived" in data:
       self.archived = data.get("archived")
@@ -474,10 +489,11 @@ class ThreadMetadata(base.UserCacheBase):
       self.create_timestamp = data.get("create_timestamp")
 
 class ThreadMember(base.UserCacheBase):
-  id: snowflake | None = None
-  user_id: snowflake | None = None
-  join_timestamp: ISO8601timestamp | None = None
-  flags: int | None = None
+  def __init__(self) -> None:
+    self.id: snowflake | None = None
+    self.user_id: snowflake | None = None
+    self.join_timestamp: ISO8601timestamp | None = None
+    self.flags: int | None = None
   def update(self, data: dict):
     if "id" in data:
       self.id = data.get("id")
@@ -492,11 +508,12 @@ class ThreadMember(base.UserCacheBase):
       self.flags = data.get("flags")
 
 class ForumTag(base.UserCacheBase):
-  id: snowflake | None = None
-  name: str | None = None
-  moderated: bool | None = None
-  emoji_id: snowflake | None = None
-  emoji_name: str | None = None
+  def __init__(self) -> None:
+    self.id: snowflake | None = None
+    self.name: str | None = None
+    self.moderated: bool | None = None
+    self.emoji_id: snowflake | None = None
+    self.emoji_name: str | None = None
   def update(self, data: dict):
     if "id" in data:
       self.id = data.get("id")
@@ -514,8 +531,9 @@ class ForumTag(base.UserCacheBase):
       self.emoji_name = data.get("emoji_name")
 
 class DefaultReaction(base.UserCacheBase):
-  emoji_id: snowflake | None = None
-  emoji_name: str | None = None
+  def __init__(self) -> None:
+    self.emoji_id: snowflake | None = None
+    self.emoji_name: str | None = None
   def update(self, data: dict):
     if "emoji_id" in data:
       self.emoji_id = data.get("emoji_id")
@@ -524,43 +542,44 @@ class DefaultReaction(base.UserCacheBase):
       self.emoji_name = data.get("emoji_name")
 
 class Thread(base.UserCacheBase):
-  id: snowflake | None = None
-  type: int | None = None
-  guild_id: snowflake | None = None
-  position: int | None = None
-  permission_overwrites: list[OverWrite] = []
-  name: str | None = None
-  topic: str | None = None
-  nsfw: bool | None = None
-  last_message_id: snowflake | None = None
-  bitrate: int | None = None
-  user_limit: int | None = None
-  rate_limit_per_user: int | None = None
-  recipients: list[snowflake] = [] # user_id
-  icon: str | None = None
-  owner_id: snowflake | None = None
-  application_id: snowflake | None = None
-  managed: bool | None = None
-  parent_id: snowflake | None = None
-  last_pin_timestamp: ISO8601timestamp | None = None
-  rtc_region: str | None = None
-  video_quality_mode: int | None = None
-  message_count: int | None = None
-  member_count: int | None = None
-  thread_metadata: ThreadMetadata = ThreadMetadata()
-  member: ThreadMember = ThreadMember()
-  members: dict[snowflake, ThreadMember]
-  default_auto_archive_duration: int | None = None
-  permissions: str | None = None
-  app_permissions: str | None = None
-  flags: int | None = None
-  total_message_sent: int | None = None
-  available_tags: dict[snowflake, ForumTag] = {} # key = forum_tag_id
-  applied_tags: list[snowflake] = []
-  default_reaction_emoji: DefaultReaction = DefaultReaction()
-  default_thread_rate_limit_per_user: int | None = None
-  default_sort_order: int | None = None
-  default_forum_layout: int | None = None
+  def __init__(self) -> None:
+    self.id: snowflake | None = None
+    self.type: int | None = None
+    self.guild_id: snowflake | None = None
+    self.position: int | None = None
+    self.permission_overwrites: list[OverWrite] = []
+    self.name: str | None = None
+    self.topic: str | None = None
+    self.nsfw: bool | None = None
+    self.last_message_id: snowflake | None = None
+    self.bitrate: int | None = None
+    self.user_limit: int | None = None
+    self.rate_limit_per_user: int | None = None
+    self.recipients: list[snowflake] = [] # user_id
+    self.icon: str | None = None
+    self.owner_id: snowflake | None = None
+    self.application_id: snowflake | None = None
+    self.managed: bool | None = None
+    self.parent_id: snowflake | None = None
+    self.last_pin_timestamp: ISO8601timestamp | None = None
+    self.rtc_region: str | None = None
+    self.video_quality_mode: int | None = None
+    self.message_count: int | None = None
+    self.member_count: int | None = None
+    self.thread_metadata: ThreadMetadata = ThreadMetadata()
+    self.member: ThreadMember = ThreadMember()
+    self.members: dict[snowflake, ThreadMember]
+    self.default_auto_archive_duration: int | None = None
+    self.permissions: str | None = None
+    self.app_permissions: str | None = None
+    self.flags: int | None = None
+    self.total_message_sent: int | None = None
+    self.available_tags: dict[snowflake, ForumTag] = {} # key = forum_tag_id
+    self.applied_tags: list[snowflake] = []
+    self.default_reaction_emoji: DefaultReaction = DefaultReaction()
+    self.default_thread_rate_limit_per_user: int | None = None
+    self.default_sort_order: int | None = None
+    self.default_forum_layout: int | None = None
   def update(self, data: dict):
     if "id" in data:
       self.id = data.get("id")
@@ -702,7 +721,10 @@ class Thread(base.UserCacheBase):
       self.default_forum_layout = data.get("default_forum_layout")
 
 class Channel(Thread):
-  threads: list[snowflake] = []
+  def __init__(self) -> None:
+    super().__init__()
+    self.threads: list[snowflake] = []
+    self.join_member_count: int = 0
   def update(self, data: dict):
     if "threads" in data:
       threads = data.get("threads")
@@ -713,13 +735,14 @@ class Channel(Thread):
 
 #### STAGE INSTANCE ####
 class StageInstance(base.UserCacheBase):
-  id: snowflake | None = None
-  guild_id: snowflake | None = None
-  channel_id: snowflake | None = None
-  topic: str | None = None
-  privacy_level: int | None = None
-  discoverable_disabled: bool | None = None
-  guild_scheduled_event_id: snowflake | None = None
+  def __init__(self) -> None:
+    self.id: snowflake | None = None
+    self.guild_id: snowflake | None = None
+    self.channel_id: snowflake | None = None
+    self.topic: str | None = None
+    self.privacy_level: int | None = None
+    self.discoverable_disabled: bool | None = None
+    self.guild_scheduled_event_id: snowflake | None = None
   def update(self, data: dict):
     if "id" in data:
       self.id = data.get("id")
@@ -745,22 +768,24 @@ class StageInstance(base.UserCacheBase):
 
 #### GUILD SCHEDULED EVENT ####
 class GuildScheduledEventEntityMetadata(base.UserCacheBase):
-  location: str | None = None
+  def __init__(self) -> None:
+    self.location: str | None = None
   def update(self, data: dict):
     if "location" in data:
       self.location = data.get("location")
 
 class GuildScheduledEventRecurrenceRule(base.UserCacheBase):
-  start: ISO8601timestamp | None = None
-  end: ISO8601timestamp | None = None
-  frequency: int | None = None
-  interval: int | None = None
-  by_weekday: list[int] = []
-  by_n_weekday: list[int] = []
-  by_month: list[int] = []
-  by_month_day: list[int] = []
-  by_year_day: list[int] = []
-  count: int | None = None
+  def __init__(self) -> None:
+    self.start: ISO8601timestamp | None = None
+    self.end: ISO8601timestamp | None = None
+    self.frequency: int | None = None
+    self.interval: int | None = None
+    self.by_weekday: list[int] = []
+    self.by_n_weekday: list[int] = []
+    self.by_month: list[int] = []
+    self.by_month_day: list[int] = []
+    self.by_year_day: list[int] = []
+    self.count: int | None = None
   def update(self, data: dict):
     if "start" in data:
       self.start = data.get("start")
@@ -803,23 +828,24 @@ class GuildScheduledEventRecurrenceRule(base.UserCacheBase):
       self.count = data.get("count")
 
 class GuildScheduledEvent(base.UserCacheBase):
-  id: snowflake | None = None
-  guild_id: snowflake | None = None
-  channel_id: snowflake | None = None
-  creator_id: snowflake | None = None
-  name: str | None = None
-  description: str | None = None
-  scheduled_start_time: ISO8601timestamp | None = None
-  scheduled_end_time: ISO8601timestamp | None = None
-  privacy_level: int | None = None
-  status: int | None = None
-  entity_type: int | None = None
-  entity_id: snowflake | None = None
-  entity_metadata: GuildScheduledEventEntityMetadata = GuildScheduledEventEntityMetadata()
-  user_count: int | None = None
-  users: list[snowflake] = []
-  image: str | None = None
-  recurrence_rule: GuildScheduledEventRecurrenceRule = GuildScheduledEventRecurrenceRule()
+  def __init__(self) -> None:
+    self.id: snowflake | None = None
+    self.guild_id: snowflake | None = None
+    self.channel_id: snowflake | None = None
+    self.creator_id: snowflake | None = None
+    self.name: str | None = None
+    self.description: str | None = None
+    self.scheduled_start_time: ISO8601timestamp | None = None
+    self.scheduled_end_time: ISO8601timestamp | None = None
+    self.privacy_level: int | None = None
+    self.status: int | None = None
+    self.entity_type: int | None = None
+    self.entity_id: snowflake | None = None
+    self.entity_metadata: GuildScheduledEventEntityMetadata = GuildScheduledEventEntityMetadata()
+    self.user_count: int | None = None
+    self.users: list[snowflake] = []
+    self.image: str | None = None
+    self.recurrence_rule: GuildScheduledEventRecurrenceRule = GuildScheduledEventRecurrenceRule()
   def update(self, data: dict):
     if "id" in data:
       self.id = data.get("id")
@@ -884,14 +910,15 @@ class GuildScheduledEvent(base.UserCacheBase):
 
 #### SOUNDBOARD SOUND ####
 class SoundboardSound(base.UserCacheBase):
-  name: str | None = None
-  sound_id: snowflake | None = None
-  volume: float | None = None
-  emoji_id: snowflake | None = None
-  emoji_name: str | None = None
-  guild_id: snowflake | None = None
-  available: bool | None = None
-  user: snowflake | None = None # key = user_id
+  def __init__(self) -> None:
+    self.name: str | None = None
+    self.sound_id: snowflake | None = None
+    self.volume: float | None = None
+    self.emoji_id: snowflake | None = None
+    self.emoji_name: str | None = None
+    self.guild_id: snowflake | None = None
+    self.available: bool | None = None
+    self.user: snowflake | None = None # key = user_id
   def update(self, data: dict):
     if "name" in data:
       self.name = data.get("name")
@@ -922,8 +949,9 @@ class SoundboardSound(base.UserCacheBase):
 
 #### INTEGRATION ####
 class IntegrationAccount(base.UserCacheBase):
-  id: str | None = None
-  name: str | None = None
+  def __init__(self) -> None:
+    self.id: str | None = None
+    self.name: str | None = None
   def update(self, data: dict):
     if "id" in data:                                                                                                                                                                                      
       self.id = data.get("id")                                                                                                                                                                            
@@ -932,11 +960,12 @@ class IntegrationAccount(base.UserCacheBase):
       self.name = data.get("name") 
 
 class IntegrationApplication(base.UserCacheBase):
-  id: snowflake | None = None
-  name: str | None = None
-  icon: str | None = None
-  description: str | None = None
-  bot: snowflake  | None = None # bot_user_id
+  def __init__(self) -> None:
+    self.id: snowflake | None = None
+    self.name: str | None = None
+    self.icon: str | None = None
+    self.description: str | None = None
+    self.bot: snowflake  | None = None # bot_user_id
   def update(self, data: dict):
     if "id" in data:
       self.id = data.get("id")
@@ -958,22 +987,23 @@ class IntegrationApplication(base.UserCacheBase):
           self.bot = user_id
 
 class Integration(base.UserCacheBase):
-  id: snowflake | None = None
-  name: str | None = None
-  type: str | None = None
-  enabled: bool | None = None
-  syncing: bool | None = None
-  role_id: snowflake | None = None
-  enable_emoticons: bool | None = None
-  expire_behavior: int | None = None
-  expire_grace_period: int | None = None
-  user: snowflake  | None = None  # user_id
-  account: IntegrationAccount = IntegrationAccount()
-  synced_at: ISO8601timestamp | None = None
-  subscriber_count: int | None = None
-  revoked: bool | None = None
-  application: IntegrationApplication = IntegrationApplication()
-  scopes: list[str] = []
+  def __init__(self) -> None:
+    self.id: snowflake | None = None
+    self.name: str | None = None
+    self.type: str | None = None
+    self.enabled: bool | None = None
+    self.syncing: bool | None = None
+    self.role_id: snowflake | None = None
+    self.enable_emoticons: bool | None = None
+    self.expire_behavior: int | None = None
+    self.expire_grace_period: int | None = None
+    self.user: snowflake  | None = None  # user_id
+    self.account: IntegrationAccount = IntegrationAccount()
+    self.synced_at: ISO8601timestamp | None = None
+    self.subscriber_count: int | None = None
+    self.revoked: bool | None = None
+    self.application: IntegrationApplication = IntegrationApplication()
+    self.scopes: list[str] = []
   def update(self, data: dict):
     if "id" in data:
       self.id = data.get("id")
@@ -1034,20 +1064,21 @@ class Integration(base.UserCacheBase):
 
 #### INVITE ####
 class Invite(base.UserCacheBase):
-  channel_id: snowflake | None = None
-  code: str | None = None
-  created_at: ISO8601timestamp | None = None
-  guild_id: snowflake | None = None
-  inviter: snowflake | None = None # user_id
-  max_age: int | None = None
-  max_uses: int | None = None
-  target_type: int | None = None
-  target_user: snowflake | None = None # user_id
-  target_application: snowflake | None = None # application_id
-  temporary: bool | None = None
-  uses: int | None = None
-  expires_at: ISO8601timestamp | None = None
-  role_ids: list[snowflake] = []
+  def __init__(self) -> None:
+    self.channel_id: snowflake | None = None
+    self.code: str | None = None
+    self.created_at: ISO8601timestamp | None = None
+    self.guild_id: snowflake | None = None
+    self.inviter: snowflake | None = None # user_id
+    self.max_age: int | None = None
+    self.max_uses: int | None = None
+    self.target_type: int | None = None
+    self.target_user: snowflake | None = None # user_id
+    self.target_application: snowflake | None = None # application_id
+    self.temporary: bool | None = None
+    self.uses: int | None = None
+    self.expires_at: ISO8601timestamp | None = None
+    self.role_ids: list[snowflake] = []
   def update(self, data: dict):
     if "channel_id" in data:
       self.channel_id = data.get("channel_id")
@@ -1104,63 +1135,64 @@ class Invite(base.UserCacheBase):
 
 #### GUILD CACHE ####
 class GuildCache(base.UserCacheBase):
-  id: snowflake | None = None
-  name: str | None = None
-  icon: str | None = None
-  icon_hash: str | None = None
-  splash: str | None = None
-  discovery_splash: str | None = None
-  owner: bool | None = None
-  owner_id: snowflake | None = None
-  permissions: str | None = None
-  region: str | None = None
-  afk_channel_id: snowflake | None = None
-  afk_timeout: int | None = None
-  widget_enabled: bool | None = None
-  widget_channel_id: snowflake | None = None
-  verification_level: int | None = None
-  default_message_notifications: int | None = None
-  explicit_content_filter: int | None = None
-  roles: dict[snowflake, Role] = {}  # key = role_id
-  emojis: dict[snowflake, Emoji] = {}  # key = emoji_id
-  features: list[str] | None = None
-  mfa_level: int | None = None
-  application_id: snowflake | None = None
-  system_channel_id: snowflake | None = None
-  system_channel_flags: int | None = None
-  rules_channel_id: snowflake | None = None
-  max_presences: int | None = None
-  max_members: int | None = None
-  vanity_url_code: str | None = None
-  description: str | None = None
-  banner: str | None = None
-  premium_tier: int | None = None
-  premium_subscription_count: int | None = None
-  preferred_locale: str | None = None
-  public_updates_channel_id: snowflake | None = None
-  max_video_channel_users: int | None = None
-  max_stage_video_channel_users: int | None = None
-  approximate_member_count: int | None = None
-  approximate_presence_count: int | None = None
-  welcome_screen: WelcomeScreen = WelcomeScreen()
-  nsfw_level: int | None = None
-  stickers: dict[snowflake, Sticker] = {}  # key = sticker_id
-  premium_progress_bar_enabled: bool | None = None
-  safety_alerts_channel_id: snowflake | None = None
-  incidents_data: IncidentsData = IncidentsData()
-  joined_at: ISO8601timestamp | None = None
-  large: bool | None = None
-  unavailable: bool | None = None
-  member_count: int | None = None
-  members: dict[snowflake, GuildMember] = {} # key = user_id
-  channels: dict[snowflake, Channel] = {}  # key = channel_id
-  threads: dict[snowflake, Thread] = {}   # key = channel_id
-  stage_instances: dict[snowflake, StageInstance] = {} # key = stage_instance_id
-  guild_scheduled_events: dict[snowflake, GuildScheduledEvent] = {}  # key = guild_scheduled_event_id
-  soundboard_sounds: dict[snowflake, SoundboardSound] = {} # key = sound_id
-  banned_users: list[snowflake] = []
-  integrations: dict[snowflake, Integration] = {} # key = integration_id
-  invites: dict[str, Invite]
+  def __init__(self) -> None:
+    self.id: snowflake | None = None
+    self.name: str | None = None
+    self.icon: str | None = None
+    self.icon_hash: str | None = None
+    self.splash: str | None = None
+    self.discovery_splash: str | None = None
+    self.owner: bool | None = None
+    self.owner_id: snowflake | None = None
+    self.permissions: str | None = None
+    self.region: str | None = None
+    self.afk_channel_id: snowflake | None = None
+    self.afk_timeout: int | None = None
+    self.widget_enabled: bool | None = None
+    self.widget_channel_id: snowflake | None = None
+    self.verification_level: int | None = None
+    self.default_message_notifications: int | None = None
+    self.explicit_content_filter: int | None = None
+    self.roles: dict[snowflake, Role] = {}  # key = role_id
+    self.emojis: dict[snowflake, Emoji] = {}  # key = emoji_id
+    self.features: list[str] | None = None
+    self.mfa_level: int | None = None
+    self.application_id: snowflake | None = None
+    self.system_channel_id: snowflake | None = None
+    self.system_channel_flags: int | None = None
+    self.rules_channel_id: snowflake | None = None
+    self.max_presences: int | None = None
+    self.max_members: int | None = None
+    self.vanity_url_code: str | None = None
+    self.description: str | None = None
+    self.banner: str | None = None
+    self.premium_tier: int | None = None
+    self.premium_subscription_count: int | None = None
+    self.preferred_locale: str | None = None
+    self.public_updates_channel_id: snowflake | None = None
+    self.max_video_channel_users: int | None = None
+    self.max_stage_video_channel_users: int | None = None
+    self.approximate_member_count: int | None = None
+    self.approximate_presence_count: int | None = None
+    self.welcome_screen: WelcomeScreen = WelcomeScreen()
+    self.nsfw_level: int | None = None
+    self.stickers: dict[snowflake, Sticker] = {}  # key = sticker_id
+    self.premium_progress_bar_enabled: bool | None = None
+    self.safety_alerts_channel_id: snowflake | None = None
+    self.incidents_data: IncidentsData = IncidentsData()
+    self.joined_at: ISO8601timestamp | None = None
+    self.large: bool | None = None
+    self.unavailable: bool | None = None
+    self.member_count: int | None = None
+    self.members: dict[snowflake, GuildMember] = {} # key = user_id
+    self.channels: dict[snowflake, Channel] = {}  # key = channel_id
+    self.threads: dict[snowflake, Thread] = {}   # key = channel_id
+    self.stage_instances: dict[snowflake, StageInstance] = {} # key = stage_instance_id
+    self.guild_scheduled_events: dict[snowflake, GuildScheduledEvent] = {}  # key = guild_scheduled_event_id
+    self.soundboard_sounds: dict[snowflake, SoundboardSound] = {} # key = sound_id
+    self.banned_users: list[snowflake] = []
+    self.integrations: dict[snowflake, Integration] = {} # key = integration_id
+    self.invites: dict[str, Invite]
   def update(self, data: dict):
     if "id" in data:
       self.id = data.get("id")
