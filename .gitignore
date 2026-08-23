@@ -4,6 +4,7 @@ vp/
 log/
 old/
 *test/
+App*/
 
 *test*
 *.env
