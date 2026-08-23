@@ -39,7 +39,8 @@ class Runtime:
     # terminal commands
     self.terminal_command_functions = {
       "stop": self.__command_stop,
-      "reconnect": self.__command_reconnect
+      "reconnect": self.__command_reconnect,
+      "list": self.__command_list
     }
 
     self.user_terminal_command = user_terminal_command
@@ -117,7 +118,7 @@ class Runtime:
     await self.event_handler.stop()
     await self.http_request_controller.request_worker_stop()
     await self.terminal_controller.stop()
-    await asyncio.sleep(1)
+    await asyncio.sleep(0.1)
     await asyncio.to_thread(print, "application was shutdown. please pless Enter key...........")
 
 #############################################################################
@@ -128,3 +129,14 @@ class Runtime:
 
   async def __command_reconnect(self, args: list[str]):
     self.exception_catcher.set_v(self.exception_catcher.RECONNECT, 4000, "auto reconnection")
+
+  async def __command_list(self, args: list[str]):
+    self.logger.debug("==================")
+    self.logger.debug("<< COMMAND LIST >>")
+    self.logger.debug("Default Commands")
+    for command_name in self.terminal_command_functions.keys():
+      self.logger.debug(f"- {command_name}")
+    self.logger.debug("User Commands")
+    for command_name in self.user_terminal_command.user_command_functions.keys():
+      self.logger.debug(f"- {command_name}")
+    self.logger.debug("==================")
