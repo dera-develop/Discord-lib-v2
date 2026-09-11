@@ -1,13 +1,13 @@
-from typing import Callable, Awaitable
+from typing import Any, Callable, Awaitable
 from discord_lib2.objects.resources import ApplicationCommandResources
 from discord_lib2.objects.http_request.body import b_interaction
 from discord_lib2.objects.gateway.recv_event_object import Interaction
 
 class AppComArgs(dict):
-  def __getattr__(self, key):
-    try:
+  def __getattr__(self, key: str) -> Any:
+    if key in self:
       return self[key]
-    except:
+    else:
       return None
 
 class AppComExeInfomations:
@@ -56,5 +56,5 @@ def get_appcom_exedata(server_options: list, client_data: dict):
     r_func,
     r_imsg,
     r_it,
-    dc["args"]
+    AppComArgs(dc["args"])
   )
