@@ -1,5 +1,6 @@
 ### Documents
 - [OVERVIEW](#overview)
+- [APPLICATION COMMAND](applicarion_commands.md)
 - [TERMINAL COMMAND](user_terminal_commands.md)
 
 # OVERVIEW  
