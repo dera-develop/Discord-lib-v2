@@ -9,15 +9,23 @@ from discord_lib2.cache.user.data import DataCacheVault
 from discord_lib2.cache.user import guild as DataCacheGuild
 from discord_lib2.cache.user import user as DataCacheUser
 from discord_lib2.event import GatewayEvent
-from discord_lib2.objects.resources import UserEventResources
+from discord_lib2.objects.resources import UserEventResources, ApplicationCommandResources
 from discord_lib2.objects.gateway.user_request import GatewayRequest
 from discord_lib2.objects.gateway import request_payload
 from discord_lib2.objects.http_request.user_request import HttpRequest
 from discord_lib2.Network.gateway.websocket import WebsocketController
 from discord_lib2.Network.http_request.http import HttpRequestController
 from discord_lib2.Network.http_request.request_loader import RequestLoader
+from discord_lib2.command.appcom_diffchecker import checker_v2
+from discord_lib2.command.appcom_get_exe_data import get_appcom_exedata
+from discord_lib2.command.application_command import GuildApplicationCommand, GlobalApplicationCommand
 
 from discord_lib2.objects.gateway import recv_event_object
+
+from discord_lib2.objects.http_request.body import b_application_command
+from discord_lib2.objects.http_request.body import b_interaction
+from discord_lib2.objects.http_request.request_query import q_application_command
+from discord_lib2.objects.http_request.request_query import q_interaction
 
 snowflake = str
 
@@ -31,7 +39,8 @@ class EventHandler:
       websocket_controller: WebsocketController,
       http_request_controller: HttpRequestController,
       user_event: GatewayEvent,
-      http_request_loader: RequestLoader
+      http_request_loader: RequestLoader,
+      application_commands: dict
   ) -> None:
     self.__task_event_handler = None
     self.logger = logger.get_child("GEH")
@@ -46,8 +55,16 @@ class EventHandler:
       self.user_http_request,
       self.cache_data,
       logger
-      )
+    )
+    self.appcom_resources = ApplicationCommandResources(
+      self.user_gateway_request,
+      self.user_http_request,
+      self.cache_data,
+      logger
+    )
     self.user_event_functions = user_event
+    self.guild_application_commands: dict[str, list[GuildApplicationCommand]] = application_commands["guilds"]
+    self.global_application_commands: list[GlobalApplicationCommand] = application_commands["globals"]
 
     self.event_name_functions = {
       "READY": self.ready,
@@ -201,6 +218,7 @@ class EventHandler:
       if not guild_id in self.cache_data.data.guilds:
         self.cache_data.data.guilds[guild_id] = DataCacheGuild.GuildCache()
       self.cache_data.data.guilds[guild_id].update(event_data)
+      self.logger.info(f"joined guild | id: {guild_id}, name: {self.cache_data.data.guilds[guild_id].name}")
       ch_id_th_id: dict[snowflake, list[snowflake]] = {}
       for thread_id, data in self.cache_data.data.guilds[guild_id].threads.items():
         parent_ch = data.parent_id
@@ -244,6 +262,51 @@ class EventHandler:
           if not user_id in self.cache_data.data.users:
             self.cache_data.data.users[user_id] = DataCacheUser.User()
           self.cache_data.data.users[user_id].presence.update(presence)
+
+      #### application command ####
+      req_data = self.user_http_request.load_request(
+        b_application_command.GetGuildApplicationCommands(),
+        q_application_command.GetGuildApplicationCommands(with_localizations=True),
+        application_id=self.cache_system.application.id,
+        guild_id=guild_id
+      )
+      res = await self.user_http_request.request(req_data)
+      if res is None:
+        self.logger.error("Failed request \"GetGuildApplicationCommands\"")
+      else:
+        guild_appcoms = self.guild_application_commands.get(guild_id)
+        if guild_appcoms is None:
+          guild_appcom_datas = []
+          for data in res.json():
+            delcom_id = data.get("id")
+            if delcom_id is not None:
+              guild_appcom_datas.append({"id": delcom_id, "del": True})
+        else:
+          guild_appcom_datas = checker_v2(res.json(), guild_appcoms)
+
+        log_datas = {"new": 0, "edit": 0, "delete": 0}
+        for data in guild_appcom_datas:
+          if data.get("new"):
+            req_dict = data.get("data")
+            req_data = self.user_http_request.load_request(b_application_command.CreateGuildApplicationCommand(req_dict), application_id=self.cache_system.application.id, guild_id=guild_id)
+            res = await self.user_http_request.request(req_data)
+            if res is not None and res.ok:
+              log_datas["new"] += 1
+          elif data.get("edit"):
+            req_dict = data.get("data")
+            req_com_id = data.get("id")
+            req_data = self.user_http_request.load_request(b_application_command.EditGuildApplicationCommand(req_dict), application_id=self.cache_system.application.id, guild_id=guild_id, command_id=req_com_id)
+            res = await self.user_http_request.request(req_data)
+            if res is not None and res.ok:
+              log_datas["edit"] += 1
+          elif data.get("del"):
+            req_com_id = data.get("id")
+            req_data = self.user_http_request.load_request(b_application_command.DeleteGuildApplicationCommand(), application_id=self.cache_system.application.id, guild_id=guild_id, command_id=req_com_id)
+            res = await self.user_http_request.request(req_data)
+            if res is not None and res.ok:
+              log_datas["delete"] += 1
+        self.logger.info(f"guild command update | new: {log_datas['new']}, edit: {log_datas['edit']}, delete: {log_datas['delete']}, guild_id: {guild_id}")
+
     data_object = from_dict(recv_event_object.GuildCreate, event_data)
     await self.user_event_functions.guild_create(self.user_resources, data_object)
 
@@ -677,7 +740,87 @@ class EventHandler:
     await self.user_event_functions.integration_delete(self.user_resources, data_object)
 
   async def interaction_create(self, event_data: dict):
-    data_object = from_dict(recv_event_object.Interaction, event_data)
+    interaction_type = event_data["type"]
+    IT_PING = 1
+    IT_APPLICATION_COMMAND = 2
+    IT_MESSAGE_COMPONENT = 3
+    IT_APPLICATION_COMMAND_AUTOCOMPLETE = 4
+    IT_MODUL_SUBMIT = 5
+
+    # ping
+    if interaction_type == IT_PING:
+      data_object = from_dict(recv_event_object.PingInteraction, event_data)
+
+    # application command
+    elif interaction_type == IT_APPLICATION_COMMAND:
+      data_object = from_dict(recv_event_object.ApplicationCommandInteraction, event_data)
+      task_obj = from_dict(recv_event_object.ApplicationCommandInteraction, event_data)
+      if task_obj.data.guild_id is None:
+        for global_appcom in self.global_application_commands:
+          if global_appcom.name == task_obj.data.name:
+            exe_infos = get_appcom_exedata(task_obj.data.options, global_appcom._get_functions())
+            # send callback
+            if exe_infos.imsg is not None:
+              req_data = self.user_http_request.load_request(
+                b_interaction.CreateInteractionResponse(type=exe_infos.it, data=exe_infos.imsg),
+                q_interaction.CreateInteractionResponse(with_response=True),
+                interaction_id=task_obj.id,
+                interaction_token=task_obj.token
+              )
+            else:
+              req_data = self.user_http_request.load_request(
+                b_interaction.CreateInteractionResponse(exe_infos.it),
+                interaction_id=task_obj.id,
+                interaction_token=task_obj.token
+              )
+            await self.user_http_request.request(req_data)
+            await exe_infos.func(data_object, self.appcom_resources, exe_infos.args)
+            break
+      else:
+        client_appcoms = self.guild_application_commands.get(task_obj.data.guild_id)
+        if client_appcoms is None:
+          if not task_obj.data.guild_id in self.cache_data.data.guilds:
+            self.logger.error(f"Cache error | guild not registered | id: {task_obj.data.guild_id}")
+            return
+          self.logger.warning(f"Command \"{task_obj.data.name}\" is not registered to guild {self.cache_data.data.guilds[task_obj.data.guild_id].name}.")
+          return
+        for client_appcom in client_appcoms:
+          if client_appcom.name == task_obj.data.name:
+            exe_infos = get_appcom_exedata(task_obj.data.options, client_appcom._get_functions())
+            # send callback
+            if exe_infos.imsg is not None:
+              req_data = self.user_http_request.load_request(
+                b_interaction.CreateInteractionResponse(type=exe_infos.it, data=exe_infos.imsg),
+                q_interaction.CreateInteractionResponse(with_response=True),
+                interaction_id=task_obj.id,
+                interaction_token=task_obj.token
+              )
+            else:
+              req_data = self.user_http_request.load_request(
+                b_interaction.CreateInteractionResponse(exe_infos.it),
+                interaction_id=task_obj.id,
+                interaction_token=task_obj.token
+              )
+            await self.user_http_request.request(req_data)
+            await exe_infos.func(data_object, self.appcom_resources, exe_infos.args)
+            break
+
+    # message component
+    elif interaction_type == IT_MESSAGE_COMPONENT:
+      data_object = from_dict(recv_event_object.MessageComponentInteraction, event_data)
+
+    # application command autocomplete
+    elif interaction_type == IT_APPLICATION_COMMAND_AUTOCOMPLETE:
+      data_object = from_dict(recv_event_object.ApplicationCommandAutocompleteInteraction, event_data)
+
+    # modul submit
+    elif interaction_type == IT_MODUL_SUBMIT:
+      data_object = from_dict(recv_event_object.ModulSubmitInteraction, event_data)
+
+    else:
+      self.logger.warning(f"The interaction type \"{interaction_type}\" has not been registered with the handler.")
+      return
+
     await self.user_event_functions.interaction_create(self.user_resources, data_object)
 
   async def webhooks_update(self, event_data: dict):

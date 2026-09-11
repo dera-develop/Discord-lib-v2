@@ -50,7 +50,8 @@ class RequestLoader:
       sku_id: str | None=None,
       subscription_id: str | None=None,
       webhook_id: str | None=None,
-      webhook_token: str | None=None) -> RequestInformation:
+      webhook_token: str | None=None,
+      command_id: str | None=None) -> RequestInformation:
     
     local_valiable_args = locals()
 

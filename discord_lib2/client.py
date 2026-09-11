@@ -4,7 +4,8 @@ import asyncio
 from discord_lib2.logger import Logger
 from discord_lib2.runtime import Runtime
 from discord_lib2.event import GatewayEvent
-from discord_lib2.command import TerminalCommand
+from discord_lib2.command.terminal_command import TerminalCommand
+from discord_lib2.command.application_command import GlobalApplicationCommand, GuildApplicationCommand
 
 class Bot:
   __INTENT_V_GUILDS                         = 1 << 0
@@ -51,8 +52,27 @@ class Bot:
   enable_guild_message_polls            = False
   enable_direct_message_polls           = False
 
-
   bot_intent = 0
+
+  '''
+  {
+    "guilds: {
+      "<guild_id>": [
+        <guild_application_command_instance>,
+        ...
+      ],
+      ...
+    },
+    "globals": [
+      <global_application_command_instance>,
+      ...
+    ]
+  }
+  '''
+  __application_commands = {
+    "guilds": {},
+    "globals": []
+  }
 
   def __init__(self, bot_token: str, os_type: str):
     self.bot_token        = bot_token
@@ -82,9 +102,19 @@ class Bot:
     if self.enable_guild_message_polls:           self.bot_intent += self.__INTENT_V_GUILD_MESSAGE_POLLS
     if self.enable_direct_message_polls:          self.bot_intent += self.__INTENT_V_DIRECT_MESSAGE_POLLS
 
+  def add_application_command(self, command_object: GlobalApplicationCommand | GuildApplicationCommand, target_guild: str=""):
+    if isinstance(command_object, GuildApplicationCommand):
+      if target_guild == "":
+        raise ValueError(f"Need argument \"target_guild\"")
+      if not target_guild in self.__application_commands["guilds"]:
+        self.__application_commands["guilds"][target_guild] = []
+      self.__application_commands["guilds"][target_guild].append(command_object)
+    if isinstance(command_object, GlobalApplicationCommand):
+      self.__application_commands["globals"].append(command_object)
+
   def boot(self, event: GatewayEvent, logger: Logger, terminal_command: TerminalCommand | None=None, bootcycle: int=-1):
     self.__calc_bot_intent()
     if terminal_command is None:
       terminal_command = TerminalCommand()
-    __runtime = Runtime(self.bot_token, self.bot_intent, self.os_type, logger, bootcycle, event, terminal_command)
+    __runtime = Runtime(self.bot_token, self.bot_intent, self.os_type, logger, bootcycle, event, terminal_command, self.__application_commands)
     asyncio.run(__runtime.boot())

@@ -1,5 +1,6 @@
 from discord_lib2.objects.resources import UserEventResources
 from discord_lib2.objects.gateway import recv_event_object
+from discord_lib2.command.appcom_get_exe_data import AppComArgs
 
 snowflake = str
 
@@ -118,7 +119,7 @@ class GatewayEvent:
   async def integration_delete(self, resources: UserEventResources, integration_delete_object: recv_event_object.IntegrationDelete):
     pass
 
-  async def interaction_create(self, resources: UserEventResources, interaction_object: recv_event_object.Interaction):
+  async def interaction_create(self, resources: UserEventResources, interaction_object: recv_event_object.PingInteraction | recv_event_object.ApplicationCommandAutocompleteInteraction | recv_event_object.ApplicationCommandInteraction | recv_event_object.MessageComponentInteraction | recv_event_object.ModulSubmitInteraction):
     pass
 
   async def webhooks_update(self, resources: UserEventResources, webhook_update_object: recv_event_object.WebhooksUpdate):

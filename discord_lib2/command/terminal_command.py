@@ -1,5 +1,5 @@
-from discord_lib2.objects.resources import UserTerminalCommandResources
 from typing import Callable, Awaitable
+from discord_lib2.objects.resources import UserTerminalCommandResources
 
 class TerminalCommand:
   class AlreadyDeclaredException(Exception):

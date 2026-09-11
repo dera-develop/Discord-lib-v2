@@ -1,5 +1,6 @@
 import asyncio
 import websockets
+from dacite import from_dict
 
 from discord_lib2 import exception_catcher
 from discord_lib2.logger import Logger
@@ -12,14 +13,25 @@ from discord_lib2.Network.gateway.event_handler import EventHandler
 from discord_lib2.Network.http_request.http import HttpRequestController
 from discord_lib2.Network.http_request.request_loader import RequestLoader
 from discord_lib2.terminal import Terminal
-from discord_lib2.command import TerminalCommand 
+from discord_lib2.command.terminal_command import TerminalCommand 
 from discord_lib2.objects.resources import UserTerminalCommandResources
+from discord_lib2.objects.gateway import recv_event_object
 from discord_lib2.objects.gateway.user_request import GatewayRequest
-from discord_lib2.objects.http_request.body import b_gateway
+from discord_lib2.objects.gateway import recv_event_object
 from discord_lib2.objects.http_request.user_request import HttpRequest
+from discord_lib2.command.appcom_diffchecker import checker_v2
+
+from discord_lib2.objects.http_request.body import b_gateway
+from discord_lib2.objects.http_request.body import b_application
+from discord_lib2.objects.http_request.body import b_application_command
+from discord_lib2.objects.http_request.request_query import q_application_command
+
+class SkipTaskException(Exception):
+  def __init__(self, *args: object) -> None:
+    super().__init__(*args)
 
 class Runtime:
-  def __init__(self, bot_token: str, bot_intents: int, os_type: str, logger_master: Logger, bootcycle: int, user_event: GatewayEvent, user_terminal_command: TerminalCommand):
+  def __init__(self, bot_token: str, bot_intents: int, os_type: str, logger_master: Logger, bootcycle: int, user_event: GatewayEvent, user_terminal_command: TerminalCommand, application_commands: dict):
     self.bootcycle = bootcycle
     self.logger = logger_master.get_child("RTM")
 
@@ -28,12 +40,13 @@ class Runtime:
     self.system_cache_vault.bot_token   = bot_token
     self.system_cache_vault.bot_intents = bot_intents
     self.system_cache_vault.os_type     = os_type
+    self.application_commands = application_commands
 
     self.exception_catcher = ExceptionCatcher(logger_master)
     self.http_request_loader = RequestLoader(logger_master)
     self.http_request_controller = HttpRequestController(self.system_cache_vault, logger_master)
     self.gateway_controller = WebsocketController(logger_master, self.system_cache_vault, self.exception_catcher)
-    self.event_handler = EventHandler(logger_master, self.exception_catcher, self.system_cache_vault, self.data_cache_vault, self.gateway_controller, self.http_request_controller, user_event, self.http_request_loader)
+    self.event_handler = EventHandler(logger_master, self.exception_catcher, self.system_cache_vault, self.data_cache_vault, self.gateway_controller, self.http_request_controller, user_event, self.http_request_loader, application_commands)
     self.terminal_controller = Terminal(logger_master)
 
     # terminal commands
@@ -51,13 +64,86 @@ class Runtime:
       logger_master
     )
 
+
+  async def __regist_application_command(self):
+    self.logger.info("checking command difference...")
+    # difference check
+    ## global
+    self.logger.debug("target: global_application_command")
+    command_datas = self.application_commands["globals"]
+    global_appcom_datas = []
+    req_data = self.http_request_loader.request_load(
+      b_application_command.GetGlobalApplicationCommands(),
+      q_application_command.GetGlobalApplicationCommands(with_localizations=True),
+      application_id=self.system_cache_vault.application.id
+    )
+    res = await self.http_request_controller.add_request(req_data)
+    try:
+      if res is None:
+        self.logger.error("Failed request \"GetGlobalApplicationCommand\"")
+        raise SkipTaskException()
+
+      global_appcom_datas = checker_v2(res.json(), command_datas)
+    except SkipTaskException:
+      pass
+    except:
+      raise
+
+    self.logger.info("application command updating...")
+
+    # create, edit, delet
+    ## global
+    log_datas = {"new": 0, "edit": 0, "delete": 0}
+    for data in global_appcom_datas:
+      if data.get("new"):
+        req_dict = data.get("data")
+        req_data = self.http_request_loader.request_load(b_application_command.CreateGuildApplicationCommand(req_dict), application_id=self.system_cache_vault.application.id)
+        res = await self.http_request_controller.add_request(req_data)
+        if res is not None and res.ok:
+          log_datas["new"] += 1
+      elif data.get("edit"):
+        req_dict = data.get("data")
+        req_com_id = data.get("id")
+        req_data = self.http_request_loader.request_load(b_application_command.EditGuildApplicationCommand(req_dict), application_id=self.system_cache_vault.application.id, command_id=req_com_id)
+        res = await self.http_request_controller.add_request(req_data)
+        if res is not None and res.ok:
+          log_datas["edit"] += 1
+      elif data.get("del"):
+        req_com_id = data.get("id")
+        req_data = self.http_request_loader.request_load(b_application_command.DeleteGuildApplicationCommand(), application_id=self.system_cache_vault.application.id, command_id=req_com_id)
+        res = await self.http_request_controller.add_request(req_data)
+        if res is not None and res.ok:
+          log_datas["delete"] += 1
+    self.logger.info(f"global command update | new: {log_datas['new']}, edit: {log_datas['edit']}, delete: {log_datas['delete']}")
+
+
   async def boot(self):
     await self.terminal_controller.start()
     await self.http_request_controller.request_worker_start()
+
+    await asyncio.sleep(1)
+
+    # get current application
+    self.logger.debug("get current application")
+    req_data = self.http_request_loader.request_load(b_application.GetCurrentApplication())
+    res = await self.http_request_controller.add_request(req_data)
+    if res is None:
+      self.logger.error("Failed request | \"GetCurrentApplication\"")
+      await self.http_request_controller.request_worker_stop()
+      await self.terminal_controller.stop()
+      await asyncio.to_thread(print, "application was shutdown. please pless Enter key...........")
+      return
+    self.system_cache_vault.application = from_dict(recv_event_object.Application, res.json())
+
+    self.logger.info("check application command")
+    try:
+      await self.__regist_application_command()
+    except:
+      self.logger.exception("application command checker failed")
+    self.logger.info("completed check application command")
+
     await self.event_handler.start()
     self.logger.debug("get gateway url")
-
-
     get_gateway = self.http_request_loader.request_load(b_gateway.GetGateway())
     res = await self.http_request_controller.add_request(get_gateway)
     if res is None:
@@ -127,8 +213,10 @@ class Runtime:
   async def __command_stop(self, args: list[str]):
     self.exception_catcher.set_v(self.exception_catcher.STOP, 1000, "auto shutdown")
 
+
   async def __command_reconnect(self, args: list[str]):
     self.exception_catcher.set_v(self.exception_catcher.RECONNECT, 4000, "auto reconnection")
+
 
   async def __command_list(self, args: list[str]):
     self.logger.debug("==================")

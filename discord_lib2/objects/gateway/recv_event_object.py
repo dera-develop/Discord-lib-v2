@@ -918,10 +918,17 @@ class Entitlement:
 
 @dataclass
 class Interaction:
+  @dataclass
+  class ResolvedData:
+    users: dict[snowflake, User] | None=None
+    members: dict[snowflake, GuildMember] | None=None
+    roles: dict[snowflake, Role] | None=None
+    channels: dict[snowflake, Channel] | None=None
+    messages: dict[snowflake, Message] | None=None
+    attachments: dict[snowflake, Message.Attachment] | None=None
   id: snowflake
   application_id: snowflake
   type: int
-  data: dict | None = None  #TODO
   guild: Guild | None = None
   guild_id: snowflake | None = None
   channel: Channel | None = None
@@ -938,6 +945,45 @@ class Interaction:
   authorizing_integration_owners: dict[Any, Any] | None = None
   context: int | None = None
   attachment_size_limit: int | None = None
+
+@dataclass
+class PingInteraction(Interaction):
+  data: None = None
+
+@dataclass
+class ApplicationCommandAutocompleteInteraction(Interaction):
+  data: None = None
+
+@dataclass
+class ApplicationCommandInteraction(Interaction):
+  @dataclass
+  class ApplicationCommand:
+    id: snowflake = ""
+    name: str = ""
+    type: int = -1
+    resolved: Interaction.ResolvedData | None=None
+    options: list = field(default_factory=list)
+    guild_id: snowflake | None=None
+    target_id: snowflake | None=None
+  data: ApplicationCommand = field(default_factory=ApplicationCommand)
+
+@dataclass
+class MessageComponentInteraction(Interaction):
+  @dataclass
+  class MessageComponent:
+    custom_id: str = ""
+    component_type: int = -1
+    values: list | None=None #TODO
+    resolved: Interaction.ResolvedData | None=None
+  data: MessageComponent = field(default_factory=MessageComponent)
+
+@dataclass
+class ModulSubmitInteraction(Interaction):
+  @dataclass
+  class ModalSubmit:
+    custom_id: str = ""
+    components: list = field(default_factory=list)
+    resolved: Interaction.ResolvedData | None=None
 
 @dataclass
 class WebhooksUpdate:

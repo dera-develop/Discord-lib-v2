@@ -6,6 +6,10 @@ from discord_lib2.logger import Logger
 from discord_lib2.Network.http_request.request_loader import RequestInformation
 from discord_lib2.cache.system import system
 
+class RequestFailedError(Exception):
+  def __init__(self, name: str) -> None:
+    super().__init__(name)
+
 class RequestQueue(asyncio.Queue):
   async def put(self, item: RequestInformation) -> None:
     return await super().put(item)
@@ -93,7 +97,7 @@ class HttpRequestController:
     responce = self.responce_data.pop(request_id)
     if responce.status_code >= 400:
       self.logger.warning(f"Request error, code: {responce.status_code}")
-      self.logger.debug(responce.json())
+      self.logger.warning(responce.json())
     return responce
 
   async def __worker_request(self):
@@ -102,6 +106,10 @@ class HttpRequestController:
       while True:
         request_informations = await self.request_queue.get()
 
+        #####debug
+        #self.logger.debug(f"Send request | type: {request_informations.request_type}, url: {request_informations.request_url}")
+        #self.logger.debug(f"body // {request_informations.request_body}")
+
         if "form" in request_informations.request_type:
           header = self.__header(self.__REQUEST_HEADER_CONTENT_TYPE_FORM, request_informations.request_need_token)
           responce = await asyncio.to_thread(self.request_functions_form[request_informations.request_type], request_informations.request_url, header, request_informations.request_body, request_informations.request_files)
@@ -109,16 +117,15 @@ class HttpRequestController:
           header = self.__header(self.__REQUEST_HEADER_CONTENT_TYPE_JSON, request_informations.request_need_token)
           responce = await asyncio.to_thread(self.request_functions[request_informations.request_type], request_informations.request_url, header, request_informations.request_body)
 
-        self.logger.debug(f"Send request | type: {request_informations.request_type}, url: {request_informations.request_url}")
-
         self.responce_data[request_informations.request_id] = responce
 
-        self.logger.debug(f"Complete request | code: {responce.status_code}")
+        #####debug
+        #self.logger.debug(f"Complete request | code: {responce.status_code}")
 
         if 200 <= responce.status_code < 300: 
           request_rate_limit = responce.headers.get(self.__RESPONCE_HEADER_RATELIMIT)
 
-          # TODO レート取得できなかったときのフィルターが皆無だから要修正
+          #TODO
           if "/gateway" in request_informations.request_url:
             request_rate_limit = 1
           elif int(request_rate_limit) == 0:      # type: ignore
