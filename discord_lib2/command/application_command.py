@@ -253,7 +253,7 @@ class SubCommand(__CommandBase):
       return_dict["options"] = self.options
     return return_dict
 
-  def command_function(self, interaction: Interaction, resources: resources.ApplicationCommandResources, args: AppComArgs):
+  async def command_function(self, interaction: Interaction, resources: resources.ApplicationCommandResources, args: AppComArgs):
     pass
 
 ##########################################################################################
@@ -328,7 +328,7 @@ class GuildApplicationCommand(__CommandBase):
     self.__response_datas["__itype"] = self.interaction_type
     return self.__response_datas
 
-  def command_function(self, interaction: Interaction, resources: resources.ApplicationCommandResources, args: AppComArgs):
+  async def command_function(self, interaction: Interaction, resources: resources.ApplicationCommandResources, args: AppComArgs):
     pass
 
 ##########################################################################################
@@ -384,5 +384,5 @@ class GlobalApplicationCommand(__CommandBase):
     self.__response_datas["__itype"] = self.interaction_type
     return self.__response_datas
 
-  def command_function(self, interaction: Interaction, resources: resources.ApplicationCommandResources, args: AppComArgs):
+  async def command_function(self, interaction: Interaction, resources: resources.ApplicationCommandResources, args: AppComArgs):
     pass
