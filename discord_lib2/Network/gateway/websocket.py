@@ -40,6 +40,7 @@ class WebsocketController:
 
     self.op_event_functions = {
       self.OP_DISPATCH: self.__op_event_dispatch,
+      self.OP_HEARTBEAT: self.__op_restart_heartbeat,
       self.OP_RECONNECT: self.__op_event_reconnect,
       self.OP_INVALID_SESSION: self.__op_event_invalid_session,
       self.OP_HELLO: self.__op_event_hello,
@@ -72,7 +73,7 @@ class WebsocketController:
     self.__task_event_trigger = asyncio.create_task(self.__worker_event_trigger())
     self.__task_heartbeat     = asyncio.create_task(self.__worker_heartbeat())
 
-  async def __task_stopper(self):
+  async def __task_stop_send_worker(self):
     if self.__task_send_worker:
       try:
         self.__task_send_worker.cancel()
@@ -82,6 +83,7 @@ class WebsocketController:
       finally:
         self.logger.info(f"Task stopped | name: worker=send")
 
+  async def __task_stop_recv_worker(self):
     if self.__task_recv_worker:
       try:
         self.__task_recv_worker.cancel()
@@ -91,6 +93,7 @@ class WebsocketController:
       finally:
         self.logger.info(f"Task stopped | name: worker=recv")
 
+  async def __task_stop_sendrate_controller(self):
     if self.__task_sendrate_controller:
       try:
         self.__task_sendrate_controller.cancel()
@@ -100,6 +103,7 @@ class WebsocketController:
       finally:
         self.logger.info(f"Task stopped | name: worker=send_rate_controller")
 
+  async def __task_stop_event_trigger(self):
     if self.__task_event_trigger:
       try:
         self.__task_event_trigger.cancel()
@@ -109,6 +113,7 @@ class WebsocketController:
       finally:
         self.logger.info(f"Task stopped | name: worker=event_trigger")
 
+  async def __task_stop_heartbeat(self):
     if self.__task_heartbeat:
       try:
         self.__task_heartbeat.cancel()
@@ -117,6 +122,13 @@ class WebsocketController:
         pass
       finally:
         self.logger.info(f"Task stopped | name: worker=heartbeat")
+
+  async def __task_stopper(self):
+    await self.__task_stop_send_worker()
+    await self.__task_stop_recv_worker()
+    await self.__task_stop_sendrate_controller()
+    await self.__task_stop_event_trigger()
+    await self.__task_stop_heartbeat()
 
   # # # # # # # # # # # # # # # # # # # # # # # # # #
   # Worker
@@ -250,6 +262,10 @@ class WebsocketController:
 
   async def __op_event_dispatch(self, d, t):
     await self.event_queue_dispatch.put(json.dumps({"t": t, "d": d}))
+
+  async def __op_restart_heartbeat(self, d, t):
+    await self.__task_stop_heartbeat()
+    self.__task_heartbeat = await asyncio.create_task(self.__worker_heartbeat())
 
   async def __op_event_reconnect(self, d, t):
     self.reconnect()
