@@ -1,4 +1,10 @@
-# 前提  
+# Discord Bot Library 2.0  
+全て自作したBotを作りたかったので，ライブラリを作りました．  
+2.0なのは，以前作っていたものを1から作り直したからです．  
+  
+詳細の仕様については，[Overview](./docs/overview.md)を確認してください．  
+
+## 前提  
 現在このライブラリは **開発中** です．  
   
 ### 実装済み  
@@ -21,16 +27,7 @@
 - 音声接続機能  
 - その他ライブラリの安定性・安全性の向上  
   
-#### 現在の実装処理  
-キャッシュ更新処理の安定化に併せ，サーバーで実行するコマンド機能の実装を行っています．  
-  
-# Discord Bot Library 2.0  
-全て自作したBotを作りたかったので，ライブラリを作りました．  
-2.0なのは，以前作っていたものを1から作り直したからです．  
-  
-詳細の仕様については，[Overview](./docs/overview.md)を確認してください．  
-  
-## Develop version  
+## Develop  
 開発は Python3.13 で行っています．  
   
 ## Sample code  
@@ -60,7 +57,14 @@ event = UserEvents()
   
 bot.boot(event, logger)  
 ```  
-  
+---
+## Hot to use
+リポジトリをクローンし使用します．ライブラリ本体は`./discord_lib2`です．  
+```chell
+cd <workspace>
+git clone https://github.com/dera-develop/Discord-lib-v2.git
+```
+---
 ## Dependencies  
 ### Library  
 本ライブラリは，以下の Python ライブラリに依存しており，環境によっては追加インストールが必要になる場合があります．  
