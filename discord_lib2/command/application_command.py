@@ -1,9 +1,7 @@
 from discord_lib2.objects import locales
 from discord_lib2.objects import resources
-from discord_lib2.objects.gateway.recv_event_object import Interaction
+from discord_lib2.objects.gateway.recv_event_object import ApplicationCommandInteraction
 
-from discord_lib2.objects.http_request.body import b_interaction
-from discord_lib2.objects.http_request.body.b_interaction import InteractionCallbackData
 from discord_lib2.command.appcom_get_exe_data import AppComArgs
 
 ##########################################################################################
@@ -240,8 +238,6 @@ class Attachment(_OptionsBase):
 class SubCommand(__CommandBase):
   _type = 1
   options: list[dict] | None=None
-  interaction_type: int = 4
-  interaction_callback_message: b_interaction.InteractionCallbackData | None=None
   def add_option(self, command_option: _OptionsBase):
     if self.options is None:
       self.options = []
@@ -253,7 +249,7 @@ class SubCommand(__CommandBase):
       return_dict["options"] = self.options
     return return_dict
 
-  async def command_function(self, interaction: Interaction, resources: resources.ApplicationCommandResources, args: AppComArgs):
+  async def command_function(self, interaction: ApplicationCommandInteraction, resources: resources.ApplicationCommandResources, args: AppComArgs):
     pass
 
 ##########################################################################################
@@ -269,9 +265,7 @@ class SubCommandGroup(__CommandBase):
       self.options = []
     self.options.append(subcommand._get())
     self.__response_datas[subcommand.name] = {
-      "__func": subcommand.command_function,
-      "__imsg": subcommand.interaction_callback_message,
-      "__itype": subcommand.interaction_type
+      "__func": subcommand.command_function
     }
 
   def _get(self):
@@ -291,8 +285,6 @@ class GuildApplicationCommand(__CommandBase):
   default_permission: bool | None=None
   nsfw: bool = False
   options: list[dict] | None=None
-  interaction_type: int = 4
-  interaction_callback_message: b_interaction.InteractionCallbackData | None=None
   def __init__(self) -> None:
     super().__init__()
     self.__response_datas: dict = {}
@@ -305,9 +297,7 @@ class GuildApplicationCommand(__CommandBase):
       self.__response_datas[options.name] = options._get_functions()
     elif isinstance(options, SubCommand):
       self.__response_datas[options.name] = {
-        "__func": options.command_function,
-        "__imsg": options.interaction_callback_message,
-        "__itype": options.interaction_type
+        "__func": options.command_function
       }
 
   def _get(self):
@@ -324,11 +314,9 @@ class GuildApplicationCommand(__CommandBase):
 
   def _get_functions(self):
     self.__response_datas["__func"] = self.command_function
-    self.__response_datas["__imsg"] = self.interaction_callback_message
-    self.__response_datas["__itype"] = self.interaction_type
     return self.__response_datas
 
-  async def command_function(self, interaction: Interaction, resources: resources.ApplicationCommandResources, args: AppComArgs):
+  async def command_function(self, interaction: ApplicationCommandInteraction, resources: resources.ApplicationCommandResources, args: AppComArgs):
     pass
 
 ##########################################################################################
@@ -341,8 +329,6 @@ class GlobalApplicationCommand(__CommandBase):
   global_integration_types: list[int] | None=None
   global_contexts: list[int] | None=None
   global_handler: int | None=None
-  interaction_type: int = 4
-  interaction_callback_message: b_interaction.InteractionCallbackData | None=None
   def __init__(self) -> None:
     super().__init__()
     self.__response_datas: dict = {}
@@ -353,9 +339,7 @@ class GlobalApplicationCommand(__CommandBase):
     self.options.append(options._get())
     if isinstance(options, SubCommand):
       self.__response_datas[options.name] = {
-        "__func": options.command_function,
-        "__imsg": options.interaction_callback_message,
-        "__itype": options.interaction_type
+        "__func": options.command_function
       }
     elif isinstance(options, SubCommandGroup):
       self.__response_datas[options.name] = options._get_functions()
@@ -380,9 +364,7 @@ class GlobalApplicationCommand(__CommandBase):
 
   def _get_functions(self):
     self.__response_datas["__func"] = self.command_function
-    self.__response_datas["__imsg"] = self.interaction_callback_message
-    self.__response_datas["__itype"] = self.interaction_type
     return self.__response_datas
 
-  async def command_function(self, interaction: Interaction, resources: resources.ApplicationCommandResources, args: AppComArgs):
+  async def command_function(self, interaction: ApplicationCommandInteraction, resources: resources.ApplicationCommandResources, args: AppComArgs):
     pass

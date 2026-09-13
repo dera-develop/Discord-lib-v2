@@ -759,21 +759,6 @@ class EventHandler:
         for global_appcom in self.global_application_commands:
           if global_appcom.name == task_obj.data.name:
             exe_infos = get_appcom_exedata(task_obj.data.options, global_appcom._get_functions())
-            # send callback
-            if exe_infos.imsg is not None:
-              req_data = self.user_http_request.load_request(
-                b_interaction.CreateInteractionResponse(type=exe_infos.it, data=exe_infos.imsg),
-                q_interaction.CreateInteractionResponse(with_response=True),
-                interaction_id=task_obj.id,
-                interaction_token=task_obj.token
-              )
-            else:
-              req_data = self.user_http_request.load_request(
-                b_interaction.CreateInteractionResponse(exe_infos.it),
-                interaction_id=task_obj.id,
-                interaction_token=task_obj.token
-              )
-            await self.user_http_request.request(req_data)
             await exe_infos.func(data_object, self.appcom_resources, exe_infos.args)
             break
       else:
@@ -787,21 +772,6 @@ class EventHandler:
         for client_appcom in client_appcoms:
           if client_appcom.name == task_obj.data.name:
             exe_infos = get_appcom_exedata(task_obj.data.options, client_appcom._get_functions())
-            # send callback
-            if exe_infos.imsg is not None:
-              req_data = self.user_http_request.load_request(
-                b_interaction.CreateInteractionResponse(type=exe_infos.it, data=exe_infos.imsg),
-                q_interaction.CreateInteractionResponse(with_response=True),
-                interaction_id=task_obj.id,
-                interaction_token=task_obj.token
-              )
-            else:
-              req_data = self.user_http_request.load_request(
-                b_interaction.CreateInteractionResponse(exe_infos.it),
-                interaction_id=task_obj.id,
-                interaction_token=task_obj.token
-              )
-            await self.user_http_request.request(req_data)
             await exe_infos.func(data_object, self.appcom_resources, exe_infos.args)
             break
 
