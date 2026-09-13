@@ -60,7 +60,7 @@ bot.boot(event, logger)
 ---
 ## Hot to use
 リポジトリをクローンし使用します．ライブラリ本体は`./discord_lib2`です．  
-```chell
+```shell
 cd <workspace>
 git clone https://github.com/dera-develop/Discord-lib-v2.git
 ```
