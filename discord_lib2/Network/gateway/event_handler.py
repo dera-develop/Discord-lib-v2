@@ -1,5 +1,6 @@
 import asyncio
 import json
+from itertools import chain
 from dacite import from_dict
 
 from discord_lib2.logger import Logger
@@ -272,8 +273,9 @@ class EventHandler:
       if res is None:
         self.logger.error("Failed request \"GetGuildApplicationCommands\"")
       else:
-        guild_appcoms = self.guild_application_commands.get(guild_id)
-        if guild_appcoms is None:
+        self.guild_application_commands[guild_id] = list(chain(self.guild_application_commands.get(guild_id, []), self.guild_application_commands.get("any", [])))
+        guild_appcoms = self.guild_application_commands.get(guild_id, [])
+        if guild_appcoms == []:
           guild_appcom_datas = []
           for data in res.json:
             delcom_id = data.get("id")

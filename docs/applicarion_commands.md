@@ -271,7 +271,7 @@ add_application_command(command_object: GlobalApplicationCommand | GuildApplicat
 - `command_object`   
   `GlobalApplicationCommand`または`GuildApplicationCommand`のインスタンスを渡します．オーバーライドして作成したコマンドインスタンスを渡します．   
 - `target_guild`   
-  `str`型です．登録するコマンドがギルドコマンド(`GuildApplicationCommand`)の場合，ギルドIDを指定する必要があります．グローバルコマンドの登録では不要です．   
+  `str`型です．登録するコマンドがギルドコマンド(`GuildApplicationCommand`)の場合，ギルドIDを指定する必要があります．グローバルコマンドの登録では不要です．
 ```python   
 bot = Bot("bot_token", "os_type")
 ...
@@ -283,4 +283,6 @@ class GlobalCommand(application_command.GlobalApplicationCommand):
 
 bot.add_application_command(GuildCommand(), "guild_id")
 bot.add_application_command(GlobalCommand())
-```
+```   
+#### ギルドコマンドの実質的なグローバル化
+  登録関数の引数`target_guild`へ`String`型で`any`を指定すると，`GuildCreate`イベントを受信した全てのギルドへギルドコマンドとして登録されます．
