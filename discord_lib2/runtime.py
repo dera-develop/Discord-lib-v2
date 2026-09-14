@@ -10,7 +10,7 @@ from discord_lib2.cache.system.system import SystemCacheVault
 from discord_lib2.cache.user.data import DataCacheVault
 from discord_lib2.Network.gateway.websocket import WebsocketController
 from discord_lib2.Network.gateway.event_handler import EventHandler
-from discord_lib2.Network.http_request.http import HttpRequestController
+from discord_lib2.Network.http_request.http2 import HttpRequestController, RequestFailedError
 from discord_lib2.Network.http_request.request_loader import RequestLoader
 from discord_lib2.terminal import Terminal
 from discord_lib2.command.terminal_command import TerminalCommand 
@@ -77,15 +77,11 @@ class Runtime:
       q_application_command.GetGlobalApplicationCommands(with_localizations=True),
       application_id=self.system_cache_vault.application.id
     )
-    res = await self.http_request_controller.add_request(req_data)
     try:
-      if res is None:
-        self.logger.error("Failed request \"GetGlobalApplicationCommand\"")
-        raise SkipTaskException()
-
-      global_appcom_datas = checker_v2(res.json(), command_datas)
-    except SkipTaskException:
-      pass
+      res = await self.http_request_controller.add_request(req_data)
+      global_appcom_datas = checker_v2(res.json, command_datas)
+    except RequestFailedError:
+      self.logger.error("Failed request \"GetGlobalApplicationCommand\"")
     except:
       raise
 
@@ -97,23 +93,32 @@ class Runtime:
     for data in global_appcom_datas:
       if data.get("new"):
         req_dict = data.get("data")
-        req_data = self.http_request_loader.request_load(b_application_command.CreateGuildApplicationCommand(req_dict), application_id=self.system_cache_vault.application.id)
-        res = await self.http_request_controller.add_request(req_data)
-        if res is not None and res.ok:
-          log_datas["new"] += 1
+        req_data = self.http_request_loader.request_load(b_application_command.CreateGlobalApplicationCommand(req_dict), application_id=self.system_cache_vault.application.id)
+        try:
+          res = await self.http_request_controller.add_request(req_data)
+          if res.ok:
+            log_datas["new"] += 1
+        except RequestFailedError:
+          self.logger.error("Failed request \"CreateGlobalApplicationCommand\"")
       elif data.get("edit"):
         req_dict = data.get("data")
         req_com_id = data.get("id")
-        req_data = self.http_request_loader.request_load(b_application_command.EditGuildApplicationCommand(req_dict), application_id=self.system_cache_vault.application.id, command_id=req_com_id)
-        res = await self.http_request_controller.add_request(req_data)
-        if res is not None and res.ok:
-          log_datas["edit"] += 1
+        req_data = self.http_request_loader.request_load(b_application_command.EditGlobalApplicationCommand(req_dict), application_id=self.system_cache_vault.application.id, command_id=req_com_id)
+        try:
+          res = await self.http_request_controller.add_request(req_data)
+          if res.ok:
+            log_datas["edit"] += 1
+        except RequestFailedError:
+          self.logger.error("Failed request \"EditGlobalApplicationCommand\"")
       elif data.get("del"):
         req_com_id = data.get("id")
-        req_data = self.http_request_loader.request_load(b_application_command.DeleteGuildApplicationCommand(), application_id=self.system_cache_vault.application.id, command_id=req_com_id)
-        res = await self.http_request_controller.add_request(req_data)
-        if res is not None and res.ok:
-          log_datas["delete"] += 1
+        req_data = self.http_request_loader.request_load(b_application_command.DeleteGlobalApplicationCommand(), application_id=self.system_cache_vault.application.id, command_id=req_com_id)
+        try:
+          res = await self.http_request_controller.add_request(req_data)
+          if res is not None and res.ok:
+            log_datas["delete"] += 1
+        except RequestFailedError:
+          self.logger.error("Failed request \"DeleteGlobalApplicationCommand\"")
     self.logger.info(f"global command update | new: {log_datas['new']}, edit: {log_datas['edit']}, delete: {log_datas['delete']}")
 
 
@@ -126,14 +131,20 @@ class Runtime:
     # get current application
     self.logger.debug("get current application")
     req_data = self.http_request_loader.request_load(b_application.GetCurrentApplication())
-    res = await self.http_request_controller.add_request(req_data)
-    if res is None:
+    res = None
+    try:
+      res = await self.http_request_controller.add_request(req_data)
+    except RequestFailedError:
+      pass
+    if res is None or not res.ok:
       self.logger.error("Failed request | \"GetCurrentApplication\"")
       await self.http_request_controller.request_worker_stop()
       await self.terminal_controller.stop()
+      await asyncio.sleep(1)
       await asyncio.to_thread(print, "application was shutdown. please pless Enter key...........")
       return
-    self.system_cache_vault.application = from_dict(recv_event_object.Application, res.json())
+
+    self.system_cache_vault.application = from_dict(recv_event_object.Application, res.json)
 
     self.logger.info("check application command")
     try:
@@ -145,11 +156,17 @@ class Runtime:
     await self.event_handler.start()
     self.logger.debug("get gateway url")
     get_gateway = self.http_request_loader.request_load(b_gateway.GetGateway())
-    res = await self.http_request_controller.add_request(get_gateway)
-    if res is None:
-      self.logger.error("Failed load request payload | name: Get Gateway")
+    try:
+      res = await self.http_request_controller.add_request(get_gateway)
+    except RequestFailedError:
+      self.logger.error("Failed request \"GetGateway\"")
+      await self.http_request_controller.request_worker_stop()
+      await self.terminal_controller.stop()
+      await asyncio.sleep(1)
+      await asyncio.to_thread(print, "application was shutdown. please pless Enter key...........")
       return
-    gateway_url = res.json().get("url")
+
+    gateway_url = res.json.get("url")
     self.system_cache_vault.gateway.gateway_url = gateway_url
 
     while True:

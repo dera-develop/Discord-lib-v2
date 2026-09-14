@@ -14,7 +14,7 @@ from discord_lib2.objects.gateway.user_request import GatewayRequest
 from discord_lib2.objects.gateway import request_payload
 from discord_lib2.objects.http_request.user_request import HttpRequest
 from discord_lib2.Network.gateway.websocket import WebsocketController
-from discord_lib2.Network.http_request.http import HttpRequestController
+from discord_lib2.Network.http_request.http2 import HttpRequestController
 from discord_lib2.Network.http_request.request_loader import RequestLoader
 from discord_lib2.command.appcom_diffchecker import checker_v2
 from discord_lib2.command.appcom_get_exe_data import get_appcom_exedata
@@ -23,9 +23,7 @@ from discord_lib2.command.application_command import GuildApplicationCommand, Gl
 from discord_lib2.objects.gateway import recv_event_object
 
 from discord_lib2.objects.http_request.body import b_application_command
-from discord_lib2.objects.http_request.body import b_interaction
 from discord_lib2.objects.http_request.request_query import q_application_command
-from discord_lib2.objects.http_request.request_query import q_interaction
 
 snowflake = str
 
@@ -277,12 +275,12 @@ class EventHandler:
         guild_appcoms = self.guild_application_commands.get(guild_id)
         if guild_appcoms is None:
           guild_appcom_datas = []
-          for data in res.json():
+          for data in res.json:
             delcom_id = data.get("id")
             if delcom_id is not None:
               guild_appcom_datas.append({"id": delcom_id, "del": True})
         else:
-          guild_appcom_datas = checker_v2(res.json(), guild_appcoms)
+          guild_appcom_datas = checker_v2(res.json, guild_appcoms)
 
         log_datas = {"new": 0, "edit": 0, "delete": 0}
         for data in guild_appcom_datas:

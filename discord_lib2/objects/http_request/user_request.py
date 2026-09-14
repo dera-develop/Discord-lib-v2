@@ -1,4 +1,4 @@
-from discord_lib2.Network.http_request.http import HttpRequestController, RequestInformation
+from discord_lib2.Network.http_request.http2 import HttpRequestController, RequestInformation
 from discord_lib2.Network.http_request.request_loader import RequestLoader
 
 

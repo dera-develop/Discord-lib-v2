@@ -1,5 +1,6 @@
 from typing import Any
 from urllib.parse import urlencode
+import aiohttp
 import uuid
 import json
 
@@ -13,6 +14,7 @@ class RequestInformation:
     self.request_url: str = req_url
     self.request_type: str = req_type
     self.request_body: Any = req_body
+    self.request_form: aiohttp.FormData = aiohttp.FormData()
     self.request_need_token: bool = req_need_token
     self.request_id: uuid.UUID
     self.request_files: dict
@@ -108,9 +110,10 @@ class RequestLoader:
     )
 
     if file_datas != {}:
-      request_information.request_files = file_datas
       request_information.request_type = f"{request_object.req_type}_form"
-      request_information.request_body = {"payload_json": json.dumps(request_body)}
+      request_information.request_form.add_field("payload_json", json.dumps(request_body))
+      for key, value in file_datas.items():
+        request_information.request_form.add_field(key, value)
 
     return request_information
 

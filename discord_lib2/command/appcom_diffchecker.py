@@ -167,7 +167,7 @@ def checker_v2(server_appcom_datas: list, client_appcom_datas: list) -> list:
       # edit
       diff = __checker(server_data, data_dict)
       if diff != {}:
-        change_datas.append({"data": diff, "id": data_dict["id"], "edit": True})
+        change_datas.append({"data": diff, "id": server_data["id"], "edit": True})
   for name in server_datas_names:
     change_datas.append({"id": server_datas[name]["id"], "del": True})
   return change_datas
