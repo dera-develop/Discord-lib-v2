@@ -18,13 +18,15 @@ from discord_lib2.Network.gateway.websocket import WebsocketController
 from discord_lib2.Network.http_request.http2 import HttpRequestController
 from discord_lib2.Network.http_request.request_loader import RequestLoader
 from discord_lib2.command.appcom_diffchecker import checker_v2
-from discord_lib2.command.appcom_get_exe_data import get_appcom_exedata
+from discord_lib2.command.appcom_get_exe_data import get_appcom_exedata, get_autocomplete_func
 from discord_lib2.command.application_command import GuildApplicationCommand, GlobalApplicationCommand
 
 from discord_lib2.objects.gateway import recv_event_object
 
 from discord_lib2.objects.http_request.body import b_application_command
+from discord_lib2.objects.http_request.body import b_interaction
 from discord_lib2.objects.http_request.request_query import q_application_command
+from discord_lib2.objects.http_request.request_query import q_interaction
 
 snowflake = str
 
@@ -782,6 +784,42 @@ class EventHandler:
     # application command autocomplete
     elif interaction_type == IT_APPLICATION_COMMAND_AUTOCOMPLETE:
       data_object = from_dict(recv_event_object.ApplicationCommandAutocompleteInteraction, event_data)
+      task_obj = from_dict(recv_event_object.ApplicationCommandAutocompleteInteraction, event_data)
+      if task_obj.data.guild_id is None:
+        for global_appcom in self.global_application_commands:
+          if global_appcom.name == task_obj.data.name:
+            func_get_autocomplete = get_autocomplete_func(task_obj.data.options, global_appcom._get_functions())
+            datas = await func_get_autocomplete(data_object, self.appcom_resources)
+            req_list = b_interaction.InteractionCallbackAutocomplete([b_interaction.DCChoiceOption(key, value) for key, value in datas.items()])
+            req_data = self.user_http_request.load_request(
+              b_interaction.CreateInteractionResponse(b_interaction.CALLBACK_APPLICATION_COMMAND_AUTOCOMPLETE_RESULT, data=req_list),
+              q_interaction.CreateInteractionResponse(with_response=True),
+              interaction_id=task_obj.id,
+              interaction_token=task_obj.token
+            )
+            await self.user_http_request.request(req_data)
+            break
+      else:
+        client_appcoms = self.guild_application_commands.get(task_obj.data.guild_id)
+        if client_appcoms is None:
+          if not task_obj.data.guild_id in self.cache_data.data.guilds:
+            self.logger.error(f"Cache error | guild not registered | id: {task_obj.data.guild_id}")
+            return
+          self.logger.warning(f"Command \"{task_obj.data.name}\" is not registered to guild {self.cache_data.data.guilds[task_obj.data.guild_id].name}.")
+          return
+        for client_appcom in client_appcoms:
+          if client_appcom.name == task_obj.data.name:
+            func_get_autocomplete = get_autocomplete_func(task_obj.data.options, client_appcom._get_functions())
+            datas = await func_get_autocomplete(data_object, self.appcom_resources)
+            req_list = b_interaction.InteractionCallbackAutocomplete([b_interaction.DCChoiceOption(key, value) for key, value in datas.items()])
+            req_data = self.user_http_request.load_request(
+              b_interaction.CreateInteractionResponse(b_interaction.CALLBACK_APPLICATION_COMMAND_AUTOCOMPLETE_RESULT, data=req_list),
+              q_interaction.CreateInteractionResponse(with_response=True),
+              interaction_id=task_obj.id,
+              interaction_token=task_obj.token
+            )
+            await self.user_http_request.request(req_data)
+            break
 
     # modul submit
     elif interaction_type == IT_MODUL_SUBMIT:

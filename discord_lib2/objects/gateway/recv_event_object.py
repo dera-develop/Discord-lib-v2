@@ -952,7 +952,16 @@ class PingInteraction(Interaction):
 
 @dataclass
 class ApplicationCommandAutocompleteInteraction(Interaction):
-  data: None = None
+  @dataclass
+  class ApplicationCommand:
+    id: snowflake = ""
+    name: str = ""
+    type: int = -1
+    resolved: Interaction.ResolvedData | None=None
+    options: list = field(default_factory=list)
+    guild_id: snowflake | None=None
+    target_id: snowflake | None=None
+  data: ApplicationCommand = field(default_factory=ApplicationCommand)
 
 @dataclass
 class ApplicationCommandInteraction(Interaction):

@@ -21,7 +21,7 @@ CALLBACK_PREMIUM_REQUIRED = 10
 CALLBACK_LAUNCH_ACTIVITY = 12
 
 @dataclass
-class InteractionCallbackData(body_base.BaseClass):
+class InteractionCallbackData:
   tts: bool | Exclude = Exclude()
   content: str | Exclude = Exclude()
   embeds: list[b_message.Embed] | Exclude = Exclude()
@@ -32,12 +32,21 @@ class InteractionCallbackData(body_base.BaseClass):
   poll: b_message.ShardClientTheme | Exclude = Exclude()
 
 @dataclass
+class DCChoiceOption:
+  name: str
+  value: str | int | float
+
+@dataclass
+class InteractionCallbackAutocomplete:
+  choices: list[DCChoiceOption]
+  
+@dataclass
 class CreateInteractionResponse(body_base.BaseClass):
   req_url: ClassVar[str] = "/interactions/<interaction.id>/<interaction.token>/callback"
   req_type: ClassVar[str] = "post"
 
   type: int
-  data: InteractionCallbackData | Exclude = Exclude()
+  data: InteractionCallbackData | InteractionCallbackAutocomplete | Exclude = Exclude()
 
 @dataclass
 class GetOriginalInteractionResponse(__InteractionBase):

@@ -1,6 +1,6 @@
 from discord_lib2.objects import locales
 from discord_lib2.objects import resources
-from discord_lib2.objects.gateway.recv_event_object import ApplicationCommandInteraction
+from discord_lib2.objects.gateway.recv_event_object import ApplicationCommandInteraction, ApplicationCommandAutocompleteInteraction
 
 from discord_lib2.command.appcom_get_exe_data import AppComArgs
 
@@ -138,6 +138,9 @@ class String(_OptionsBase):
       return_dict["autocomplete"] = self.autocomplete
     return return_dict
 
+  async def set_autocomplete(self, interaction: ApplicationCommandAutocompleteInteraction, resources: resources.ApplicationCommandResources) -> dict[str, str | int | float]:
+    return {}
+
 class Integer(_OptionsBase):
   _type = 4
   choices: list[ChoiceOption] | None=None
@@ -161,6 +164,9 @@ class Integer(_OptionsBase):
     if self.autocomplete is not None:
       return_dict["autocomplete"] = self.autocomplete
     return return_dict
+
+  async def set_autocomplete(self, interaction: ApplicationCommandAutocompleteInteraction, resources: resources.ApplicationCommandResources) -> dict[str, str | int | float]:
+    return {}
 
 class Boolean(_OptionsBase):
   _type = 5
@@ -214,6 +220,9 @@ class Number(_OptionsBase):
       return_dict["autocomplete"] = self.autocomplete
     return return_dict
 
+  async def set_autocomplete(self, interaction: ApplicationCommandAutocompleteInteraction, resources: resources.ApplicationCommandResources) -> dict[str, str | int | float]:
+    return {}
+
 class Attachment(_OptionsBase):
   _type = 11
   file_types: list[str] | None=None
@@ -238,16 +247,24 @@ class Attachment(_OptionsBase):
 class SubCommand(__CommandBase):
   _type = 1
   options: list[dict] | None=None
+  def __init__(self) -> None:
+    super().__init__()
+    self.__response_datas: dict = {}
   def add_option(self, command_option: _OptionsBase):
     if self.options is None:
       self.options = []
     self.options.append(command_option._get())
+    if isinstance(command_option, String) or isinstance(command_option, Integer) or isinstance(command_option, Number):
+      self.__response_datas[command_option.name] = command_option.set_autocomplete
 
   def _get(self):
     return_dict = super()._get()
     if self.options is not None:
       return_dict["options"] = self.options
     return return_dict
+
+  def _get_autocomplete(self):
+    return self.__response_datas
 
   async def command_function(self, interaction: ApplicationCommandInteraction, resources: resources.ApplicationCommandResources, args: AppComArgs):
     pass
@@ -265,7 +282,8 @@ class SubCommandGroup(__CommandBase):
       self.options = []
     self.options.append(subcommand._get())
     self.__response_datas[subcommand.name] = {
-      "__func": subcommand.command_function
+      "__func": subcommand.command_function,
+      "__ac": subcommand._get_autocomplete()
     }
 
   def _get(self):
@@ -297,8 +315,13 @@ class GuildApplicationCommand(__CommandBase):
       self.__response_datas[options.name] = options._get_functions()
     elif isinstance(options, SubCommand):
       self.__response_datas[options.name] = {
-        "__func": options.command_function
+        "__func": options.command_function,
+        "__ac": options._get_autocomplete()
       }
+    elif isinstance(options, String) or isinstance(options, Integer) or isinstance(options, Number):
+      if not "__ac" in self.__response_datas:
+        self.__response_datas["__ac"] = {}
+      self.__response_datas["__ac"][options.name] = options.set_autocomplete
 
   def _get(self):
     return_dict = super()._get()
@@ -337,12 +360,17 @@ class GlobalApplicationCommand(__CommandBase):
     if self.options is None:
       self.options = []
     self.options.append(options._get())
-    if isinstance(options, SubCommand):
-      self.__response_datas[options.name] = {
-        "__func": options.command_function
-      }
-    elif isinstance(options, SubCommandGroup):
+    if isinstance(options, SubCommandGroup):
       self.__response_datas[options.name] = options._get_functions()
+    elif isinstance(options, SubCommand):
+      self.__response_datas[options.name] = {
+        "__func": options.command_function,
+        "__ac": options._get_autocomplete()
+      }
+    elif isinstance(options, String) or isinstance(options, Integer) or isinstance(options, Number):
+      if not "__ac" in self.__response_datas:
+        self.__response_datas["__ac"] = {}
+      self.__response_datas["__ac"][options.name] = options.set_autocomplete
 
   def _get(self):
     return_dict = super()._get()

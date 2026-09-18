@@ -125,12 +125,13 @@ description_localizations = {
     - \*`choices`   
     - `min_length`   
     - `max_length`   
+    - \*\*`autocomplete`   
   - `Integer`クラス   
     整数オプションを定義するのに使用します．   
     - \*`choices`   
     - `min_value`   
     - `max_value`   
-    - `autocomplete`   
+    - \*\*`autocomplete`   
   - `Boolean`クラス   
     正誤オプションを定義するのに使用します．   
   - `User`クラス   
@@ -146,13 +147,14 @@ description_localizations = {
     - \*`choices`   
     - `min_value`   
     - `max_value`   
-    - `autocomplete`   
+    - \*\*`autocomplete`   
     数値オプションを定義するのに使用します．   
   - `Attachment`クラス   
     アタッチメントオプションを定義するのに使用します．   
     - `file_types`   
   
-\* `application_command/Choice`クラスの**インスタンス**の配列を設定します．**オーバーライドクラスではありません**．   
+\* `application_command/Choice`クラスの**インスタンス**の配列を設定します．**オーバーライドクラスではありません**．  
+\*\* `autocomplete`を持つ要素については，後述の[autocompleteについて](#autocompleteについて)を参照してください． 
   
 ### コールバック   
 `Gateway`接続のイベントの一つである`InteractionCreate`イベントを受信した際，イベントを受信してから3秒以内に応答（コールバックリクエスト）を行う必要があります．　　
@@ -286,3 +288,58 @@ bot.add_application_command(GlobalCommand())
 ```   
 #### ギルドコマンドの実質的なグローバル化
   登録関数の引数`target_guild`へ`String`型で`any`を指定すると，`GuildCreate`イベントを受信した全てのギルドへギルドコマンドとして登録されます．
+
+## autocompleteについて
+`autocomplete`は，Discord側で用意されている，コマンドの実行時に選択肢を動的に提示することができる仕組みです．
+### 定義方法
+`autocomplete`オプションを使用できるコマンドオプション`String`,`Integer`,`Number`それぞれに，以下のように宣言されています．
+```python
+async def set_autocomplete(self, interaction: ApplicationCommandAutocompleteInteraction, resources: resources.ApplicationCommandResources) -> dict[str, str | int | float]:
+  return {}
+```
+引数の`interaction`,`resources`は，共に[関数定義](#関数定義)の`command_function`の引数`interaction`,`resources`と同一のものです．  
+（`interaction`は，コマンドを受信したときの物ではなく，`InteractionCreate`イベントの`APPLICATION_COMMAND_AUTOCOMPLETE`です）  
+この関数を使用してファイルやキャッシュ等を読み込み，戻り値として返すことで，選択肢としてDiscord側に送信することができます．
+#### 制約
+- `autocomplete = True`と指定した場合，この関数の定義は必須です．オーバーライドし忘れた場合は，選択肢が何もない状態でDiscord側に送信されます．  
+- この関数では戻り値の定義が必須です．この関数の戻り値は`dict[str, str]`です．  `ChoiceOption`の`name`,`value`には，辞書のキーと値がそれぞれ自動的に割り当てられ送信されます．(`name: dict.key, value: dict.value`)
+**注意** 現段階では`ChoiceOption`の`name_localization`には非対応です
+#### サンプルコード
+```python
+import asyncio
+import json
+
+from discord_lib2.command import application_command
+from discord_lib2.objects.resources import ApplicationCommandResources
+
+def load_data():
+  with open("file/path.json", "r", encoding="utf-8") as f:
+    """
+    {
+      "name1": "value1",
+      "name2": "value2"
+    }
+    """
+    return json.load(f)
+
+class StringOption(application_command.String):
+  name = "string"
+  description = "string description"
+  autocomplete = True
+  async def set_autocomplete(self, interaction: application_command.ApplicationCommandAutocompleteInteraction, resources: ApplicationCommandResources) -> dict[str, str | int | float]:
+    return await asyncio.to_thread(load_data)
+    """
+    {
+      "choices": [
+        {
+          "name": "name1",
+          "value": "value1"
+        },
+        {
+          "name": "name2",
+          "value": "value2"
+        }
+      ]
+    }
+    """
+```
