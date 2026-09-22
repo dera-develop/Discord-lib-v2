@@ -1,4 +1,4 @@
-import websockets
+import aiohttp
 import asyncio
 import json
 import zlib
@@ -24,7 +24,6 @@ class WebsocketController:
   OP_HEARTBEAT_ACK: ClassVar[int] = 11
 
   RATELIMIT_GATEWAY_SEND_PER_MIN: ClassVar[int] = 120
-  counter_send_event = 0
 
   RECVED_CHECK_STRING: ClassVar[bytes] = b"\x00\x00\xff\xff"
 
@@ -36,7 +35,11 @@ class WebsocketController:
     self.event_queue_recv = asyncio.Queue()
     self.event_queue_dispatch = asyncio.Queue()
 
+    self.con_session: aiohttp.ClientSession | None = None
+    self.ws_connection: aiohttp.ClientWebSocketResponse | None = None
+
     self.system_cache_vault.gateway.heartbeat_interval = -1
+    self.counter_send_event = 0
 
     self.op_event_functions = {
       self.OP_DISPATCH: self.__op_event_dispatch,
@@ -50,7 +53,9 @@ class WebsocketController:
   async def websocket_connect(self) -> bool:
     self.logger.info(f"Websocket connect | target: {f"{self.system_cache_vault.gateway.gateway_url}/{self.URL_GATEWAY_QUERY}"}")
     try:
-      self.websocket_connect_object = await websockets.connect(uri=f"{self.system_cache_vault.gateway.gateway_url}/{self.URL_GATEWAY_QUERY}")
+      if self.con_session is None:
+        self.con_session = aiohttp.ClientSession()
+      self.websocket_connect_object = await self.con_session.ws_connect("/".join([self.system_cache_vault.gateway.gateway_url, self.URL_GATEWAY_QUERY]))
       await self.__task_runner()
       self.logger.info(f"connected.")
 
@@ -64,7 +69,11 @@ class WebsocketController:
     await self.__task_stopper()
     if not only_task_stop:
       self.logger.info(f"Websocket disconnect | code: {code}, reason: {reason}")
-      await self.websocket_connect_object.close(code=code, reason=reason)
+      await self.websocket_connect_object.close(code=code, message=reason.encode("utf-8"))
+
+  async def session_close(self):
+    if self.con_session is not None:
+      await self.con_session.close()
 
   async def __task_runner(self):
     self.__task_sendrate_controller = asyncio.create_task(self.__worker_sendrate_controller())
@@ -78,7 +87,7 @@ class WebsocketController:
       try:
         self.__task_send_worker.cancel()
         await self.__task_send_worker
-      except:
+      except asyncio.CancelledError:
         pass
       finally:
         self.logger.info(f"Task stopped | name: worker=send")
@@ -88,7 +97,7 @@ class WebsocketController:
       try:
         self.__task_recv_worker.cancel()
         await self.__task_recv_worker
-      except:
+      except asyncio.CancelledError:
         pass
       finally:
         self.logger.info(f"Task stopped | name: worker=recv")
@@ -98,7 +107,7 @@ class WebsocketController:
       try:
         self.__task_sendrate_controller.cancel()
         await self.__task_sendrate_controller
-      except:
+      except asyncio.CancelledError:
         pass
       finally:
         self.logger.info(f"Task stopped | name: worker=send_rate_controller")
@@ -108,7 +117,7 @@ class WebsocketController:
       try:
         self.__task_event_trigger.cancel()
         await self.__task_event_trigger
-      except:
+      except asyncio.CancelledError:
         pass
       finally:
         self.logger.info(f"Task stopped | name: worker=event_trigger")
@@ -118,7 +127,7 @@ class WebsocketController:
       try:
         self.__task_heartbeat.cancel()
         await self.__task_heartbeat
-      except:
+      except asyncio.CancelledError:
         pass
       finally:
         self.logger.info(f"Task stopped | name: worker=heartbeat")
@@ -142,7 +151,7 @@ class WebsocketController:
         if self.counter_send_event < self.RATELIMIT_GATEWAY_SEND_PER_MIN:
           self.counter_send_event += 1
           send_data = await self.event_queue_send.get()
-          await self.websocket_connect_object.send(send_data)
+          await self.websocket_connect_object.send_str(send_data)
           self.event_queue_send.task_done()
         else:
           await asyncio.sleep(0.2)
@@ -162,7 +171,7 @@ class WebsocketController:
       json_decompressor = json.JSONDecoder()
       while True:
         while True:
-          recv_raw = await self.websocket_connect_object.recv()
+          recv_raw = await self.websocket_connect_object.receive_bytes()
           if isinstance(recv_raw, bytes):
             recv_buf.extend(recv_raw)
             if len(recv_buf) >= 4 and recv_buf[-4:] == self.RECVED_CHECK_STRING:
@@ -197,7 +206,10 @@ class WebsocketController:
         last_seq = self.system_cache_vault.gateway.last_recv_seq
         if not((last_seq is not None) and (s is None)):
           self.system_cache_vault.gateway.last_recv_seq = s
-        await self.op_event_functions[op](d=d, t=t)
+        if op in self.op_event_functions:
+          await self.op_event_functions[op](d=d, t=t)
+        else:
+          self.logger.error(f"unknown op code | number: {op}")
 
     except asyncio.CancelledError:
       return
@@ -265,7 +277,7 @@ class WebsocketController:
 
   async def __op_restart_heartbeat(self, d, t):
     await self.__task_stop_heartbeat()
-    self.__task_heartbeat = await asyncio.create_task(self.__worker_heartbeat())
+    self.__task_heartbeat = asyncio.create_task(self.__worker_heartbeat())
 
   async def __op_event_reconnect(self, d, t):
     self.reconnect()

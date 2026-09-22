@@ -1,4 +1,4 @@
-from discord_lib2.Network.gateway.websocket import WebsocketController
+from discord_lib2.Network.gateway.websocket2 import WebsocketController
 
 from discord_lib2.objects.gateway import request_payload
 

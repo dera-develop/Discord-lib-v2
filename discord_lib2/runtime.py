@@ -8,7 +8,7 @@ from discord_lib2.exception_catcher import ExceptionCatcher
 from discord_lib2.event import GatewayEvent
 from discord_lib2.cache.system.system import SystemCacheVault
 from discord_lib2.cache.user.data import DataCacheVault
-from discord_lib2.Network.gateway.websocket import WebsocketController
+from discord_lib2.Network.gateway.websocket2 import WebsocketController
 from discord_lib2.Network.gateway.event_handler import EventHandler
 from discord_lib2.Network.http_request.http2 import HttpRequestController, RequestFailedError
 from discord_lib2.Network.http_request.request_loader import RequestLoader
@@ -217,7 +217,8 @@ class Runtime:
         await self.gateway_controller.websocket_disconnect(code=1000, reason="auto shutdown")
         self.logger.exception(f"application error | reason: {str(e)}")
         break
-    
+
+    await self.gateway_controller.session_close()
     await self.event_handler.stop()
     await self.http_request_controller.request_worker_stop()
     await self.terminal_controller.stop()

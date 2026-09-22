@@ -14,7 +14,7 @@ from discord_lib2.objects.resources import UserEventResources, ApplicationComman
 from discord_lib2.objects.gateway.user_request import GatewayRequest
 from discord_lib2.objects.gateway import request_payload
 from discord_lib2.objects.http_request.user_request import HttpRequest
-from discord_lib2.Network.gateway.websocket import WebsocketController
+from discord_lib2.Network.gateway.websocket2 import WebsocketController
 from discord_lib2.Network.http_request.http2 import HttpRequestController
 from discord_lib2.Network.http_request.request_loader import RequestLoader
 from discord_lib2.command.appcom_diffchecker import checker_v2

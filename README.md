@@ -69,8 +69,7 @@ git clone https://github.com/dera-develop/Discord-lib-v2.git
 ### Library  
 本ライブラリは，以下の Python ライブラリに依存しており，環境によっては追加インストールが必要になる場合があります．  
   
-##### External Libraries  
-- websockets  
+##### External Libraries
 - aiohttp  
 - dacite  
 
