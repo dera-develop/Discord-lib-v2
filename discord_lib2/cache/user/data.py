@@ -6,11 +6,13 @@ ISO8601timestamp = str
 #########################################################################################
 
 class Data:
-  users: dict[snowflake, user.User] = {}
-  guilds: dict[snowflake, guild.GuildCache] = {}
+  def __init__(self) -> None:
+    self.users: dict[snowflake, user.User] = {}
+    self.guilds: dict[snowflake, guild.GuildCache] = {}
 
 class DataCacheVault:
-  data: Data = Data()
-  additional = {}
+  def __init__(self) -> None:
+    self.data: Data = Data()
+    self.additional = {}
 
 #########################################################################################

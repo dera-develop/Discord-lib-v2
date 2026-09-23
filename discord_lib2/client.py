@@ -1,5 +1,6 @@
 import os
 import asyncio
+import platform
 
 from discord_lib2.logger import Logger
 from discord_lib2.runtime import Runtime
@@ -30,56 +31,55 @@ class Bot:
   __INTENT_V_GUILD_MESSAGE_POLLS            = 1 << 24
   __INTENT_V_DIRECT_MESSAGE_POLLS           = 1 << 25
 
-  enable_guilds                         = True
-  enable_guild_members                  = False
-  enable_guild_moderation               = False
-  enable_guild_expressions              = False
-  enable_guild_integrations             = False
-  enable_guild_webhooks                 = False
-  enable_guild_invites                  = False
-  enable_guild_voice_states             = False
-  enable_guild_presences                = False
-  enable_guild_messages                 = False
-  enable_guild_message_reactions        = False
-  enable_guild_message_typing           = False
-  enable_direct_messages                = False
-  enable_direct_message_reactions       = False
-  enable_direct_message_typing          = False
-  enable_message_content                = False
-  enable_guild_scheduled_event          = False
-  enable_auto_moderation_configuration  = False
-  enable_auto_moderation_execution      = False
-  enable_guild_message_polls            = False
-  enable_direct_message_polls           = False
 
-  bot_intent = 0
 
-  '''
-  {
-    "guilds: {
-      "<guild_id>": [
-        <guild_application_command_instance>,
-        ...
-      ],
-      ...
-    },
-    "globals": [
-      <global_application_command_instance>,
-      ...
-    ]
-  }
-  '''
-  __application_commands = {
-    "guilds": {},
-    "globals": []
-  }
-
-  def __init__(self, bot_token: str, os_type: str):
+  def __init__(self, bot_token: str):
     self.bot_token        = bot_token
-    self.os_type          = os_type
-    self.PATH_MAINSCRIPT  = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    self.os_type          = platform.system()
+    '''
+    {
+      "guilds: {
+        "<guild_id>": [
+          <guild_application_command_instance>,
+          ...
+        ],
+        ...
+      },
+      "globals": [
+        <global_application_command_instance>,
+        ...
+      ]
+    }
+    '''
+    self.__application_commands = {
+      "guilds": {},
+      "globals": []
+    }
+
+    self.enable_guilds                         = True
+    self.enable_guild_members                  = False
+    self.enable_guild_moderation               = False
+    self.enable_guild_expressions              = False
+    self.enable_guild_integrations             = False
+    self.enable_guild_webhooks                 = False
+    self.enable_guild_invites                  = False
+    self.enable_guild_voice_states             = False
+    self.enable_guild_presences                = False
+    self.enable_guild_messages                 = False
+    self.enable_guild_message_reactions        = False
+    self.enable_guild_message_typing           = False
+    self.enable_direct_messages                = False
+    self.enable_direct_message_reactions       = False
+    self.enable_direct_message_typing          = False
+    self.enable_message_content                = False
+    self.enable_guild_scheduled_event          = False
+    self.enable_auto_moderation_configuration  = False
+    self.enable_auto_moderation_execution      = False
+    self.enable_guild_message_polls            = False
+    self.enable_direct_message_polls           = False
   
   def __calc_bot_intent(self) -> None:
+    self.bot_intent = 0
     if self.enable_guilds:                        self.bot_intent += self.__INTENT_V_GUILDS
     if self.enable_guild_members:                 self.bot_intent += self.__INTENT_V_GUILD_MEMBERS
     if self.enable_guild_moderation:              self.bot_intent += self.__INTENT_V_GUILD_MODERATION

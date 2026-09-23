@@ -1,5 +1,4 @@
 from typing import Any, Callable, Awaitable
-import copy
 
 from discord_lib2.objects.resources import ApplicationCommandResources
 from discord_lib2.objects.gateway.recv_event_object import Interaction, ApplicationCommandAutocompleteInteraction
@@ -37,7 +36,7 @@ def get_appcom_exedata(server_options: list, client_data: dict):
   if dc["path"] != "":
     dc["path"] = dc["path"][:-1]
     option_path = dc["path"].split(".")
-    client_in_dict = copy.deepcopy(client_data)
+    client_in_dict = client_data
     for path in option_path:
       client_in_dict = client_in_dict[path]
     r_func = client_in_dict["__func"]
@@ -63,7 +62,7 @@ def get_autocomplete_func(server_options: list, client_data: dict) -> Callable[[
     return {}
   path = []
   __get_appcom_autocomplete_path(server_options, path)
-  client_in_dict = copy.deepcopy(client_data)
+  client_in_dict = client_data
   func = __dummy
   for i, p in enumerate(path):
     if i == len(path)-1:

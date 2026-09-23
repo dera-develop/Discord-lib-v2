@@ -1,4 +1,4 @@
-from discord_lib2.command.application_command import GuildApplicationCommand
+from discord_lib2.command.application_command import GuildApplicationCommand, GlobalApplicationCommand
 
 def __list_l1_check(server_data: dict, client_data: dict, check_name: str) -> bool | None:
   client_ld = client_data.get(check_name)
@@ -8,7 +8,7 @@ def __list_l1_check(server_data: dict, client_data: dict, check_name: str) -> bo
       client_ld_set = {d for d in client_ld}
       server_ld_set = {d for d in server_ld}
     except:
-      return False
+      return True
     if client_ld_set != server_ld_set:
       return True
   elif client_ld != server_ld:
@@ -55,10 +55,10 @@ def __options_check(server_options: list, client_options: list) -> bool:
       check_server_choices = check_server.get("choices")
       if check_client_choices is not None and check_server_choices is not None:
         try:
-          check_client_choices_set = {frozenset(arg.items()) for arg in check_server_choices}
-          check_server_choices_set = {frozenset(arg.items()) for arg in check_client_choices}
+          check_client_choices_set = {frozenset(arg.items()) for arg in check_client_choices}
+          check_server_choices_set = {frozenset(arg.items()) for arg in check_server_choices}
         except:
-          return False
+          return True
         if check_server_choices_set != check_client_choices_set:
           return True
       elif check_client_choices != check_server_choices:
@@ -74,6 +74,10 @@ def __options_check(server_options: list, client_options: list) -> bool:
       
       check_client_options = check_client.get("options")
       check_server_options = check_server.get("options")
+      if check_client_options is None and check_server_options is None:
+        continue
+      if isinstance(check_client_options, list) != isinstance(check_server_options, list):
+        return True
       if not isinstance(check_client_options, list):
         return False
       if not isinstance(check_server_options, list):
@@ -114,6 +118,9 @@ def __checker(server_data: dict, client_data: dict) -> dict:
   # options
   server_options = server_data.get("options")
   client_options = client_data.get("options")
+  if isinstance(server_options, list) != isinstance(client_options, list):
+    __set_client_data(client_data, "options", return_dict)
+    return return_dict
   if not isinstance(server_options, list):
     return return_dict
   if not isinstance(client_options, list):
@@ -152,7 +159,7 @@ def checker_v2(server_appcom_datas: list, client_appcom_datas: list) -> list:
   server_datas_names = [name for name in server_datas.keys()]
 
   for command_data in client_appcom_datas:
-    if not isinstance(command_data, GuildApplicationCommand):
+    if not isinstance(command_data, GuildApplicationCommand) and not isinstance(command_data, GlobalApplicationCommand):
       raise TypeError()
 
     # difference check

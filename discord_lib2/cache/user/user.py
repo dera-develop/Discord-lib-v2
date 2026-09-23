@@ -6,10 +6,12 @@ ISO8601timestamp = base.ISO8601timestamp
 
 #### USER PRIMARY GUILD ####
 class UserPrimaryGuild(base.UserCacheBase):
-  identity_guild_id: snowflake | None = None
-  identity_enabled: bool | None = None
-  tag: str | None = None
-  badge: str | None = None
+  def __init__(self) -> None:
+    super().__init__()
+    self.identity_guild_id: snowflake | None = None
+    self.identity_enabled: bool | None = None
+    self.tag: str | None = None
+    self.badge: str | None = None
   def update(self, data: dict, delete: bool = False):
     if "identity_guild_id" in data:
       self.identity_guild_id = data.get("identity_guild_id")
@@ -26,8 +28,10 @@ class UserPrimaryGuild(base.UserCacheBase):
 
 #### PRESENCE UPDATE ####
 class ActivityTimestamp(base.UserCacheBase):
-  start: int | None = None
-  end: int | None = None
+  def __init__(self) -> None:
+    super().__init__()
+    self.start: int | None = None
+    self.end: int | None = None
   def update(self, data: dict):
     if "start" in data:
       self.start = data.get("start")
@@ -36,9 +40,11 @@ class ActivityTimestamp(base.UserCacheBase):
       self.end = data.get("end")
 
 class ActivityEmoji(base.UserCacheBase):
-  name: str | None = None
-  id: snowflake | None = None
-  animated: bool | None = None
+  def __init__(self) -> None:
+    super().__init__()
+    self.name: str | None = None
+    self.id: snowflake | None = None
+    self.animated: bool | None = None
   def update(self, data: dict):
     if "name" in data:
       self.name = data.get("name")
@@ -50,8 +56,10 @@ class ActivityEmoji(base.UserCacheBase):
       self.animated = data.get("animated")
 
 class ActivityParty(base.UserCacheBase):
-  id: str | None = None
-  size: list[int] = []
+  def __init__(self) -> None:
+    super().__init__()
+    self.id: str | None = None
+    self.size: list[int] = []
   def update(self, data: dict):
     if "id" in data:
       self.id = data.get("id")
@@ -62,13 +70,15 @@ class ActivityParty(base.UserCacheBase):
         self.size = size
 
 class ActivityAssets(base.UserCacheBase):
-  large_image: str | None = None
-  large_text: str | None = None
-  large_url: str | None = None
-  small_image: str | None = None
-  small_text: str | None = None
-  small_url: str | None = None
-  invite_cover_image: str | None = None
+  def __init__(self) -> None:
+    super().__init__()
+    self.large_image: str | None = None
+    self.large_text: str | None = None
+    self.large_url: str | None = None
+    self.small_image: str | None = None
+    self.small_text: str | None = None
+    self.small_url: str | None = None
+    self.invite_cover_image: str | None = None
   def update(self, data: dict):
     if "large_image" in data:
       self.large_image = data.get("large_image")
@@ -92,9 +102,11 @@ class ActivityAssets(base.UserCacheBase):
       self.invite_cover_image = data.get("invite_cover_image")
 
 class ActivitySecrets(base.UserCacheBase):
-  join: str | None = None
-  spectate: str | None = None
-  match: str | None = None
+  def __init__(self) -> None:
+    super().__init__()
+    self.join: str | None = None
+    self.spectate: str | None = None
+    self.match: str | None = None
   def update(self, data: dict):
     if "join" in data:
       self.join = data.get("join")
@@ -106,8 +118,10 @@ class ActivitySecrets(base.UserCacheBase):
       self.match = data.get("match")
 
 class ActivityButtons(base.UserCacheBase):
-  label: str | None = None
-  url: str | None = None
+  def __init__(self) -> None:
+    super().__init__()
+    self.label: str | None = None
+    self.url: str | None = None
   def update(self, data: dict):
     if "label" in data:
       self.label = data.get("label")
@@ -116,24 +130,26 @@ class ActivityButtons(base.UserCacheBase):
       self.url = data.get("url")
 
 class Activity(base.UserCacheBase):
-  name: str | None = None
-  type: int | None = None
-  url: str | None = None
-  created_at: int | None = None
-  timestamps: ActivityTimestamp = ActivityTimestamp()
-  application_id: snowflake | None = None
-  status_display_type: int | None = None
-  details: str | None = None
-  details_url: str | None = None
-  state: str | None = None
-  state_url: str | None = None
-  emoji: ActivityEmoji = ActivityEmoji()
-  party: ActivityParty = ActivityParty()
-  assets: ActivityAssets = ActivityAssets()
-  secrets: ActivitySecrets = ActivitySecrets()
-  instance: bool | None = None
-  flags: int | None = None
-  buttons: list[ActivityButtons] = []
+  def __init__(self) -> None:
+    super().__init__()
+    self.name: str | None = None
+    self.type: int | None = None
+    self.url: str | None = None
+    self.created_at: int | None = None
+    self.timestamps: ActivityTimestamp = ActivityTimestamp()
+    self.application_id: snowflake | None = None
+    self.status_display_type: int | None = None
+    self.details: str | None = None
+    self.details_url: str | None = None
+    self.state: str | None = None
+    self.state_url: str | None = None
+    self.emoji: ActivityEmoji = ActivityEmoji()
+    self.party: ActivityParty = ActivityParty()
+    self.assets: ActivityAssets = ActivityAssets()
+    self.secrets: ActivitySecrets = ActivitySecrets()
+    self.instance: bool | None = None
+    self.flags: int | None = None
+    self.buttons: list[ActivityButtons] = []
   def update(self, data: dict):
     if "name" in data:
       self.name = data.get("name")
@@ -199,12 +215,19 @@ class Activity(base.UserCacheBase):
     if "buttons" in data:
       buttons = data.get("buttons")
       if isinstance(buttons, list):
-        self.buttons = buttons
+        bs = []
+        for button in buttons:
+          button_obj = ActivityButtons()
+          button_obj.update(button)
+          bs.append(button_obj)
+        self.buttons = bs
 
 class ClientStatus(base.UserCacheBase):
-  desktop: str | None = None
-  mobile: str | None = None
-  web: str | None = None
+  def __init__(self) -> None:
+    super().__init__()
+    self.desktop: str | None = None
+    self.mobile: str | None = None
+    self.web: str | None = None
   def update(self, data: dict):
     if "desktop" in data:
       self.desktop = data.get("desktop")
@@ -216,14 +239,17 @@ class ClientStatus(base.UserCacheBase):
       self.web = data.get("web")
 
 class PresenceUpdate(base.UserCacheBase):
-  user: snowflake | None = None # user_id
-  guild_id: snowflake | None = None
-  status: str | None = None
-  activities: list[Activity] = []
-  client_status: ClientStatus = ClientStatus()
+  def __init__(self) -> None:
+    super().__init__()
+    self.user: snowflake | None = None # user_id
+    self.guild_id: snowflake | None = None
+    self.status: str | None = None
+    self.activities: list[Activity] = []
+    self.client_status: ClientStatus = ClientStatus()
   def update(self, data: dict):
     if "user" in data:
-      self.user = data.get("user")
+      user = data.get("user", {})
+      self.user = user.get("id")
 
     if "guild_id" in data:
       self.guild_id = data.get("guild_id")
@@ -234,7 +260,12 @@ class PresenceUpdate(base.UserCacheBase):
     if "activities" in data:
       activities = data.get("activities")
       if isinstance(activities, list):
-        self.activities = activities
+        acs = []
+        for activity in activities:
+          activity_obj = Activity()
+          activity_obj.update(activity)
+          acs.append(activity_obj)
+        self.activities = acs
 
     if "client_status" in data:
       client_status = data.get("client_status")
@@ -244,28 +275,30 @@ class PresenceUpdate(base.UserCacheBase):
 
 #### USER ####
 class User(base.UserCacheBase):
-  id: snowflake | None = None
-  username: str | None = None
-  discriminator: str | None = None
-  global_name: str | None = None
-  avatar: str | None = None
-  bot: bool | None = None
-  system: bool | None = None
-  mfa_enabled: bool | None = None
-  banner: str | None = None
-  accent_color: int | None = None
-  locale: str | None = None
-  verified: bool | None = None
-  email: str | None = None
-  flags: int | None = None
-  premium_type: int | None = None
-  public_flags: int | None = None
-  avatar_decoration_data: guild.AvatarDecorationData = guild.AvatarDecorationData()
-  collectibles: guild.Collectibles = guild.Collectibles()
-  primary_guild: UserPrimaryGuild = UserPrimaryGuild()
-  presence: PresenceUpdate = PresenceUpdate()
-  joined_guilds: list = []
-  def update(self, data: dict, delete: bool = False):
+  def __init__(self) -> None:
+    super().__init__()
+    self.id: snowflake | None = None
+    self.username: str | None = None
+    self.discriminator: str | None = None
+    self.global_name: str | None = None
+    self.avatar: str | None = None
+    self.bot: bool | None = None
+    self.system: bool | None = None
+    self.mfa_enabled: bool | None = None
+    self.banner: str | None = None
+    self.accent_color: int | None = None
+    self.locale: str | None = None
+    self.verified: bool | None = None
+    self.email: str | None = None
+    self.flags: int | None = None
+    self.premium_type: int | None = None
+    self.public_flags: int | None = None
+    self.avatar_decoration_data: guild.AvatarDecorationData = guild.AvatarDecorationData()
+    self.collectibles: guild.Collectibles = guild.Collectibles()
+    self.primary_guild: UserPrimaryGuild = UserPrimaryGuild()
+    self.presence: PresenceUpdate = PresenceUpdate()
+    self.joined_guilds: list[snowflake] = []
+  def update(self, data: dict):
     if "id" in data:
       self.id = data.get("id")
 

@@ -171,9 +171,15 @@ class WebsocketController:
       json_decompressor = json.JSONDecoder()
       while True:
         while True:
-          recv_raw = await self.websocket_connect_object.receive_bytes()
-          if isinstance(recv_raw, bytes):
-            recv_buf.extend(recv_raw)
+          recv_raw = await self.websocket_connect_object.receive()
+          if recv_raw.type != aiohttp.WSMsgType.BINARY:
+            self.logger.warning(f"received non-binary data | type: {recv_raw.type}, code: {self.websocket_connect_object.close_code}, data: {recv_raw.data}")
+            self.exception_catcher.set_v("reconnect", 4000, "auto reconnection")
+            while True:
+              await asyncio.sleep(1)
+          recv_bin = recv_raw.data
+          if isinstance(recv_raw.data, bytes):
+            recv_buf.extend(recv_bin)
             if len(recv_buf) >= 4 and recv_buf[-4:] == self.RECVED_CHECK_STRING:
               json_raw = zlib_decompressor.decompress(recv_buf).decode("utf-8")
               recv_buf.clear()

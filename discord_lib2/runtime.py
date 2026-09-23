@@ -82,8 +82,6 @@ class Runtime:
       global_appcom_datas = checker_v2(res.json, command_datas)
     except RequestFailedError:
       self.logger.error("Failed request \"GetGlobalApplicationCommand\"")
-    except:
-      raise
 
     self.logger.info("application command updating...")
 

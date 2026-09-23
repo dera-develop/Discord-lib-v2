@@ -81,7 +81,7 @@ class ChoiceOption:
 
   def add_localization(self, locale: str, name: str):
     if not locale in locales.LOCALES:
-      KeyError(locale)
+      raise KeyError(locale)
     if self.__dict["name_localizations"] is None:
       self.__dict["name_localizations"] = {}
     self.__dict["name_localizations"][locale] = name
@@ -98,6 +98,7 @@ class ChoiceOption:
           raise FormatError(f"name_{l}", FormatError.LENGTH, f"size: 1~100, now: {len(n)}")
 
   def _get(self):
+    self._format_check()
     return self.__dict
 
 ##########################################################################################
@@ -116,14 +117,14 @@ class String(_OptionsBase):
   autocomplete: bool | None=None
   def _format_check(self):
     if self.choices is not None:
-      if not len(self.choices) > 25:
-        FormatError("choices", FormatError.LENGTH, f"max: 25, now: {len(self.choices)}")
+      if len(self.choices) > 25:
+        raise FormatError("choices", FormatError.LENGTH, f"max: 25, now: {len(self.choices)}")
     if self.min_length is not None:
       if not 0 <= self.min_length <= 6000:
-        FormatError("min_length", FormatError.VALUE_RANGE, f"range: 0~6000, now: {self.min_length}")
+        raise FormatError("min_length", FormatError.VALUE_RANGE, f"range: 0~6000, now: {self.min_length}")
     if self.max_length is not None:
       if not 0 <= self.max_length <= 6000:
-        FormatError("max_length", FormatError.VALUE_RANGE, f"range: 0~6000, now: {self.max_length}")
+        raise FormatError("max_length", FormatError.VALUE_RANGE, f"range: 0~6000, now: {self.max_length}")
     return super()._format_check()
 
   def _get(self):
@@ -149,8 +150,8 @@ class Integer(_OptionsBase):
   autocomplete: bool | None=None
   def _format_check(self):
     if self.choices is not None:
-      if not len(self.choices) > 25:
-        FormatError("choices", FormatError.LENGTH, f"max: 25, now: {len(self.choices)}")
+      if len(self.choices) > 25:
+        raise FormatError("choices", FormatError.LENGTH, f"max: 25, now: {len(self.choices)}")
     return super()._format_check()
 
   def _get(self):
@@ -204,8 +205,8 @@ class Number(_OptionsBase):
   autocomplete: bool | None=None
   def _format_check(self):
     if self.choices is not None:
-      if not len(self.choices) > 25:
-        FormatError("choices", FormatError.LENGTH, f"max: 25, now: {len(self.choices)}")
+      if len(self.choices) > 25:
+        raise FormatError("choices", FormatError.LENGTH, f"max: 25, now: {len(self.choices)}")
     return super()._format_check()
 
   def _get(self):
@@ -229,12 +230,12 @@ class Attachment(_OptionsBase):
   def _format_check(self):
     if self.file_types is not None:
       if len(self.file_types) > 10:
-        FormatError("file_types", FormatError.VALUE_RANGE, f"max: 10, now: {len(self.file_types)}")
+        raise FormatError("file_types", FormatError.VALUE_RANGE, f"max: 10, now: {len(self.file_types)}")
       for ft in self.file_types:
         if len(ft) < 2:
-          FormatError("file_types", FormatError.INVALID_TYPE, f"error_type: {ft}")
+          raise FormatError("file_types", FormatError.INVALID_TYPE, f"error_type: {ft}")
         if ft[0] != ".":
-          FormatError("file_types", FormatError.INVALID_TYPE, f"need\".\", error_type: {ft}")
+          raise FormatError("file_types", FormatError.INVALID_TYPE, f"need\".\", error_type: {ft}")
     return super()._format_check()
 
   def _get(self):
@@ -297,7 +298,6 @@ class SubCommandGroup(__CommandBase):
 
 ##########################################################################################
 class GuildApplicationCommand(__CommandBase):
-  _type = 1
   type: int = 1
   default_member_permissions: str | None=None
   default_permission: bool | None=None
@@ -344,7 +344,6 @@ class GuildApplicationCommand(__CommandBase):
 
 ##########################################################################################
 class GlobalApplicationCommand(__CommandBase):
-  _type = 1
   type: int = 1
   default_member_permissions: str | None=None
   default_permission: bool | None=None
@@ -352,6 +351,7 @@ class GlobalApplicationCommand(__CommandBase):
   global_integration_types: list[int] | None=None
   global_contexts: list[int] | None=None
   global_handler: int | None=None
+  options: list[dict] | None=None
   def __init__(self) -> None:
     super().__init__()
     self.__response_datas: dict = {}

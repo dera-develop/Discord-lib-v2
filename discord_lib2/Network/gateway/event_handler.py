@@ -335,7 +335,7 @@ class EventHandler:
     guild_id = event_data.get("guild_id")
     if not isinstance(guild_id, snowflake):
       return
-    role_data = event_data.get("roles")
+    role_data = event_data.get("role")
     if isinstance(role_data, dict):
       role_id = role_data.get("id")
       if isinstance(role_id, snowflake):
@@ -348,7 +348,7 @@ class EventHandler:
     guild_id = event_data.get("guild_id")
     if not isinstance(guild_id, snowflake):
       return
-    role_data = event_data.get("roles")
+    role_data = event_data.get("role")
     if isinstance(role_data, dict):
       role_id = role_data.get("id")
       if isinstance(role_id, snowflake):
@@ -545,7 +545,7 @@ class EventHandler:
       await self.user_event_functions.guild_member_add(self.user_resources, new, data_object)
 
   async def guild_member_update(self, event_data: dict):
-    guild_id = event_data.pop("guild_id", None)
+    guild_id = event_data.get("guild_id", None)
     user_id = event_data.get("user")
     if isinstance(user_id, dict):
       user_id = user_id.get("id")
@@ -718,7 +718,7 @@ class EventHandler:
     integration_id = event_data.get("id")
     if isinstance(guild_id, snowflake) and isinstance(integration_id, snowflake):
       self.cache_data.data.guilds[guild_id].integrations[integration_id] = DataCacheGuild.Integration()
-      self.cache_data.data.guilds[guild_id].integrations.update(event_data)
+      self.cache_data.data.guilds[guild_id].integrations[integration_id].update(event_data)
     data_object = from_dict(recv_event_object.IntegrationEvent, event_data)
     await self.user_event_functions.integration_create(self.user_resources, data_object)
 
@@ -728,7 +728,7 @@ class EventHandler:
     if isinstance(guild_id, snowflake) and isinstance(integration_id, snowflake):
       if not integration_id in self.cache_data.data.guilds[guild_id].integrations:
         self.cache_data.data.guilds[guild_id].integrations[integration_id] = DataCacheGuild.Integration()
-      self.cache_data.data.guilds[guild_id].integrations.update(event_data)
+      self.cache_data.data.guilds[guild_id].integrations[integration_id].update(event_data)
     data_object = from_dict(recv_event_object.IntegrationEvent, event_data)
     await self.user_event_functions.integration_update(self.user_resources, data_object)
 
@@ -863,9 +863,9 @@ class EventHandler:
     guild_id = event_data.get("guild_id")
     user_id = event_data.get("user_id")
     if isinstance(guild_id, snowflake) and isinstance(user_id, snowflake):
-      before_joined_vcch_id = self.cache_data.data.guilds[guild_id].members[user_id].voice_state.channel_id
       if not user_id in self.cache_data.data.guilds[guild_id].members:
         self.cache_data.data.guilds[guild_id].members[user_id] = DataCacheGuild.GuildMember()
+      before_joined_vcch_id = self.cache_data.data.guilds[guild_id].members[user_id].voice_state.channel_id
       self.cache_data.data.guilds[guild_id].members[user_id].voice_state.update(event_data)
       current_vcch_id = self.cache_data.data.guilds[guild_id].members[user_id].voice_state.channel_id
       if before_joined_vcch_id != current_vcch_id:

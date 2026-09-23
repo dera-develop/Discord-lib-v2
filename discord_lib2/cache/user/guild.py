@@ -184,11 +184,11 @@ class WelcomeScreen(base.UserCacheBase):
           if not isinstance(welcome_channel_dict, dict):
             continue
 
-          welcome_channel_id = welcome_channel_dict.get("id")
+          welcome_channel_id = welcome_channel_dict.get("channel_id")
           if not isinstance(welcome_channel_id, snowflake):
             continue
 
-          if not welcome_channel_id in welcome_channel_dict:
+          if not welcome_channel_id in self.welcome_channels:
             self.welcome_channels[welcome_channel_id] = WelcomeScreenChannel()
           self.welcome_channels[welcome_channel_id].update(welcome_channel_dict)
 ########################
@@ -568,7 +568,7 @@ class Thread(base.UserCacheBase):
     self.member_count: int | None = None
     self.thread_metadata: ThreadMetadata = ThreadMetadata()
     self.member: ThreadMember = ThreadMember()
-    self.members: dict[snowflake, ThreadMember]
+    self.members: dict[snowflake, ThreadMember] = {}
     self.default_auto_archive_duration: int | None = None
     self.permissions: str | None = None
     self.app_permissions: str | None = None
@@ -596,7 +596,12 @@ class Thread(base.UserCacheBase):
     if "permission_overwrites" in data:
       permission_overwrites = data.get("permission_overwrites")
       if isinstance(permission_overwrites, list):
-        self.permission_overwrites = permission_overwrites
+        perms = []
+        for perm in permission_overwrites:
+          perm_obj = OverWrite()
+          perm_obj.update(perm)
+          perms.append(perm_obj)
+        self.permission_overwrites = perms
 
     if "name" in data:
       self.name = data.get("name")
@@ -697,7 +702,7 @@ class Thread(base.UserCacheBase):
           if not isinstance(available_tag_id, snowflake):
             continue
 
-          if not available_tag_id in available_tag_dict:
+          if not available_tag_id in self.available_tags:
             self.available_tags[available_tag_id] = ForumTag()
           self.available_tags[available_tag_id].update(available_tag_dict)
 
@@ -729,7 +734,12 @@ class Channel(Thread):
     if "threads" in data:
       threads = data.get("threads")
       if isinstance(threads, list):
-        self.threads = threads
+        thds = []
+        for thd in threads:
+          thd_obj = Thread()
+          thd_obj.update(thd)
+          thds.append(thd_obj)
+        self.threads = thds
     return super().update(data)
 #################
 
@@ -1192,7 +1202,7 @@ class GuildCache(base.UserCacheBase):
     self.soundboard_sounds: dict[snowflake, SoundboardSound] = {} # key = sound_id
     self.banned_users: list[snowflake] = []
     self.integrations: dict[snowflake, Integration] = {} # key = integration_id
-    self.invites: dict[str, Invite]
+    self.invites: dict[str, Invite] = {}
   def update(self, data: dict):
     if "id" in data:
       self.id = data.get("id")
@@ -1256,7 +1266,7 @@ class GuildCache(base.UserCacheBase):
           if not isinstance(role_id, snowflake):
             continue
 
-          if not role_id in role_dict:
+          if not role_id in self.roles:
             self.roles[role_id] = Role()
           self.roles[role_id].update(role_dict)          
 
@@ -1271,7 +1281,7 @@ class GuildCache(base.UserCacheBase):
           if not isinstance(emoji_id, snowflake):
             continue
 
-          if not emoji_id in emoji_dict:
+          if not emoji_id in self.emojis:
             self.emojis[emoji_id] = Emoji()
           self.emojis[emoji_id].update(emoji_dict)
 
@@ -1351,7 +1361,7 @@ class GuildCache(base.UserCacheBase):
           if not isinstance(sticker_id, snowflake):
             continue
 
-          if not sticker_id in sticker_dict:
+          if not sticker_id in self.stickers:
             self.stickers[sticker_id] = Sticker()
           self.stickers[sticker_id].update(sticker_dict)
 
@@ -1384,12 +1394,13 @@ class GuildCache(base.UserCacheBase):
         for member_dict in members_all:
           if not isinstance(member_dict, dict):
             continue
-
-          member_id = member_dict.get("id")
+          member = member_dict.get("user")
+          if not isinstance(member, dict):
+            continue
+          member_id = member.get("id")
           if not isinstance(member_id, snowflake):
             continue
-
-          if not member_id in member_dict:
+          if not member_id in self.members:
             self.members[member_id] = GuildMember()
           self.members[member_id].update(member_dict)
 
@@ -1404,7 +1415,7 @@ class GuildCache(base.UserCacheBase):
           if not isinstance(channel_id, snowflake):
             continue
 
-          if not channel_id in channel_dict:
+          if not channel_id in self.channels:
             self.channels[channel_id] = Channel()
           self.channels[channel_id].update(channel_dict)
 
@@ -1419,8 +1430,8 @@ class GuildCache(base.UserCacheBase):
           if not isinstance(thread_id, snowflake):
             continue
 
-          if not thread_id in thread_dict:
-            self.threads[thread_id] = Channel()
+          if not thread_id in self.threads:
+            self.threads[thread_id] = Thread()
           self.threads[thread_id].update(thread_dict)
 
     if "stage_instances" in data:
@@ -1434,7 +1445,7 @@ class GuildCache(base.UserCacheBase):
           if not isinstance(stage_instance_id, snowflake):
             continue
 
-          if not stage_instance_id in stage_instance_dict:
+          if not stage_instance_id in self.stage_instances:
             self.stage_instances[stage_instance_id] = StageInstance()
           self.stage_instances[stage_instance_id].update(stage_instance_dict)
 
@@ -1449,7 +1460,7 @@ class GuildCache(base.UserCacheBase):
           if not isinstance(guild_scheduled_event_id, snowflake):
             continue
 
-          if not guild_scheduled_event_id in guild_scheduled_event_dict:
+          if not guild_scheduled_event_id in self.guild_scheduled_events:
             self.guild_scheduled_events[guild_scheduled_event_id] = GuildScheduledEvent()
           self.guild_scheduled_events[guild_scheduled_event_id].update(guild_scheduled_event_dict)
 
@@ -1464,7 +1475,7 @@ class GuildCache(base.UserCacheBase):
           if not isinstance(soundboard_sound_id, snowflake):
             continue
 
-          if not soundboard_sound_id in soundboard_sound_dict:
+          if not soundboard_sound_id in self.soundboard_sounds:
             self.soundboard_sounds[soundboard_sound_id] = SoundboardSound()
           self.soundboard_sounds[soundboard_sound_id].update(soundboard_sound_dict)
 
