@@ -173,8 +173,8 @@ class HttpRequestController:
           req_infos = await self.request_queue.get()
 
           #####debug
-          self.logger.debug(f"Send request | type: {req_infos.request_type}, url: {req_infos.request_url}")
-          self.logger.debug(f"body   // {req_infos.request_body}")
+          #self.logger.debug(f"Send request | type: {req_infos.request_type}, url: {req_infos.request_url}")
+          #self.logger.debug(f"body   // {req_infos.request_body}")
 
           if "form" in req_infos.request_type:
             header = self.__get_header(self.__REQUEST_HEADER_CONTENT_TYPE_FORM, req_infos.request_need_token)
@@ -207,7 +207,7 @@ class HttpRequestController:
           self.response_datas[req_infos.request_id] = res
 
           #####debug
-          self.logger.debug(f"Complete request | code: {res.status_code}")
+          #self.logger.debug(f"Complete request | code: {res.status_code}")
 
           if 200 <= res.status_code < 300:
             request_rate_limit = res.headers.get(self.__RESPONCE_HEADER_RATELIMIT)
