@@ -1,6 +1,8 @@
 from discord_lib2.cache.user import guild
 from discord_lib2.cache.user import user
 
+from typing import Any
+
 snowflake = str
 ISO8601timestamp = str
 #########################################################################################
@@ -13,6 +15,6 @@ class Data:
 class DataCacheVault:
   def __init__(self) -> None:
     self.data: Data = Data()
-    self.additional = {}
+    self.additional: Any = {}
 
 #########################################################################################

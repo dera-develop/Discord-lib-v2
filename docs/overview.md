@@ -188,8 +188,10 @@ resources.cache.data.users["user_id"].user.global_name # -> user global name
 `data.users.user`のキャッシュ構造はUser構造です．構造の詳細は，[Usersキャッシュソースコード](../discord_lib2/cache/user/user.py)や[Discord公式ドキュメント[Userオブジェクト]](https://docs.discord.com/developers/resources/user#user-object)を確認してください．  
   
 ###### additional  
-ユーザーが自由に使用できる，辞書型の変数です．  
+ユーザーが自由に使用できる変数です．  
 自動処理で一切触れられることはない為，ユーザーが自由にキャッシュ構造を構築できます．  
+型ヒントに`Any`型を付けてあるように，どのような型でも自由に使うことができます．  
+デフォルトでは空の`dict`変数として宣言しているので，他の型で使う場合は，上書きで宣言をする必要があります．
   
 ##### HttpAPI  
 APIへのリクエストを行う際に使用する関数が定義されています．  
