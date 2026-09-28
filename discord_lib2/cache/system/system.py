@@ -1,7 +1,7 @@
 from discord_lib2.Network.gateway.structure_creator import Presence
 
-from discord_lib2.cache.system.objects.resume import Resume
-from discord_lib2.cache.system.objects.gateway import Gateway
+from discord_lib2.cache.system.resume import Resume
+from discord_lib2.cache.system.gateway import Gateway
 from discord_lib2.objects.gateway.recv_event_object import Application
 
 class SystemCacheVault:
