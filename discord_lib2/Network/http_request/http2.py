@@ -77,31 +77,31 @@ class HttpRequestController:
 
   ## JSON ##
   async def __req_json_post(self, session: aiohttp.ClientSession, url: str, header: dict, json_data: dict) -> RequestResponse:
-    async with session.post(url=url, headers=header, json=json_data) as res:
+    async with session.post(url=url, headers=header, json=json_data, proxy=self.system_cache_vault.proxy) as res:
       res_infos = RequestResponse()
       await res_infos._set_datas(res)
       return res_infos
 
   async def __req_json_get(self, session: aiohttp.ClientSession, url: str, header: dict, json_data: dict) -> RequestResponse:
-    async with session.get(url=url, headers=header) as res:
+    async with session.get(url=url, headers=header, proxy=self.system_cache_vault.proxy) as res:
       res_infos = RequestResponse()
       await res_infos._set_datas(res)
       return res_infos
 
   async def __req_json_put(self, session: aiohttp.ClientSession, url: str, header: dict, json_data: dict) -> RequestResponse:
-    async with session.put(url=url, headers=header, json=json_data) as res:
+    async with session.put(url=url, headers=header, json=json_data, proxy=self.system_cache_vault.proxy) as res:
       res_infos = RequestResponse()
       await res_infos._set_datas(res)
       return res_infos
 
   async def __req_json_patch(self, session: aiohttp.ClientSession, url: str, header: dict, json_data: dict) -> RequestResponse:
-    async with session.patch(url=url, headers=header, json=json_data) as res:
+    async with session.patch(url=url, headers=header, json=json_data, proxy=self.system_cache_vault.proxy) as res:
       res_infos = RequestResponse()
       await res_infos._set_datas(res)
       return res_infos
 
   async def __req_json_delete(self, session: aiohttp.ClientSession, url: str, header: dict, json_data: dict) -> RequestResponse:
-    async with session.delete(url=url, headers=header) as res:
+    async with session.delete(url=url, headers=header, proxy=self.system_cache_vault.proxy) as res:
       res_infos = RequestResponse()
       await res_infos._set_datas(res)
       return res_infos
@@ -109,19 +109,19 @@ class HttpRequestController:
 
   ## FORM ##
   async def __req_form_post(self, session: aiohttp.ClientSession, url: str, header: dict, form_data: aiohttp.FormData) -> RequestResponse:
-    async with session.post(url=url, headers=header, data=form_data) as res:
+    async with session.post(url=url, headers=header, data=form_data, proxy=self.system_cache_vault.proxy) as res:
       res_infos = RequestResponse()
       await res_infos._set_datas(res)
       return res_infos
 
   async def __req_form_put(self, session: aiohttp.ClientSession, url: str, header: dict, form_data: aiohttp.FormData) -> RequestResponse:
-    async with session.put(url=url, headers=header, data=form_data) as res:
+    async with session.put(url=url, headers=header, data=form_data, proxy=self.system_cache_vault.proxy) as res:
       res_infos = RequestResponse()
       await res_infos._set_datas(res)
       return res_infos
 
   async def __req_form_patch(self, session: aiohttp.ClientSession, url: str, header: dict, form_data: aiohttp.FormData) -> RequestResponse:
-    async with session.patch(url=url, headers=header, data=form_data) as res:
+    async with session.patch(url=url, headers=header, data=form_data, proxy=self.system_cache_vault.proxy) as res:
       res_infos = RequestResponse()
       await res_infos._set_datas(res)
       return res_infos

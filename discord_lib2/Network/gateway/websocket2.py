@@ -24,6 +24,7 @@ class WebsocketController:
   OP_HEARTBEAT_ACK: ClassVar[int] = 11
 
   RATELIMIT_GATEWAY_SEND_PER_MIN: ClassVar[int] = 120
+  __WEBSOCKET_CONNECT_TIMEOUT_TIME = 10
 
   RECVED_CHECK_STRING: ClassVar[bytes] = b"\x00\x00\xff\xff"
 
@@ -54,11 +55,15 @@ class WebsocketController:
     self.logger.info(f"Websocket connect | target: {f"{self.system_cache_vault.gateway.gateway_url}/{self.URL_GATEWAY_QUERY}"}")
     try:
       if self.con_session is None:
-        self.con_session = aiohttp.ClientSession()
-      self.websocket_connect_object = await self.con_session.ws_connect("/".join([self.system_cache_vault.gateway.gateway_url, self.URL_GATEWAY_QUERY]))
+        timeout = aiohttp.ClientTimeout(total=self.__WEBSOCKET_CONNECT_TIMEOUT_TIME)
+        self.con_session = aiohttp.ClientSession(timeout=timeout)
+      self.websocket_connect_object = await self.con_session.ws_connect("/".join([self.system_cache_vault.gateway.gateway_url, self.URL_GATEWAY_QUERY]), proxy=self.system_cache_vault.proxy)
       await self.__task_runner()
       self.logger.info(f"connected.")
 
+    except asyncio.TimeoutError:
+      self.logger.error(f"Websocket connection timeout | time: {self.__WEBSOCKET_CONNECT_TIMEOUT_TIME}s")
+      return False
     except Exception as e:
       self.logger.exception(f"Failed connect websocket | reason: {str(e)}")
       return False

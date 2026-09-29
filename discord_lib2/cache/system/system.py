@@ -12,7 +12,7 @@ class SystemCacheVault:
   large_threshold: int | None = None
   compress: bool | None = None
   presence: Presence | None = None
-  
+  proxy: str | None=None
 
   resume  = Resume()
   gateway = Gateway()

@@ -7,7 +7,6 @@
 ## 前提  
 このライブラリは，GATEWAYイベントを使用したボットの作成を前提としたライブラリです．  
 HTTPSリクエストのみを行うボットの作成には対応していません．  
-（将来的には対応させるつもりです）  
   
 ## サンプルコード  
 サンプルコード群は，[ここ](../sample/)に保存されています．  
@@ -19,7 +18,7 @@ from discord_lib2.client import Bot
 from discord_lib2.logger import Logger  
 from discord_lib2.event import GatewayEvent  
   
-bot = Bot("your_bot_token", "your_os")  
+bot = Bot("your_bot_token")  
   
 logger = Logger()  
 logger.create_default_handler("log_dir_path")  
@@ -45,23 +44,20 @@ bot.boot(event, logger)
 ### Botクラス  
 ボットを動かすためのメインになるクラスです．  
 ```python  
-bot = Bot("your_bot_token", "your_os")  
+bot = Bot("your_bot_token")  
 ```  
   
 #### 引数  
 - `bot_token` `str`  
 ボットのトークンを設定します．  
 このトークンは，Gateway接続の認証や，APIへのリクエストの認証に使用されます．  
-- `os_type` `str`  
-ボットを動作させるコンピューターのOSタイプを設定します．  
-Gateway接続時の`Identify`イベントの送信で使用されます．  
   
 #### インテントの設定  
 Gatewayイベントを受信するための各種権限であるインテントの設定をこのBotクラスで行います．  
 Botクラスのインスタンスを使い，起動前に設定を行います．  
 インテントの項目は`bool`型で定義されており，値を`True`に変更することで自動的に値が計算され，`Identify`イベント時に送信されます．  
 ```python  
-bot = Bot("your_bot_token", "your_os")  
+bot = Bot("your_bot_token")  
   
 bot.enable_guild_members = True  
 bot.enable_message_content = True  
@@ -75,9 +71,28 @@ bot.enable_message_content = True
 #### 起動  
 起動時は，以下のようにインスタンスのメゾッドを呼び出します．  
 ```python  
-bot.boot(UserEventInstance, LoggerInstance)  
+bot.boot(event, logger, terminal_command, bootcycle, proxy)  
 ```  
-UserEventInstanceとLoggerInstanceには，それぞれ後述する[Loggerクラス](#Loggerクラス)と[GatewayEventクラス](#GatewayEvent(ユーザーイベント)クラス)のインスタンスを渡します．  
+##### 各引数
+- `event`(`GatewayEvent`)
+ゲートウェイイベントを受信した際の実行関数を定義したクラスインスタンスを渡します．  
+このクラスの詳細は，後述の[GatewayEventクラス](#GatewayEvent(ユーザーイベント)クラス)を参照してください．
+- `logger`(`Logger`)
+ロガーのクラスインスタンスを渡します．  
+このクラスの詳細は，後述の[Loggerクラス](#Loggerクラス)を参照してください．
+- `terminal_command`(`TerminalCommand`)(任意)
+プログラムを実行しているターミナルで実行可能なコマンドのクラスインスタンスを渡します．  
+この引数の指定は任意です．指定しない場合，デフォルトターミナルコマンドのみが使用できます．  
+このクラスの詳細は，[Application Commandドキュメント](applicarion_commands.md)を参照してください．
+- bootcycle(`int`)(任意)
+`Gateway`接続の再接続回数を指定します．初回接続の回数も含まれています．  
+この引数の指定は任意です．デフォルトで`-1`が設定されており，この状態では再接続回数が無制限となります．
+- `proxy`(`str`)(任意)
+`httpAPI`のリクエスト，`Gateway`接続で使用するプロキシサーバーを指定します．  
+指定する際は，サーバーのURLとポート番号を両方含める必要があります．
+```
+bot.boot(..., proxy="your.proxy.server.URL:port")
+```
   
 ### Loggerクラス  
 ターミナルやファイルへのログ出力を管理するクラスです．`Logging`ライブラリをベースに作成しています．  

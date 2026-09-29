@@ -31,7 +31,7 @@ class SkipTaskException(Exception):
     super().__init__(*args)
 
 class Runtime:
-  def __init__(self, bot_token: str, bot_intents: int, os_type: str, logger_master: Logger, bootcycle: int, user_event: GatewayEvent, user_terminal_command: TerminalCommand, application_commands: dict):
+  def __init__(self, bot_token: str, bot_intents: int, os_type: str, logger_master: Logger, bootcycle: int, user_event: GatewayEvent, user_terminal_command: TerminalCommand, application_commands: dict, proxy: str | None):
     self.bootcycle = bootcycle
     self.logger = logger_master.get_child("RTM")
 
@@ -40,6 +40,8 @@ class Runtime:
     self.system_cache_vault.bot_token   = bot_token
     self.system_cache_vault.bot_intents = bot_intents
     self.system_cache_vault.os_type     = os_type
+    self.system_cache_vault.proxy       = proxy
+
     self.application_commands = application_commands
 
     self.exception_catcher = ExceptionCatcher(logger_master)

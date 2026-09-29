@@ -112,9 +112,9 @@ class Bot:
     if isinstance(command_object, GlobalApplicationCommand):
       self.__application_commands["globals"].append(command_object)
 
-  def boot(self, event: GatewayEvent, logger: Logger, terminal_command: TerminalCommand | None=None, bootcycle: int=-1):
+  def boot(self, event: GatewayEvent, logger: Logger, terminal_command: TerminalCommand | None=None, bootcycle: int=-1, proxy: str | None=None):
     self.__calc_bot_intent()
     if terminal_command is None:
       terminal_command = TerminalCommand()
-    __runtime = Runtime(self.bot_token, self.bot_intent, self.os_type, logger, bootcycle, event, terminal_command, self.__application_commands)
+    __runtime = Runtime(self.bot_token, self.bot_intent, self.os_type, logger, bootcycle, event, terminal_command, self.__application_commands, proxy)
     asyncio.run(__runtime.boot())
