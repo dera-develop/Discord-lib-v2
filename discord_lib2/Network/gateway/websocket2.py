@@ -4,6 +4,8 @@ import json
 import zlib
 from typing import ClassVar
 
+from aiohttp.client_exceptions import ClientConnectorDNSError
+
 from discord_lib2.logger import Logger
 from discord_lib2.exception_catcher import ExceptionCatcher
 from discord_lib2.cache.system.system import SystemCacheVault
@@ -63,6 +65,9 @@ class WebsocketController:
 
     except asyncio.TimeoutError:
       self.logger.error(f"Websocket connection timeout | time: {self.__WEBSOCKET_CONNECT_TIMEOUT_TIME}s")
+      return False
+    except ClientConnectorDNSError as e:
+      self.logger.error(f"connection error | DNS error | reason: {str(e)}")
       return False
     except Exception as e:
       self.logger.exception(f"Failed connect websocket | reason: {str(e)}")

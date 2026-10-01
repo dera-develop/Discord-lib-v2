@@ -193,6 +193,11 @@ class HttpRequestController:
               res = await self.req_json_functions[req_infos.request_type](session, req_infos.request_url, header, req_infos.request_body)
             except asyncio.CancelledError:
               raise
+            except aiohttp.ClientConnectorDNSError as e:
+              self.logger.error(f"connection error | DNS error | reason: {str(e)}")
+              self.response_datas[req_infos.request_id] = None
+              self.request_queue.task_done()
+              continue
             except asyncio.TimeoutError:
               self.logger.error(f"request timed out | time: {self.__REQUEST_TIMEOUT_TIME}s")
               self.response_datas[req_infos.request_id] = None
