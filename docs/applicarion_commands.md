@@ -36,6 +36,10 @@ class ExampleCommand(application_command.GuildApplicationCommand):
   class NumberOption(application_command.Number):
     name = "num"
     description = "number option"
+  def __init__(self) -> None:
+    super().__init__()
+    self.add_option(self.StringOption())
+    self.add_option(self.NumberOption())
   async def command_function(self, interaction: application_command.ApplicationCommandInteraction, resources: ApplicationCommandResources, args: application_command.AppComArgs):
     req_data = resources.http_api.load_request(
       b_interaction.CreateInteractionResponse(
