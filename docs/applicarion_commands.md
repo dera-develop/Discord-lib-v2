@@ -5,7 +5,7 @@
 ## サンプルコード   
 ギルドアプリケーションコマンドを定義するサンプルコードです．   
 このコードでは，`/examplecommand`という名前のコマンドを作成します．   
-オプションとして，`string(文字列引数)`,`number(数値引数)`を指定できます．   
+オプションとして，`str(文字列引数)`,`num(数値引数)`を指定できます．   
 ```python   
 # guild application command example
 
@@ -16,8 +16,9 @@ from discord_lib2.command import application_command
 from discord_lib2.objects.resources import ApplicationCommandResources
 
 from discord_lib2.objects.http_request.body import b_interaction
+from discord_lib2.objects.http_request.request_query import q_interaction
 
-bot = Bot("bot_token", "os_type")
+bot = Bot("bot_token")
 
 logger = Logger()
 logger.create_default_handler("log_dir_path")
@@ -27,20 +28,29 @@ class UserEvent(GatewayEvent):
 event = UserEvent()
 
 class ExampleCommand(application_command.GuildApplicationCommand):
-  name = "ping"
-  description = "ping"
+  name = "examplecommand"
+  description = "example command"
+  class StringOption(application_command.String):
+    name = "str"
+    description = "string option"
+  class NumberOption(application_command.Number):
+    name = "num"
+    description = "number option"
   async def command_function(self, interaction: application_command.ApplicationCommandInteraction, resources: ApplicationCommandResources, args: application_command.AppComArgs):
-    req_data = resources.http_api.load_request(b_interaction.CreateInteractionResponse(
-      type=4,
-      data=b_interaction.InteractionCallbackData(
-        content="pong",
-        flags=64
-      )))
+    req_data = resources.http_api.load_request(
+      b_interaction.CreateInteractionResponse(
+        type=4,
+        data=b_interaction.InteractionCallbackData(content=f"str: {args.str}\nnum: {args.num}", flags=64)
+      ),
+      q_interaction.CreateInteractionResponse(with_response=True),
+      interaction_id=interaction.id,
+      interaction_token=interaction.token
+    )
     await resources.http_api.request(req_data)
 
 bot.add_application_command(ExampleCommand(), "guild_id")
 
-bot.boot(event, logger) 
+bot.boot(event, logger)
 ```   
   
 ## 使用するクラス   
