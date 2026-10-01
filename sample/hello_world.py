@@ -9,7 +9,7 @@ from discord_lib2.client import Bot
 from discord_lib2.logger import Logger
 from discord_lib2.event import GatewayEvent
 
-bot = Bot("your_bot_token", "your_os")
+bot = Bot("your_bot_token")
 
 logger = Logger()
 logger.create_default_handler("log_dir_path")
