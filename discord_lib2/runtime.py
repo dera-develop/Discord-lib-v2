@@ -1,5 +1,4 @@
 import asyncio
-import websockets
 from dacite import from_dict
 
 from discord_lib2 import exception_catcher
@@ -208,10 +207,6 @@ class Runtime:
           self.logger.info("remaining reconnection attempts is 0, system shutdown.")
           break
         self.logger.info("safe close connection, and reconnect.")
-
-      except websockets.ConnectionClosedError:
-        self.logger.error("The connection has been lost. try reconnect.")
-        await self.gateway_controller.websocket_disconnect(code=0, reason="", only_task_stop=True)
 
       except Exception as e:
         await self.gateway_controller.websocket_disconnect(code=1000, reason="auto shutdown")
