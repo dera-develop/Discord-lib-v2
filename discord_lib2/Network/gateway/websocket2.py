@@ -42,7 +42,7 @@ class WebsocketController:
     self.ws_connection: aiohttp.ClientWebSocketResponse | None = None
 
     self.system_cache_vault.gateway.heartbeat_interval = -1
-    self.counter_send_event = 0
+    self.bucket_send_event = 0
 
     self.op_event_functions = {
       self.OP_DISPATCH: self.__op_event_dispatch,
@@ -158,8 +158,8 @@ class WebsocketController:
     try:
       self.logger.info(f"Task started | name: worker=send")
       while True:
-        if self.counter_send_event < self.RATELIMIT_GATEWAY_SEND_PER_MIN:
-          self.counter_send_event += 1
+        if self.bucket_send_event > 0:
+          self.bucket_send_event -= 1
           send_data = await self.event_queue_send.get()
           await self.websocket_connect_object.send_str(send_data)
           self.event_queue_send.task_done()
@@ -238,8 +238,9 @@ class WebsocketController:
     try:
       self.logger.info(f"Task started | name: worker=rate_controller")
       while True:
-        await asyncio.sleep(60)
-        self.counter_send_event = 0
+        await asyncio.sleep(0.5)
+        if self.bucket_send_event < self.RATELIMIT_GATEWAY_SEND_PER_MIN:
+          self.bucket_send_event += 1
     except asyncio.CancelledError:
       return
     except Exception as e:
