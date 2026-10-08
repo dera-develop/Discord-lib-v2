@@ -7,7 +7,7 @@ from typing import ClassVar
 from aiohttp.client_exceptions import ClientConnectorDNSError
 
 from discord_lib2.logger import Logger
-from discord_lib2.exception_catcher import ExceptionCatcher
+from discord_lib2.exception_catcher2 import ExceptionCatcher2
 from discord_lib2.cache.system.system import SystemCacheVault
 from discord_lib2.Network.gateway import event_creators
 
@@ -30,7 +30,7 @@ class WebsocketController:
 
   RECVED_CHECK_STRING: ClassVar[bytes] = b"\x00\x00\xff\xff"
 
-  def __init__(self,logger: Logger, system_cache_vault: SystemCacheVault, exception_catcher: ExceptionCatcher):
+  def __init__(self,logger: Logger, system_cache_vault: SystemCacheVault, exception_catcher: ExceptionCatcher2):
     self.logger = logger.get_child("WSC")
     self.system_cache_vault = system_cache_vault
     self.exception_catcher = exception_catcher
@@ -170,7 +170,7 @@ class WebsocketController:
       return
     except Exception as e:
       self.logger.exception(f"Application error | reason: {str(e)}")
-      self.exception_catcher.set_v(ExceptionCatcher.STOP, 1000, "auto shutdown")
+      await self.exception_catcher.set_v(ExceptionCatcher2.STOP, 1000, "auto shutdown")
 
   # event receive
   async def __worker_recv(self):
@@ -184,7 +184,7 @@ class WebsocketController:
           recv_raw = await self.websocket_connect_object.receive()
           if recv_raw.type != aiohttp.WSMsgType.BINARY:
             self.logger.warning(f"received non-binary data | type: {recv_raw.type}, code: {self.websocket_connect_object.close_code}, data: {recv_raw.data}")
-            self.exception_catcher.set_v("reconnect", 4000, "auto reconnection")
+            await self.exception_catcher.set_v(ExceptionCatcher2.RECONNECT, 4000, "auto reconnection")
             while True:
               await asyncio.sleep(1)
           recv_bin = recv_raw.data
@@ -205,7 +205,7 @@ class WebsocketController:
       return
     except Exception as e:
       self.logger.exception(f"Application error | reason: {str(e)}")
-      self.exception_catcher.set_v(ExceptionCatcher.STOP, 1000, "auto shutdown")
+      await self.exception_catcher.set_v(ExceptionCatcher2.STOP, 1000, "auto shutdown")
 
   # event trigger
   async def __worker_event_trigger(self):
@@ -231,7 +231,7 @@ class WebsocketController:
       return
     except Exception as e:
       self.logger.exception(f"Application error | reason: {str(e)}")
-      self.exception_catcher.set_v(ExceptionCatcher.STOP, 1000, "auto shutdown")
+      await self.exception_catcher.set_v(ExceptionCatcher2.STOP, 1000, "auto shutdown")
 
   # event send rate controller
   async def __worker_sendrate_controller(self):
@@ -245,7 +245,7 @@ class WebsocketController:
       return
     except Exception as e:
       self.logger.exception(f"Application error | reason: {str(e)}")
-      self.exception_catcher.set_v(ExceptionCatcher.STOP, 1000, "auto shutdown")
+      await self.exception_catcher.set_v(ExceptionCatcher2.STOP, 1000, "auto shutdown")
 
   # heartbeat
   async def __worker_heartbeat(self):
@@ -264,12 +264,12 @@ class WebsocketController:
           self.system_cache_vault.gateway.heartbeat_sended += 1
         else:
           self.logger.error(f"counter error | send: {self.system_cache_vault.gateway.heartbeat_sended}, recv: {self.system_cache_vault.gateway.heartbeat_recved}")
-          self.exception_catcher.set_v(self.exception_catcher.RECONNECT, 4000, "auto_reconnect")
+          await self.exception_catcher.set_v(self.exception_catcher.RECONNECT, 4000, "auto_reconnect")
     except asyncio.CancelledError:
       return
     except Exception as e:
       self.logger.exception(f"Application error | reason: {str(e)}")
-      self.exception_catcher.set_v(ExceptionCatcher.STOP, 1000, "auto shutdown")
+      await self.exception_catcher.set_v(ExceptionCatcher2.STOP, 1000, "auto shutdown")
 
   # # # # # # # # # # # # # # # # # # # # # # # # # #
 
@@ -279,11 +279,11 @@ class WebsocketController:
   async def get_event_queue(self) -> str:
     return await self.event_queue_dispatch.get()
 
-  def reconnect(self, close_code: int=4000, close_reason: str="auto reconnect"):
-    self.exception_catcher.set_v(self.exception_catcher.RECONNECT, close_code, close_reason)
+  async def reconnect(self, close_code: int=4000, close_reason: str="auto reconnect"):
+    await self.exception_catcher.set_v(self.exception_catcher.RECONNECT, close_code, close_reason)
 
-  def stconnect(self, close_code: int=1000, close_reason: str="auto shutdown"):
-    self.exception_catcher.set_v(self.exception_catcher.STOP, close_code, close_reason)
+  async def stconnect(self, close_code: int=1000, close_reason: str="auto shutdown"):
+    await self.exception_catcher.set_v(self.exception_catcher.STOP, close_code, close_reason)
 
   # # # # # # # # # # # # # # # # # # # # # # # # # #
   # op event task functions
@@ -297,14 +297,14 @@ class WebsocketController:
     self.__task_heartbeat = asyncio.create_task(self.__worker_heartbeat())
 
   async def __op_event_reconnect(self, d, t):
-    self.reconnect()
+    await self.reconnect()
 
   async def __op_event_invalid_session(self, d, t):
     can_resume = d
     if can_resume:
-      self.reconnect()
+      await self.reconnect()
     else:
-      self.stconnect()
+      await self.stconnect()
 
   async def __op_event_hello(self, d, t):
     interval = d.get("heartbeat_interval")

@@ -1,9 +1,9 @@
 import asyncio
 from dacite import from_dict
 
-from discord_lib2 import exception_catcher
+from discord_lib2 import exception_catcher2
 from discord_lib2.logger import Logger
-from discord_lib2.exception_catcher import ExceptionCatcher
+from discord_lib2.exception_catcher2 import ExceptionCatcher2
 from discord_lib2.event import GatewayEvent
 from discord_lib2.cache.system.system import SystemCacheVault
 from discord_lib2.cache.user.data import DataCacheVault
@@ -43,7 +43,7 @@ class Runtime:
 
     self.application_commands = application_commands
 
-    self.exception_catcher = ExceptionCatcher(logger_master)
+    self.exception_catcher = ExceptionCatcher2(logger_master)
     self.http_request_loader = RequestLoader(logger_master)
     self.http_request_controller = HttpRequestController(self.system_cache_vault, logger_master)
     self.gateway_controller = WebsocketController(logger_master, self.system_cache_vault, self.exception_catcher)
@@ -191,17 +191,17 @@ class Runtime:
           except asyncio.QueueEmpty:
             pass
           except Exception as e:
-            self.logger.error(f"Command execution error | reason: {str(e)}")
+            self.logger.exception(f"Command execution error | reason: {str(e)}")
 
-          await asyncio.to_thread(self.exception_catcher.get_v)
+          self.exception_catcher.get_v()
           await asyncio.sleep(1)
 
-      except exception_catcher.StopConnection as e:
+      except exception_catcher2.StopConnection as e:
         await self.gateway_controller.websocket_disconnect(code=e.close_code, reason=e.close_reason)
         self.logger.info("safe close connection.")
         break
 
-      except exception_catcher.ReConnection as e:
+      except exception_catcher2.ReConnection as e:
         await self.gateway_controller.websocket_disconnect(code=e.close_code, reason=e.close_reason)
         if self.bootcycle == 0:
           self.logger.info("remaining reconnection attempts is 0, system shutdown.")
@@ -224,11 +224,11 @@ class Runtime:
 ## Default command functions
 #############################################################################
   async def __command_stop(self, args: list[str]):
-    self.exception_catcher.set_v(self.exception_catcher.STOP, 1000, "auto shutdown")
+    await self.exception_catcher.set_v(self.exception_catcher.STOP, 1000, "user shutdown")
 
 
   async def __command_reconnect(self, args: list[str]):
-    self.exception_catcher.set_v(self.exception_catcher.RECONNECT, 4000, "auto reconnection")
+    await self.exception_catcher.set_v(self.exception_catcher.RECONNECT, 4000, "user reconnection")
 
 
   async def __command_list(self, args: list[str]):

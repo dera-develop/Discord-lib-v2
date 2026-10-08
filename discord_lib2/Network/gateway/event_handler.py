@@ -4,7 +4,7 @@ from itertools import chain
 from dacite import from_dict
 
 from discord_lib2.logger import Logger
-from discord_lib2.exception_catcher import ExceptionCatcher
+from discord_lib2.exception_catcher2 import ExceptionCatcher2
 from discord_lib2.cache.system.system import SystemCacheVault
 from discord_lib2.cache.user.data import DataCacheVault
 from discord_lib2.cache.user import guild as DataCacheGuild
@@ -34,7 +34,7 @@ class EventHandler:
   def __init__(
       self,
       logger: Logger,
-      exception_catcher: ExceptionCatcher,
+      exception_catcher: ExceptionCatcher2,
       system_cache_vault: SystemCacheVault,
       data_cache_vault: DataCacheVault,
       websocket_controller: WebsocketController,
