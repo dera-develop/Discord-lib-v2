@@ -279,12 +279,6 @@ class WebsocketController:
   async def get_event_queue(self) -> str:
     return await self.event_queue_dispatch.get()
 
-  async def reconnect(self, close_code: int=4000, close_reason: str="auto reconnect"):
-    await self.exception_catcher.set_v(self.exception_catcher.RECONNECT, close_code, close_reason)
-
-  async def stconnect(self, close_code: int=1000, close_reason: str="auto shutdown"):
-    await self.exception_catcher.set_v(self.exception_catcher.STOP, close_code, close_reason)
-
   # # # # # # # # # # # # # # # # # # # # # # # # # #
   # op event task functions
   # # # # # # # # # # # # # # # # # # # # # # # # # #
@@ -297,14 +291,14 @@ class WebsocketController:
     self.__task_heartbeat = asyncio.create_task(self.__worker_heartbeat())
 
   async def __op_event_reconnect(self, d, t):
-    await self.reconnect()
+    await self.exception_catcher.set_v(ExceptionCatcher2.RECONNECT, 4000, "received resume event (op: 7)")
 
   async def __op_event_invalid_session(self, d, t):
     can_resume = d
     if can_resume:
-      await self.reconnect()
+      await self.exception_catcher.set_v(ExceptionCatcher2.RECONNECT, 4000, "received invalid session (op: 9, d: true)")
     else:
-      await self.stconnect()
+      await self.exception_catcher.set_v(ExceptionCatcher2.RESTART, 1000, "received invalid session (op: 9, d: false)")
 
   async def __op_event_hello(self, d, t):
     interval = d.get("heartbeat_interval")

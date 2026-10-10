@@ -15,6 +15,12 @@ class ReConnection(Exception):
     self.close_code = close_code
     self.close_reason = close_reason
 
+class ReStartConnection(Exception):
+  def __init__(self, close_code: int=1000, close_reason: str="auto shutdown") -> None:
+    super().__init__(f"restart connection(exception used) | code: {close_code}, reason: {close_reason}")
+    self.close_code = close_code
+    self.close_reason = close_reason
+
 class ExceptionInformation:
   def __init__(self, name: str, code: int, reason: str) -> None:
     self.name = name
@@ -24,13 +30,15 @@ class ExceptionInformation:
 class ExceptionCatcher2:
   RECONNECT: ClassVar[str] = "reconnect"
   STOP: ClassVar[str] = "stop"
+  RESTART: ClassVar[str] = "restart"
 
   def __init__(self, logger: Logger) -> None:
     self.logger = logger.get_child("EXC")
     self.exception_queue: asyncio.Queue[ExceptionInformation] = asyncio.Queue()
     self.exception_funcs = {
       self.RECONNECT: self.__reconnect_exception,
-      self.STOP     : self.__stop_exception
+      self.STOP     : self.__stop_exception,
+      self.RESTART  : self.__restart_exception
     }
 
   async def reset_queue(self):
@@ -54,3 +62,6 @@ class ExceptionCatcher2:
 
   def __reconnect_exception(self, close_code: int):
     raise ReConnection(close_code)
+
+  def __restart_exception(self, close_code: int):
+    raise ReStartConnection(close_code)

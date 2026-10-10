@@ -65,7 +65,6 @@ class Runtime:
       logger_master
     )
 
-
   async def __regist_application_command(self):
     self.logger.info("checking command difference...")
     # difference check
@@ -119,7 +118,6 @@ class Runtime:
         except RequestFailedError:
           self.logger.error("Failed request \"DeleteGlobalApplicationCommand\"")
     self.logger.info(f"global command update | new: {log_datas['new']}, edit: {log_datas['edit']}, delete: {log_datas['delete']}")
-
 
   async def boot(self):
     await self.terminal_controller.start()
@@ -202,11 +200,21 @@ class Runtime:
         break
 
       except exception_catcher2.ReConnection as e:
+        if self.bootcycle == 0:
+          await self.gateway_controller.websocket_disconnect(code=1000, reason="auto shutdown")
+          self.logger.info("remaining reconnection attempts is 0, system shutdown.")
+          break
+        await self.gateway_controller.websocket_disconnect(code=e.close_code, reason=e.close_reason)
+        self.logger.info("safe close connection, and reconnect.")
+
+      except exception_catcher2.ReStartConnection as e:
         await self.gateway_controller.websocket_disconnect(code=e.close_code, reason=e.close_reason)
         if self.bootcycle == 0:
           self.logger.info("remaining reconnection attempts is 0, system shutdown.")
           break
-        self.logger.info("safe close connection, and reconnect.")
+        self.system_cache_vault.resume.reconnect_gateway_url = ""
+        self.system_cache_vault.resume.session_id = ""
+        self.logger.info("safe close connection, and restart connection.")
 
       except Exception as e:
         await self.gateway_controller.websocket_disconnect(code=1000, reason="auto shutdown")
@@ -226,10 +234,8 @@ class Runtime:
   async def __command_stop(self, args: list[str]):
     await self.exception_catcher.set_v(self.exception_catcher.STOP, 1000, "user shutdown")
 
-
   async def __command_reconnect(self, args: list[str]):
     await self.exception_catcher.set_v(self.exception_catcher.RECONNECT, 4000, "user reconnection")
-
 
   async def __command_list(self, args: list[str]):
     self.logger.debug("==================")
