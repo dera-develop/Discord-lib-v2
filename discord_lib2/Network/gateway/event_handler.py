@@ -44,7 +44,7 @@ class EventHandler:
       application_commands: dict
   ) -> None:
     self.__task_event_handler = None
-    self.logger = logger.get_child("GEH")
+    self.logger = logger.get_child("EventHandler")
     self.cache_system = system_cache_vault
     self.cache_data = data_cache_vault
     self.gateway_controller = websocket_controller

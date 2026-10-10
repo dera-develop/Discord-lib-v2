@@ -56,7 +56,7 @@ class HttpRequestController:
   __REQUEST_TIMEOUT_TIME = 10
 
   def __init__(self, system_cache: system.SystemCacheVault, logger: Logger) -> None:
-    self.logger = logger.get_child("HRC")
+    self.logger = logger.get_child("HttpAPI")
     self.system_cache_vault = system_cache
 
     self.request_queue = RequestQueue()

@@ -32,7 +32,7 @@ class SkipTaskException(Exception):
 class Runtime:
   def __init__(self, bot_token: str, bot_intents: int, os_type: str, logger_master: Logger, bootcycle: int, user_event: GatewayEvent, user_terminal_command: TerminalCommand, application_commands: dict, proxy: str | None):
     self.bootcycle = bootcycle
-    self.logger = logger_master.get_child("RTM")
+    self.logger = logger_master.get_child("Runtime")
 
     self.system_cache_vault = SystemCacheVault()
     self.data_cache_vault = DataCacheVault()

@@ -8,18 +8,18 @@ class UserEventResources:
     self.gateway = gateway
     self.http_api = http_api
     self.cache = data_cache
-    self.logger = logger.get_child("GUE")
+    self.logger = logger.get_child("UserEvent")
     
 class UserTerminalCommandResources:
   def __init__(self, gateway: GatewayRequest, http_api: HttpRequest, data_cache: DataCacheVault, logger: Logger) -> None:
     self.gateway = gateway
     self.http_api = http_api
     self.cache = data_cache
-    self.logger = logger.get_child("TUC")
+    self.logger = logger.get_child("TermCom")
     
 class ApplicationCommandResources:
   def __init__(self, gateway: GatewayRequest, http_api: HttpRequest, data_cache: DataCacheVault, logger: Logger) -> None:
     self.gateway = gateway
     self.http_api = http_api
     self.cache = data_cache
-    self.logger = logger.get_child("ACE")
+    self.logger = logger.get_child("AppCom")

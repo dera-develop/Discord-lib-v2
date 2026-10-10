@@ -31,7 +31,7 @@ class WebsocketController:
   RECVED_CHECK_STRING: ClassVar[bytes] = b"\x00\x00\xff\xff"
 
   def __init__(self,logger: Logger, system_cache_vault: SystemCacheVault, exception_catcher: ExceptionCatcher2):
-    self.logger = logger.get_child("WSC")
+    self.logger = logger.get_child("Websocket")
     self.system_cache_vault = system_cache_vault
     self.exception_catcher = exception_catcher
     self.event_queue_send = asyncio.Queue()

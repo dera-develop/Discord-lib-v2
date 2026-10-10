@@ -43,7 +43,7 @@ from discord_lib2.objects.resources import UserTerminalCommandResources
   `command arg1 arg2...`と渡されると，`args`は`["command", "arg1", "arg2"...]`となります．  
   - `resources`  
   `UserTerminalCommandResources`型です．Overviewの[リソースセクション](overview.md#resources)に記述されている構造と同一の構造になっています．  
-  唯一，`logger`の名前のみ，`TUC(Terminal User Command)`となっています．  
+  唯一，`logger`の名前のみ，`TermCom(Terminal Command)`となっています．  
 HttpAPIリクエストボディーの作成，Gatewayリクエストの送信等は，Gatewayイベントのユーザー定義関数と同様に行うことができます．  
   
 #### 2. 関数の登録  

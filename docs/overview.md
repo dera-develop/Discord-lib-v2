@@ -286,7 +286,7 @@ await resources.gateway.request_channel_info(request_data)
 ```  
   
 ##### ロガー  
-LoggingのLoggerが設定されています．冒頭のBotインスタンスに渡したLoggerを親として，`GUE(Gateway User Event)`という名前でログが出力されます．  
+LoggingのLoggerが設定されています．冒頭のBotインスタンスに渡したLoggerを親として，`UserEvent`という名前でログが出力されます．  
 ```python  
 resources.logger.info(...)  
 resources.logger.error(...)  

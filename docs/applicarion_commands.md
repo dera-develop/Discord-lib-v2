@@ -238,7 +238,7 @@ command_function(interaction: application_command.ApplicationCommandInteraction,
   インタラクションイベントのオブジェクトインスタンスが渡されます．   
   変数はインスタンス変数として呼び出せます．   
 - `resources`   
-  `ApplicationCommandResources`型です．Overviewの[リソースセクション](overview.md#resources)に記述されている構造と同一の構造になっています．唯一，`logger`の名前のみ，`ACE(Application Command Event)`となっています．   
+  `ApplicationCommandResources`型です．Overviewの[リソースセクション](overview.md#resources)に記述されている構造と同一の構造になっています．唯一，`logger`の名前のみ，`AppCom(Application Command)`となっています．   
   リクエスト等はOverviewに記載されているものと同様に行うことができます．   
 - `args`   
   `AppComArgs`型です．`dict`型をオーバーライドした型です．設定したオプションをメゾッドとして呼び出せます．   

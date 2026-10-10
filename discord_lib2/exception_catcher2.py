@@ -33,7 +33,7 @@ class ExceptionCatcher2:
   RESTART: ClassVar[str] = "restart"
 
   def __init__(self, logger: Logger) -> None:
-    self.logger = logger.get_child("EXC")
+    self.logger = logger.get_child("EXC-C")
     self.exception_queue: asyncio.Queue[ExceptionInformation] = asyncio.Queue()
     self.exception_funcs = {
       self.RECONNECT: self.__reconnect_exception,

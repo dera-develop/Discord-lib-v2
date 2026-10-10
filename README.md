@@ -41,7 +41,7 @@ from discord_lib2.event import GatewayEvent
   
 scriptPath = os.path.dirname(os.path.abspath(__file__))  
   
-bot = Bot("your_bot_token", "your_os")  
+bot = Bot("your_bot_token")  
   
 logger = Logger()  
 logger.create_default_handler(os.path.join(scriptPath, "log"))  

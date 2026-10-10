@@ -6,7 +6,7 @@ class Terminal:
   input_queue: asyncio.Queue
   def __init__(self, logger: Logger) -> None:
     self.input_queue = asyncio.Queue()
-    self.logger = logger.get_child("TLN")
+    self.logger = logger.get_child("Terminal")
 
   async def __worker_terminal_listener(self):
     self.logger.info("Task started | name: worker=terminal_listener")
