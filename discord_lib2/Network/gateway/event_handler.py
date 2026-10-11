@@ -136,7 +136,7 @@ class EventHandler:
       "AUTO_MODERATION_RULE_DELETE": self.auto_moderation_rule_delete,
       "AUTO_MODERATION_ACTION_EXECUTION": self.auto_moderation_action_execution,
       "MESSAGE_POLL_VOTE_ADD": self.message_poll_vote_add,
-      "MESSAGE_POLL_VOTE_REMOVE": self.message_poll_vote_remove,
+      "MESSAGE_POLL_VOTE_REMOVE": self.message_poll_vote_remove
     }
 
   async def __worker_event_handler(self):
@@ -169,12 +169,18 @@ class EventHandler:
 
   async def trigger(self, event_name: str, event_data: dict):
     try:
+      if event_name == "__LIB_CLOSE_WEBSOCKET":
+        await self.run_close_event()
+        return
       if event_name in self.event_name_functions:
         await self.event_name_functions[event_name](event_data)
       else:
         self.logger.warning(f"The event \"{event_name}\" has not been registered with the handler.")
     except Exception as e:
       self.logger.exception(f"event process error | reason: {str(e)}")
+
+  async def run_close_event(self):
+    await self.user_event_functions.gateway_close_event(self.user_resources)
 
 ########################################################################
 ## EVENT FUNCTIONS

@@ -77,6 +77,7 @@ class WebsocketController:
   
   async def websocket_disconnect(self, code: int=1000, reason: str="system shutdown", only_task_stop: bool=False):
     await self.__task_stopper()
+    await self.event_queue_dispatch.put(json.dumps({"t": "__LIB_CLOSE_WEBSOCKET", "d": None}))
     if not only_task_stop:
       self.logger.info(f"Websocket disconnect | code: {code}, reason: {reason}")
       await self.websocket_connect_object.close(code=code, message=reason.encode("utf-8"))

@@ -211,3 +211,6 @@ class GatewayEvent:
 
   async def message_poll_vote_remove(self, resources: UserEventResources):
     pass
+
+  async def gateway_close_event(self, resources: UserEventResources):
+    pass
