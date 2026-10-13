@@ -1,31 +1,7 @@
 # Discord Bot Library 2.0  
 全て自作したBotを作りたかったので，ライブラリを作りました．  
 2.0なのは，以前作っていたものを1から作り直したからです．  
-  
 詳細の仕様については，[Overview](./docs/overview.md)を確認してください．  
-
-## 前提  
-現在このライブラリは **開発中** です．  
-  
-### 実装済み  
-- Gateway接続  
-  - 接続の維持，イベントの送受信が可能  
-- HttpAPI  
-  - リクエストオブジェクトの定義（一部未実装）  
-  - リクエストの送信  
-    - Jsonフォーマットによるリクエスト送信  
-    - formフォーマットによるファイル送信  
-    （一部リクエストオブジェクトはファイル送信にまだ対応できていない可能性があります）  
-- Dispatchイベントをトリガーとするユーザー定義関数  
-- キャッシュ構造  
-- Dispatchイベントによるキャッシュ更新処理  
-- コマンド定義
-  - アプリケーションコマンドの定義・実行機能
-  - ユーザー定義のターミナルコマンド機能  
-  
-### 開発中  
-- 音声接続機能  
-- その他ライブラリの安定性・安全性の向上  
   
 ## Develop  
 開発は Python3.13 で行っています．  
@@ -56,22 +32,39 @@ class UserEvents(GatewayEvent):
 event = UserEvents()  
   
 bot.boot(event, logger)  
-```  
----
-## Hot to use
-リポジトリをクローンし使用します．ライブラリ本体は`./discord_lib2`です．  
-```shell
-cd <workspace>
-git clone https://github.com/dera-develop/Discord-lib-v2.git
 ```
----
+
+## Feature
+自身でこのライブラリを使用してBot開発を行っています．開発の際，ライブラリとして実装した方が良いと思った機能を段階的に実装していきます．  
+また，余力があれば音声接続機能も実装しようと考えています．
+
 ## Dependencies  
 ### Library  
 本ライブラリは，以下の Python ライブラリに依存しており，環境によっては追加インストールが必要になる場合があります．  
-  
-##### External Libraries
-- aiohttp  
-- dacite  
+- aiohttp
+- dacite
+
+## Hot to use
+リポジトリをクローンし使用します．ライブラリ本体は`./discord_lib2`です．  
+```shell
+# リポジトリをクローンします
+git clone https://github.com/dera-develop/Discord-lib-v2.git
+cd ./Discord-lib-v2
+
+# python実行環境を準備します
+python -m venv myenv
+# 以下OSに応じてどちらかを実行します
+## Linux/MacOSで使用する場合
+source ./myenv/bin/activate
+## Windowsで使用する場合
+cd ./myenv/Scripts && ./activate && ../..
+
+# 外部ライブラリをインストールします
+pip install aiohttp dacite
+
+# 好きな名前のメインプログラムファイルを作成し実行します
+python main.py
+```
 
 ## Link  
 - [Discord Developer Portal](https://discord.com/developers/applications)  
