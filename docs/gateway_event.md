@@ -63,7 +63,10 @@ resources
  │   ├─ request_soundboard_sounds  # サウンドボードのリクエスト関数
  │   └─ request_channel_info       # チャンネル情報のリクエスト関数
  │
- └─ logger # loggingを使用したロガー
+ ├─ logger    # loggingを使用したロガー
+ │
+ └─ bot_stop  # botを停止させる関数
+
 ```
 
 ##### cache
@@ -184,6 +187,12 @@ LoggingのLoggerが設定されています．冒頭のBotインスタンスに�
 resources.logger.info(...)
 resources.logger.error(...)
 ```
+
+##### bot_stop
+Botを停止させる関数です．  
+非同期関数のため，実行するには`await`する必要があります．
+**注意**
+この関数で実行が終了するのではなく，ライブラリ内部にあるキューに停止命令を追加する関数のため，キューから値が取得されるまで処理は継続されます．
 
 #### event_object
 各受信イベントに対応したデータ構造が定義されています．定義の有無は，[ユーザーイベントソースコード](../discord_lib2/event.py)を確認してください．

@@ -55,13 +55,15 @@ class EventHandler:
       self.user_gateway_request,
       self.user_http_request,
       self.cache_data,
-      logger
+      logger,
+      self.exception_catcher
     )
     self.appcom_resources = ApplicationCommandResources(
       self.user_gateway_request,
       self.user_http_request,
       self.cache_data,
-      logger
+      logger,
+      self.exception_catcher
     )
     self.user_event_functions = user_event
     self.guild_application_commands: dict[str, list[GuildApplicationCommand]] = application_commands["guilds"]

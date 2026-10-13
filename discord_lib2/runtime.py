@@ -62,7 +62,8 @@ class Runtime:
       GatewayRequest(self.gateway_controller),
       HttpRequest(self.http_request_controller, self.http_request_loader),
       self.data_cache_vault,
-      logger_master
+      logger_master,
+      self.exception_catcher
     )
 
   async def __regist_application_command(self):
