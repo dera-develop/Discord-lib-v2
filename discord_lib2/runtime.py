@@ -169,6 +169,7 @@ class Runtime:
 
     while True:
       try:
+        await self.exception_catcher.reset_queue()
         if self.bootcycle > 0:
           self.bootcycle -= 1
         self.logger.info(f"connection start | Remaining startup times: {self.bootcycle}")

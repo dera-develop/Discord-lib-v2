@@ -169,9 +169,11 @@ class WebsocketController:
 
     except asyncio.CancelledError:
       return
+    except aiohttp.ClientConnectionResetError:
+      await self.exception_catcher.set_v(ExceptionCatcher2.RECONNECT, 4000, "send worker error (ClientConnectionResetError)")
     except Exception as e:
       self.logger.exception(f"Application error | reason: {str(e)}")
-      await self.exception_catcher.set_v(ExceptionCatcher2.STOP, 1000, "auto shutdown")
+      await self.exception_catcher.set_v(ExceptionCatcher2.STOP, 1000, "send worker error")
 
   # event receive
   async def __worker_recv(self):
@@ -206,7 +208,7 @@ class WebsocketController:
       return
     except Exception as e:
       self.logger.exception(f"Application error | reason: {str(e)}")
-      await self.exception_catcher.set_v(ExceptionCatcher2.STOP, 1000, "auto shutdown")
+      await self.exception_catcher.set_v(ExceptionCatcher2.STOP, 1000, "recieve worker error")
 
   # event trigger
   async def __worker_event_trigger(self):
@@ -232,7 +234,7 @@ class WebsocketController:
       return
     except Exception as e:
       self.logger.exception(f"Application error | reason: {str(e)}")
-      await self.exception_catcher.set_v(ExceptionCatcher2.STOP, 1000, "auto shutdown")
+      await self.exception_catcher.set_v(ExceptionCatcher2.STOP, 1000, "event trigger error")
 
   # event send rate controller
   async def __worker_sendrate_controller(self):
@@ -246,7 +248,7 @@ class WebsocketController:
       return
     except Exception as e:
       self.logger.exception(f"Application error | reason: {str(e)}")
-      await self.exception_catcher.set_v(ExceptionCatcher2.STOP, 1000, "auto shutdown")
+      await self.exception_catcher.set_v(ExceptionCatcher2.STOP, 1000, "sendrate controller error")
 
   # heartbeat
   async def __worker_heartbeat(self):
@@ -268,9 +270,11 @@ class WebsocketController:
           await self.exception_catcher.set_v(self.exception_catcher.RECONNECT, 4000, "auto_reconnect")
     except asyncio.CancelledError:
       return
+    except aiohttp.ClientConnectionResetError:
+      await self.exception_catcher.set_v(ExceptionCatcher2.RECONNECT, 4000, "heartbeat worker error (ClientConnectionResetError)")
     except Exception as e:
       self.logger.exception(f"Application error | reason: {str(e)}")
-      await self.exception_catcher.set_v(ExceptionCatcher2.STOP, 1000, "auto shutdown")
+      await self.exception_catcher.set_v(ExceptionCatcher2.STOP, 1000, "heartbeat worker error")
 
   # # # # # # # # # # # # # # # # # # # # # # # # # #
 
