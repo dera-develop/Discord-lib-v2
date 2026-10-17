@@ -993,6 +993,7 @@ class ModulSubmitInteraction(Interaction):
     custom_id: str = ""
     components: list = field(default_factory=list)
     resolved: Interaction.ResolvedData | None=None
+  data: ModalSubmit = field(default_factory=ModalSubmit)
 
 @dataclass
 class WebhooksUpdate:
