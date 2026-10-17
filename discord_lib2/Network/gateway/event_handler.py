@@ -25,8 +25,8 @@ from discord_lib2.objects.gateway import recv_event_object
 
 from discord_lib2.objects.http_request.body import b_application_command
 from discord_lib2.objects.http_request.body import b_interaction
-from discord_lib2.objects.http_request.request_query import q_application_command
-from discord_lib2.objects.http_request.request_query import q_interaction
+from discord_lib2.objects.http_request.query import q_application_command
+from discord_lib2.objects.http_request.query import q_interaction
 
 snowflake = str
 

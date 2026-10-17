@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from discord_lib2.objects.http_request.request_query.query_base import Exclude, BaseClass
+from discord_lib2.objects.http_request.query.query_base import Exclude, BaseClass
 
 @dataclass
 class GetGlobalApplicationCommands(BaseClass):

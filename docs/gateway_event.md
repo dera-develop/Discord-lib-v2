@@ -112,7 +112,7 @@ APIへのリクエストを行う際に使用する関数が定義されてい�
 1. リクエストボディーの作成
 リクエストボディーを作成します．リクエストボディーのほとんどは定義されており，`discord_lib2/objects/http_request/body/b_*.py`に定義されています．必要に応じてimportし使用します．また，各クラスは`dataclasses`ライブラリの`dataclass`を使用しています．
 2. クエリの作成
-リクエストに必要な場合（特にGetリクエスト等）は，クエリを作成します．クエリもほとんどが定義されており，`discord_lib2/objects/http_request/request_query/q_*.py`に定義されています．こちらも必要に応じてimportし使用します．こちらも各クラスが`dataclasses`ライブラリの`dataclass`を使用しています．
+リクエストに必要な場合（特にGetリクエスト等）は，クエリを作成します．クエリもほとんどが定義されており，`discord_lib2/objects/http_request/query/q_*.py`に定義されています．こちらも必要に応じてimportし使用します．こちらも各クラスが`dataclasses`ライブラリの`dataclass`を使用しています．
 3. リクエスト情報の生成
 `http_api.load_request`関数を使用し，リクエスト情報を生成します．戻り値は`RequestInfomation`です．
 ・`request_object` リクエストボディーを設定します．

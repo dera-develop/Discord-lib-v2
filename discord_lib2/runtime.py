@@ -23,7 +23,7 @@ from discord_lib2.command.appcom_diffchecker import checker_v2
 from discord_lib2.objects.http_request.body import b_gateway
 from discord_lib2.objects.http_request.body import b_application
 from discord_lib2.objects.http_request.body import b_application_command
-from discord_lib2.objects.http_request.request_query import q_application_command
+from discord_lib2.objects.http_request.query import q_application_command
 
 class SkipTaskException(Exception):
   def __init__(self, *args: object) -> None:
