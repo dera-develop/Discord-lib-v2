@@ -45,6 +45,12 @@ class DCChoiceOption:
 @dataclass
 class InteractionCallbackAutocomplete:
   choices: list[DCChoiceOption]
+
+@dataclass
+class InteractionCallbackModal:
+  custom_id: str
+  title: str
+  components: list[component.ComponentClass]
   
 @dataclass
 class CreateInteractionResponse(body_base.BaseClass):
@@ -52,7 +58,7 @@ class CreateInteractionResponse(body_base.BaseClass):
   req_type: ClassVar[str] = "post"
 
   type: int
-  data: InteractionCallbackData | InteractionCallbackAutocomplete | Exclude = Exclude()
+  data: InteractionCallbackData | InteractionCallbackAutocomplete | InteractionCallbackModal | Exclude = Exclude()
 
 @dataclass
 class GetOriginalInteractionResponse(__InteractionBase):
