@@ -3,12 +3,18 @@ from typing import ClassVar
 
 from discord_lib2.objects.http_request.body import body_base
 from discord_lib2.objects.http_request.body.body_base import Exclude
+from discord_lib2.objects.http_request.body.body_base import FormFile
 
 from discord_lib2.objects.http_request.body import b_message
+from discord_lib2.objects.http_request.body import b_poll
+from discord_lib2.objects.http_request.body import b_message
+from discord_lib2.objects.other import component
+
+snowflake = str
 
 @dataclass
 class __InteractionBase(body_base.BaseClass):
-  req_base_url: ClassVar[str] = "/webhooks/<application.id>/interaction.token>"
+  req_base_url: ClassVar[str] = "/webhooks/<application.id>/<interaction.token>"
 
 CALLBACK_PONG = 1
 CALLBACK_CHANNEL_MESSAGE_WITH_SOURCE = 4
@@ -62,3 +68,38 @@ class EditOriginalInteractionResponse(__InteractionBase):
 class DeleteOriginalInteractionResponse(__InteractionBase):
   req_url: ClassVar[str] = "/messages/@original"
   req_type: ClassVar[str] = "delete"
+
+@dataclass
+class CreateFollowupMessage(__InteractionBase):
+  req_url: ClassVar[str] = ""
+  req_type = "post"
+
+  content: str
+  username: str
+  avatar_url: str
+  tts: bool
+  embeds: list[b_message.Embed]
+  allowed_mentions: b_message.AllowedMentions
+  components: list[component.ComponentClass]
+  payload_json: str
+  attachments: list[b_message.AttachmentRequest]
+  flags: int
+  thread_name: str
+  applied_tags: list[snowflake]
+  poll: b_poll.CreateRequest
+  files: FormFile = FormFile()
+
+@dataclass
+class GetFollowupMessage(__InteractionBase):
+  req_url = "/messages/<message.id>"
+  req_type = "get"
+
+@dataclass
+class EditFollowupMessage(__InteractionBase):
+  req_url = "/messages/<message.id>"
+  req_type = "patch"
+
+@dataclass
+class DeleteFollowupMessage(__InteractionBase):
+  req_url = "/messages/<message.id>"
+  req_type = "delete"
