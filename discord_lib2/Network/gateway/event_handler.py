@@ -409,7 +409,7 @@ class EventHandler:
 
   async def thread_create(self, event_data: dict):
     guild_id = event_data.get("guild_id")
-    thread_id = event_data.get("channel_id")
+    thread_id = event_data.get("id")
     newly_created = event_data.pop("newly_created", False)
     if isinstance(guild_id, snowflake) and isinstance(thread_id, snowflake):
       self.cache_data.data.guilds[guild_id].threads[thread_id] = DataCacheGuild.Thread()
@@ -422,7 +422,7 @@ class EventHandler:
 
   async def thread_update(self, event_data: dict):
     guild_id = event_data.get("guild_id")
-    thread_id = event_data.get("channel_id")
+    thread_id = event_data.get("id")
     if isinstance(guild_id, snowflake) and isinstance(thread_id, snowflake):
       if not thread_id in self.cache_data.data.guilds[guild_id].threads:
         self.cache_data.data.guilds[guild_id].threads[thread_id] = DataCacheGuild.Thread()

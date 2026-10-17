@@ -74,20 +74,20 @@ class CreateFollowupMessage(__InteractionBase):
   req_url: ClassVar[str] = ""
   req_type = "post"
 
-  content: str
-  username: str
-  avatar_url: str
-  tts: bool
-  embeds: list[b_message.Embed]
-  allowed_mentions: b_message.AllowedMentions
-  components: list[component.ComponentClass]
-  payload_json: str
-  attachments: list[b_message.AttachmentRequest]
-  flags: int
-  thread_name: str
-  applied_tags: list[snowflake]
-  poll: b_poll.CreateRequest
-  files: FormFile = FormFile()
+  content: str | Exclude = Exclude()
+  username: str | Exclude = Exclude()
+  avatar_url: str | Exclude = Exclude()
+  tts: bool | Exclude = Exclude()
+  embeds: list[b_message.Embed] | Exclude = Exclude()
+  allowed_mentions: b_message.AllowedMentions | Exclude = Exclude()
+  components: list[component.ComponentClass] | Exclude = Exclude()
+  payload_json: str | Exclude = Exclude()
+  attachments: list[b_message.AttachmentRequest] | Exclude = Exclude()
+  flags: int | Exclude = Exclude()
+  thread_name: str | Exclude = Exclude()
+  applied_tags: list[snowflake] | Exclude = Exclude()
+  poll: b_poll.CreateRequest | Exclude = Exclude()
+  files: FormFile | Exclude = Exclude()
 
 @dataclass
 class GetFollowupMessage(__InteractionBase):
