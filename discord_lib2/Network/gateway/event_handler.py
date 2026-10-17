@@ -276,7 +276,7 @@ class EventHandler:
       req_data = self.user_http_request.load_request(
         b_application_command.GetGuildApplicationCommands(),
         q_application_command.GetGuildApplicationCommands(with_localizations=True),
-        application_id=self.cache_system.application.id,
+        application_id=self.cache_data.data.application.id,
         guild_id=guild_id
       )
       res = await self.user_http_request.request(req_data)
@@ -298,20 +298,20 @@ class EventHandler:
         for data in guild_appcom_datas:
           if data.get("new"):
             req_dict = data.get("data")
-            req_data = self.user_http_request.load_request(b_application_command.CreateGuildApplicationCommand(req_dict), application_id=self.cache_system.application.id, guild_id=guild_id)
+            req_data = self.user_http_request.load_request(b_application_command.CreateGuildApplicationCommand(req_dict), application_id=self.cache_data.data.application.id, guild_id=guild_id)
             res = await self.user_http_request.request(req_data)
             if res is not None and res.ok:
               log_datas["new"] += 1
           elif data.get("edit"):
             req_dict = data.get("data")
             req_com_id = data.get("id")
-            req_data = self.user_http_request.load_request(b_application_command.EditGuildApplicationCommand(req_dict), application_id=self.cache_system.application.id, guild_id=guild_id, command_id=req_com_id)
+            req_data = self.user_http_request.load_request(b_application_command.EditGuildApplicationCommand(req_dict), application_id=self.cache_data.data.application.id, guild_id=guild_id, command_id=req_com_id)
             res = await self.user_http_request.request(req_data)
             if res is not None and res.ok:
               log_datas["edit"] += 1
           elif data.get("del"):
             req_com_id = data.get("id")
-            req_data = self.user_http_request.load_request(b_application_command.DeleteGuildApplicationCommand(), application_id=self.cache_system.application.id, guild_id=guild_id, command_id=req_com_id)
+            req_data = self.user_http_request.load_request(b_application_command.DeleteGuildApplicationCommand(), application_id=self.cache_data.data.application.id, guild_id=guild_id, command_id=req_com_id)
             res = await self.user_http_request.request(req_data)
             if res is not None and res.ok:
               log_datas["delete"] += 1

@@ -76,7 +76,7 @@ class Runtime:
     req_data = self.http_request_loader.request_load(
       b_application_command.GetGlobalApplicationCommands(),
       q_application_command.GetGlobalApplicationCommands(with_localizations=True),
-      application_id=self.system_cache_vault.application.id
+      application_id=self.data_cache_vault.data.application.id
     )
     try:
       res = await self.http_request_controller.add_request(req_data)
@@ -92,7 +92,7 @@ class Runtime:
     for data in global_appcom_datas:
       if data.get("new"):
         req_dict = data.get("data")
-        req_data = self.http_request_loader.request_load(b_application_command.CreateGlobalApplicationCommand(req_dict), application_id=self.system_cache_vault.application.id)
+        req_data = self.http_request_loader.request_load(b_application_command.CreateGlobalApplicationCommand(req_dict), application_id=self.data_cache_vault.data.application.id)
         try:
           res = await self.http_request_controller.add_request(req_data)
           if res.ok:
@@ -102,7 +102,7 @@ class Runtime:
       elif data.get("edit"):
         req_dict = data.get("data")
         req_com_id = data.get("id")
-        req_data = self.http_request_loader.request_load(b_application_command.EditGlobalApplicationCommand(req_dict), application_id=self.system_cache_vault.application.id, command_id=req_com_id)
+        req_data = self.http_request_loader.request_load(b_application_command.EditGlobalApplicationCommand(req_dict), application_id=self.data_cache_vault.data.application.id, command_id=req_com_id)
         try:
           res = await self.http_request_controller.add_request(req_data)
           if res.ok:
@@ -111,7 +111,7 @@ class Runtime:
           self.logger.error("Failed request \"EditGlobalApplicationCommand\"")
       elif data.get("del"):
         req_com_id = data.get("id")
-        req_data = self.http_request_loader.request_load(b_application_command.DeleteGlobalApplicationCommand(), application_id=self.system_cache_vault.application.id, command_id=req_com_id)
+        req_data = self.http_request_loader.request_load(b_application_command.DeleteGlobalApplicationCommand(), application_id=self.data_cache_vault.data.application.id, command_id=req_com_id)
         try:
           res = await self.http_request_controller.add_request(req_data)
           if res is not None and res.ok:
@@ -142,7 +142,7 @@ class Runtime:
       await asyncio.to_thread(print, "application was shutdown. please pless Enter key...........")
       return
 
-    self.system_cache_vault.application = from_dict(recv_event_object.Application, res.json)
+    self.data_cache_vault.data.application = from_dict(recv_event_object.Application, res.json)
 
     self.logger.info("check application command")
     try:

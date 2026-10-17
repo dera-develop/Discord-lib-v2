@@ -43,6 +43,8 @@ Gateway接続関係，APIリクエスト，キャッシュの操作はこの変�
 ```
 resources
  ├─ cache
+ │   ├─ application # applicationオブジェクト
+ │   │   
  │   ├─ data
  │   │   ├─ guilds
  │   │   │   └─ # GuildCreateイベント構造をベースとしたデータクラス
@@ -71,6 +73,9 @@ resources
 
 ##### cache
 キャッシュは，各`DISPATCH`イベントに応じて自動的に更新されます．
+
+###### application
+アプリケーションオブジェクトです．`GetCurrentApplication`ポイントを使用して取得した，ボットのアプリケーション情報を格納しています．
 
 ###### data
 自動更新されるキャッシュ構造です．変数として定義してあるため，メゾッドとして内部のほぼすべてのキャッシュデータを簡単に呼び出せます．
