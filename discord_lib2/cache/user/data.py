@@ -12,7 +12,7 @@ class Data:
   def __init__(self) -> None:
     self.users: dict[snowflake, user.User] = {}
     self.guilds: dict[snowflake, guild.GuildCache] = {}
-    self.application: Application = Application()
+    self.application: Application = Application("", "", "", False, False, "")
 
 class DataCacheVault:
   def __init__(self) -> None:

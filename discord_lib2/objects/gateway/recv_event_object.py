@@ -138,53 +138,56 @@ class Guild:
     dms_disabled_until: ISO8601timestamp | None = None
     dm_spam_detected_at: ISO8601timestamp | None = None
     raid_detected_at: ISO8601timestamp | None = None
-  id: snowflake | None = None
-  name: str | None = None
+  id: snowflake
+  name: str
+  owner_id: snowflake
+  afk_timeout: int
+  verification_level: int
+  default_message_notifications: int
+  explicit_content_filter: int
+  mfa_level: int
+  system_channel_flags: int
+  premium_tier: int
+  preferred_locale: str
+  nsfw_level: int
+  premium_progress_bar_enabled: bool
   icon: str | None = None
   icon_hash: str | None = None
   splash: str | None = None
   discovery_splash: str | None = None
   owner: bool | None = None
-  owner_id: snowflake | None = None
   permissions: str | None = None
   region: str | None = None
   afk_channel_id: snowflake | None = None
-  afk_timeout: int | None = None
   widget_enabled: bool | None = None
   widget_channel_id: snowflake | None = None
-  verification_level: int | None = None
-  default_message_notifications: int | None = None
-  explicit_content_filter: int | None = None
   roles: list[Role] = field(default_factory=list)
   emojis: list[Emoji] = field(default_factory=list)
   features: list[str] = field(default_factory=list)
-  mfa_level: int | None = None
   application_id: snowflake | None = None
   system_channel_id: snowflake | None = None
-  system_channel_flags: int | None = None
   rules_channel_id: snowflake | None = None
   max_presences: int | None = None
   max_members: int | None = None
   vanity_url_code: str | None = None
   description: str | None = None
   banner: str | None = None
-  premium_tier: int | None = None
   premium_subscription_count: int | None = None
-  preferred_locale: str | None = None
   public_updates_channel_id: snowflake | None = None
   max_video_channel_users: int | None = None
   max_stage_video_channel_users: int | None = None
   approximate_member_count: int | None = None
   approximate_presence_count: int | None = None
   welcome_screen: WelcomeScreen | None = None
-  nsfw_level: int | None = None
   stickers: list[Sticker] | None = None
-  premium_progress_bar_enabled: bool | None = None
   safety_alerts_channel_id: snowflake | None = None
   incidents_data: IncidentsData | None = None
 
 @dataclass
 class GuildMember:
+  deaf: bool
+  mute: bool
+  flags: int
   user: User | None = None
   nick: str | None = None
   avatar: str | None = None
@@ -192,9 +195,6 @@ class GuildMember:
   roles: list[snowflake] = field(default_factory=list)
   joined_at: ISO8601timestamp | None = None
   premium_since: ISO8601timestamp | None = None
-  deaf: bool | None = None
-  mute: bool | None = None
-  flags: int | None = None
   pending: bool | None = None
   permissions: str | None = None
   communication_disabled_until: ISO8601timestamp | None = None
@@ -207,18 +207,18 @@ class GuildMemberUpdate(GuildMember):
 
 @dataclass
 class VoiceState:
+  user_id: snowflake
+  session_id: str
+  deaf: bool
+  mute: bool
+  self_deaf: bool
+  self_mute: bool
+  self_video: bool
+  suppress: bool
   guild_id: snowflake | None = None
   channel_id: snowflake | None = None
-  user_id: snowflake | None = None
   member: GuildMember | None = None
-  session_id: str | None = None
-  deaf: bool | None = None
-  mute: bool | None = None
-  self_deaf: bool | None = None
-  self_mute: bool | None = None
   self_stream: bool | None = None
-  self_video: bool | None = None
-  suppress: bool | None = None
   request_to_speak_timestamp: ISO8601timestamp | None = None
 
 @dataclass
@@ -255,8 +255,8 @@ class Channel:
   class DefaultReaction:
     emoji_id: snowflake | None = None
     emoji_name: str | None = None
-  id: snowflake | None = None
-  type: int | None = None
+  id: snowflake
+  type: int
   guild_id: snowflake | None = None
   position: int | None = None
   permission_overwrites: list[OverWrite] | None = None
@@ -302,7 +302,7 @@ class PresenceUpdate:
       end: int | None = None
     @dataclass
     class A_Emoji:
-      name: str | None = None
+      name: str
       id: snowflake | None = None
       animated: bool | None = None
     @dataclass
@@ -327,10 +327,10 @@ class PresenceUpdate:
     class A_Buttons:
       label: str | None = None
       url: str | None = None
-    name: str | None = None
-    type: int | None = None
+    name: str
+    type: int
+    created_at: int
     url: str | None = None
-    created_at: int | None = None
     timestamps: A_Timestamps | None = None
     application_id: snowflake | None = None
     status_display_type: int | None = None
@@ -352,8 +352,8 @@ class PresenceUpdate:
     web: str | None = None
     vr: str | None = None
   user: User
-  guild_id: snowflake | None = None
-  status: str | None = None
+  guild_id: snowflake
+  status: str
   activities: list[Activity] = field(default_factory=list)
   client_status: ClientStatus = field(default_factory=ClientStatus)
 
@@ -388,17 +388,17 @@ class GuildScheduledEvent:
     by_month_day: list[int] | None = None
     by_year_day: list[int] | None = None
     count: int | None = None
-  id: snowflake | None = None
-  guild_id: snowflake | None = None
+  id: snowflake
+  guild_id: snowflake
+  name: str
+  scheduled_start_time: ISO8601timestamp
+  privacy_level: int
+  status: int
+  entity_type: int
   channel_id: snowflake | None = None
   creator_id: snowflake | None = None
-  name: str | None = None
   description: str | None = None
-  scheduled_start_time: ISO8601timestamp | None = None
   scheduled_end_time: ISO8601timestamp | None = None
-  privacy_level: int | None = None
-  status: int | None = None
-  entity_type: int | None = None
   entity_id: snowflake | None = None
   entity_metadata: EntityMetadata | None = None
   creator: User | None = None
@@ -408,13 +408,13 @@ class GuildScheduledEvent:
 
 @dataclass
 class SoundboardSound:
-  name: str | None = None
-  sound_id: snowflake | None = None
-  volume: float | None = None
+  name: str
+  sound_id: snowflake
+  volume: float
+  available: bool
   emoji_id: snowflake | None = None
   emoji_name: str | None = None
   guild_id: snowflake | None = None
-  available: bool | None = None
   user: User | None = None
 
 @dataclass
@@ -434,31 +434,31 @@ class GuildCreate(Guild):
 
 @dataclass
 class ThreadListSync:
-  guild_id: snowflake | None = None
+  guild_id: snowflake
   channel_ids: list[snowflake] | None = None
   threads: list[Channel] = field(default_factory=list)
   members: list[Channel.ThreadMember] = field(default_factory=list)
 
 @dataclass
 class ThreadMembersUpdate:
-  id: snowflake | None = None
-  guild_id: snowflake | None = None
-  member_count: int | None = None
+  id: snowflake
+  guild_id: snowflake
+  member_count: int
   added_members: list[Channel.ThreadMember] | None = None
   removed_member_ids: list[snowflake] | None = None
 
 @dataclass
 class ChannelPinsUpdate:
+  channel_id: snowflake
   guild_id: snowflake | None = None
-  channel_id: snowflake | None = None
   last_pin_timestamp: ISO8601timestamp | None = None
 
 @dataclass
 class GuildMembersChunk:
-  guild_id: snowflake | None = None
+  guild_id: snowflake
+  chunk_index: int
+  chunk_count: int
   members: list[GuildMember]  = field(default_factory=list)
-  chunk_index: int | None = None
-  chunk_count: int | None = None
   not_found: list[Any] | None = None
   presences: list[PresenceUpdate] | None = None
   nonce: str | None = None
@@ -470,15 +470,15 @@ class GuildMemberRemove:
 
 @dataclass
 class GuildScheduledEventUserAdd:
-  guild_scheduled_event_id: snowflake | None = None
-  user_id: snowflake | None = None
-  guild_id: snowflake | None = None
+  guild_scheduled_event_id: snowflake
+  user_id: snowflake
+  guild_id: snowflake
 
 @dataclass
 class GuildScheduledEventUserRemove:
-  guild_scheduled_event_id: snowflake | None = None
-  user_id: snowflake | None = None
-  guild_id: snowflake | None = None
+  guild_scheduled_event_id: snowflake
+  user_id: snowflake
+  guild_id: snowflake
 
 @dataclass
 class GuildEmojisUpdate:
@@ -509,26 +509,26 @@ class GuildSoundboardSoundsUpdate:
 class Integration:
   @dataclass
   class Account:
-    id: str | None = None
-    name: str | None = None
+    id: str
+    name: str
   @dataclass
   class Application:
-    id: snowflake | None = None
-    name: str | None = None
+    id: snowflake
+    name: str
+    description: str
     icon: str | None = None
-    description: str | None = None
     bot: User | None = None
-  id: snowflake | None = None
-  name: str | None = None
-  type: str | None = None
-  enabled: bool | None = None
+  id: snowflake
+  name: str
+  type: str
+  enabled: bool
+  account: Account
   syncing: bool | None = None
   role_id: snowflake | None = None
   enable_emoticons: bool | None = None
   expire_behavior: int | None = None
   expire_grace_period: int | None = None
   user: User | None = None
-  account: Account = field(default_factory=Account)
   synced_at: ISO8601timestamp | None = None
   subscriber_count: int | None = None
   revoked: bool | None = None
@@ -563,20 +563,20 @@ class Team:
 class Application:
   @dataclass
   class InstallParams:
-    scopes: list[str] = field(default_factory=list)
-    permissions: str | None = None
-  id: snowflake | None = None
-  name: str | None = None
+    scopes: list[str]
+    permissions: str
+  id: snowflake
+  name: str
+  description: str
+  bot_public: bool
+  bot_require_code_grant: bool
+  verify_key: str
   icon: str | None = None
-  description: str | None = None
   rpc_origins: list[str] | None = None
-  bot_public: bool | None = None
-  bot_require_code_grant: bool | None = None
   bot: User | None = None
   terms_of_service_url: str | None = None
   privacy_policy_url: str | None = None
   owner: User | None = None
-  verify_key: str | None = None
   team: Team | None = None
   guild_id: snowflake | None = None
   guild: Guild | None = None
@@ -595,7 +595,7 @@ class Application:
   event_webhooks_status: int | None = None
   event_webhooks_types: list[str] | None = None
   tags: list[str] | None = None
-  install_params: InstallParams = field(default_factory=InstallParams)
+  install_params: InstallParams | None = None
   integration_types_config: dict[Any, Any] | None = None
   custom_install_url: str | None = None
 
@@ -615,11 +615,11 @@ class Poll:
   class Results:
     @dataclass
     class AnswerCount:
-      id: int | None = None
-      count: int | None = None
-      me_voted: bool | None = None
-    is_finalized: bool | None = None
-    answer_counts: list[AnswerCount] | None = None
+      id: int
+      count: int
+      me_voted: bool
+    is_finalized: bool
+    answer_counts: list[AnswerCount]
   question: PollMedia
   answers: list[PollAnswer]
   expiry: ISO8601timestamp | None = None
@@ -638,14 +638,14 @@ class PartialMessage:
 class MiniMessage(PartialMessage):
   @dataclass
   class Attachment:
-    id: snowflake | None = None
-    filename: str | None = None
+    id: snowflake
+    filename: str
+    size: int
+    url: str
+    proxy_url: str
     title: str | None = None
     description: str | None = None
     content_type: str | None = None
-    size: int | None = None
-    url: str | None = None
-    proxy_url: str | None = None
     height: int | None = None
     width: int | None = None
     placeholder: str | None = None
@@ -672,7 +672,7 @@ class MiniMessage(PartialMessage):
       flags: int | None = None
     @dataclass
     class Image:
-      url: str | None = None
+      url: str
       proxy_url: str | None = None
       height: int | None = None
       width: int | None = None
@@ -687,19 +687,19 @@ class MiniMessage(PartialMessage):
       url: str | None = None
     @dataclass
     class Author:
-      name: str | None = None
+      name: str
       url: str | None = None
       icon_url: str | None = None
       proxy_icon_url: str | None = None
     @dataclass
     class Footer:
-      text: str | None = None
+      text: str
       icon_url: str | None = None
       proxy_icon_url: str | None = None
     @dataclass
     class Field:
-      name: str | None = None
-      value: str | None = None
+      name: str
+      value: str
       inline: bool | None = None
     title: str | None = None
     type: str | None = None
@@ -717,10 +717,10 @@ class MiniMessage(PartialMessage):
     flags: int | None = None
   @dataclass
   class StickerItem:
-    id: snowflake | None = None
-    name: str | None = None
-    format_type: int | None = None
-  type: int | None = None
+    id: snowflake
+    name: str
+    format_type: int
+  type: int
   embeds: list[Embed] | None = None
   attachments: list[Attachment] | None = None
   edited_timestamp: ISO8601timestamp | None = None
@@ -735,21 +735,25 @@ class MiniMessage(PartialMessage):
 class Message(MiniMessage):
   @dataclass
   class ChannelMention:
-    id: snowflake | None = None
-    guild_id: snowflake | None = None
-    type: int | None = None
-    name: str | None = None
+    id: snowflake
+    guild_id: snowflake
+    type: int
+    name: str
   @dataclass
   class Reaction:
-    count: int | None = None
-    count_details: object | None = None
-    me: bool | None = None
-    me_burst: bool | None = None
-    emoji: Emoji | None = None
-    burst_colors: list[Any] | None = None
+    @dataclass
+    class ReactionDetails:
+      burst: int
+      normal: int
+    count: int
+    count_details: ReactionDetails
+    me: bool
+    me_burst: bool
+    emoji: Emoji
+    burst_colors: list[Any]
   @dataclass
   class MActivity:
-    type: int | None = None
+    type: int
     party_id: str | None = None
   @dataclass
   class Reference:
@@ -763,26 +767,26 @@ class Message(MiniMessage):
     message: MiniMessage
   @dataclass
   class InteractionMetadata:
-    id: snowflake | None = None
-    type: int | None = None
-    user: User | None = None
-    authorizing_integration_owners: dict[Any, Any] | None = None
+    id: snowflake
+    type: int
+    user: User
+    authorizing_integration_owners: dict[Any, Any]
     original_response_message_id: snowflake | None = None
     target_user: User | None = None
     target_message_id: snowflake | None = None
   @dataclass
   class Interaction:
-    id: snowflake | None = None
-    type: int | None = None
-    name: str | None = None
-    user: User | None = None
+    id: snowflake
+    type: int
+    name: str
+    user: User
     member: GuildMember | None = None
   @dataclass
   class RoleSubscriptionData:
-    role_subscription_listing_id: snowflake | None = None
-    tier_name: str | None = None
-    total_months_subscribed: int | None = None
-    is_renewal: bool | None = None
+    role_subscription_listing_id: snowflake
+    tier_name: str
+    total_months_subscribed: int
+    is_renewal: bool
   @dataclass
   class ResolvedData:
     users: dict[snowflake, User] | None = None
@@ -793,13 +797,13 @@ class Message(MiniMessage):
     attachments: dict[snowflake, MiniMessage.Attachment] | None = None
   @dataclass
   class Call:
-    participants: list[snowflake] | None = None
+    participants: list[snowflake]
     ended_timestamp: ISO8601timestamp | None = None
   @dataclass
   class SharedClientTheme:
-    colors: list[str] | None = None
-    gradient_angle: int | None = None
-    base_mix: int | None = None
+    colors: list[str]
+    gradient_angle: int
+    base_mix: int
     base_theme: int | None = None
   channel_id: snowflake | None = None
   tts: bool | None = None
@@ -834,83 +838,84 @@ class MessageCreateUpdate(Message):
 
 @dataclass
 class MessageDelete:
-  id: snowflake | None = None
-  channel_id: snowflake | None = None
+  id: snowflake
+  channel_id: snowflake
   guild_id: snowflake | None = None
 
 @dataclass
 class MessageDeleteBulk:
-  ids: list[snowflake] = field(default_factory=list)
-  channel_id: snowflake | None = None
+  ids: list[snowflake]
+  channel_id: snowflake
   guild_id: snowflake | None = None
 
 @dataclass
 class MessageReactionAdd:
-  user_id: snowflake | None = None
-  channel_id: snowflake | None = None
-  message_id: snowflake | None = None
+  user_id: snowflake
+  channel_id: snowflake
+  message_id: snowflake
+  emoji: Emoji
+  burst: bool
+  type: int
   guild_id: snowflake | None = None
   member: GuildMember | None = None
-  emoji: Emoji | None = None
   message_author_id: snowflake | None = None
-  burst: bool | None = None
   burst_colors: list[str] | None = None
-  type: int | None = None
 
 @dataclass
 class MessageReactionRemove:
-  user_id: snowflake | None = None
-  channel_id: snowflake | None = None
-  message_id: snowflake | None = None
+  user_id: snowflake
+  channel_id: snowflake
+  message_id: snowflake
+  emoji: Emoji
+  burst: bool
+  type: int
   guild_id: snowflake | None = None
-  emoji: Emoji | None = None
-  burst: bool | None = None
-  type: int | None = None
 
 @dataclass
 class MessageReactionRemoveAll:
-  channel_id: snowflake | None = None
-  message_id: snowflake | None = None
+  channel_id: snowflake
+  message_id: snowflake
   guild_id: snowflake | None = None
 
 @dataclass
 class MessageReactionRemoveEmoji:
-  channel_id: snowflake | None = None
+  channel_id: snowflake
+  message_id: snowflake
+  emoji: Emoji
   guild_id: snowflake | None = None
-  message_id: snowflake | None = None
-  emoji: Emoji | None = None
 
 @dataclass
 class InviteCreate:
-  channel_id: snowflake | None = None
-  code: str | None = None
-  created_at: ISO8601timestamp | None = None
+  channel_id: snowflake
+  code: str
+  created_at: ISO8601timestamp
+  max_age: int
+  max_uses: int
+  temporary: bool
+  uses: int
+
   guild_id: snowflake | None = None
   inviter: User | None = None
-  max_age: int | None = None
-  max_uses: int | None = None
   target_type: int | None = None
   target_user: User | None = None
   target_application: Application | None = None
-  temporary: bool | None = None
-  uses: int | None = None
   expires_at: ISO8601timestamp | None = None
   role_ids: list[snowflake] | None = None
 
 @dataclass
 class InviteDelete:
-  channel_id: snowflake | None = None
+  channel_id: snowflake
+  code: str
   guild_id: snowflake | None = None
-  code: str | None = None
 
 @dataclass
 class Entitlement:
-  id: snowflake | None = None
-  sku_id: snowflake | None = None
-  application_id: snowflake | None = None
+  id: snowflake
+  sku_id: snowflake
+  application_id: snowflake
+  type: int
+  deleted: bool
   user_id: snowflake | None = None
-  type: int | None = None
-  deleted: bool | None = None
   starts_at: ISO8601timestamp | None = None
   ends_at: ISO8601timestamp | None = None
   guild_id: snowflake | None = None
@@ -929,22 +934,22 @@ class Interaction:
   id: snowflake
   application_id: snowflake
   type: int
+  token: str
+  version: int
+  app_permissions: str
+  entitlements: list[Entitlement]
+  authorizing_integration_owners: dict[Any, Any]
+  attachment_size_limit: int
   guild: Guild | None = None
   guild_id: snowflake | None = None
   channel: Channel | None = None
   channel_id: snowflake | None = None
   member: GuildMember | None = None
   user: User | None = None
-  token: str | None = None
-  version: int | None = None
   message: Message | None = None
-  app_permissions: str | None = None
   locale: str | None = None
   guild_locale: str | None = None
-  entitlements: list[Entitlement] | None = None
-  authorizing_integration_owners: dict[Any, Any] | None = None
   context: int | None = None
-  attachment_size_limit: int | None = None
 
 @dataclass
 class PingInteraction(Interaction):
@@ -997,25 +1002,25 @@ class ModulSubmitInteraction(Interaction):
 
 @dataclass
 class WebhooksUpdate:
-  guild_id: snowflake | None = None
-  channel_id: snowflake | None = None
+  guild_id: snowflake
+  channel_id: snowflake
 
 @dataclass
 class GuildRoleEvent:
-  guild_id: snowflake | None = None
-  role: Role | None = None
+  guild_id: snowflake
+  role: Role
 
 @dataclass
 class GuildRoleDelete:
-  guild_id: snowflake | None = None
-  role_id: snowflake | None = None
+  guild_id: snowflake
+  role_id: snowflake
 
 @dataclass
 class TypingStart:
-  channel_id: snowflake | None = None
+  channel_id: snowflake
+  user_id: snowflake
+  timestamp: int
   guild_id: snowflake | None = None
-  user_id: snowflake | None = None
-  timestamp: int | None = None
   member: GuildMember | None = None
 
 @dataclass
