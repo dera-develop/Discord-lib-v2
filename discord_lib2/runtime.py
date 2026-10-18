@@ -177,7 +177,7 @@ class Runtime:
         if not gw_res:
           self.logger.error("Failed connect gateway. system shutdown.")
           break
-        
+
         while True:
           try:
             command = await self.terminal_controller.get_input()
@@ -218,6 +218,11 @@ class Runtime:
         self.system_cache_vault.resume.session_id = ""
         self.logger.info("safe close connection, and restart connection.")
 
+      except asyncio.CancelledError:
+        self.logger.info("Keyboard interrupt | system shutdown")
+        await self.gateway_controller.websocket_disconnect()
+        break
+
       except Exception as e:
         await self.gateway_controller.websocket_disconnect(code=1000, reason="auto shutdown")
         self.logger.exception(f"application error | reason: {str(e)}")
@@ -228,7 +233,7 @@ class Runtime:
     await self.http_request_controller.request_worker_stop()
     await self.terminal_controller.stop()
     await asyncio.sleep(0.1)
-    await asyncio.to_thread(print, "application was shutdown. please pless Enter key...........")
+
 
 #############################################################################
 ## Default command functions

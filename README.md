@@ -42,6 +42,7 @@ bot.boot(event, logger)
 ### Library  
 本ライブラリは，以下の Python ライブラリに依存しており，環境によっては追加インストールが必要になる場合があります．  
 - aiohttp
+- aioconsole
 - dacite
 
 ## Hot to use

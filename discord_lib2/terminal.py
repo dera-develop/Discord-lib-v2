@@ -1,4 +1,5 @@
 import asyncio
+from aioconsole import ainput
 
 from discord_lib2.logger import Logger
 
@@ -12,12 +13,13 @@ class Terminal:
     self.logger.info("Task started | name: worker=terminal_listener")
     try:
       while True:
-        inputted_command = await asyncio.to_thread(input, "")
+        inputted_command = await ainput("")
         inputted_command = inputted_command.strip()
         self.logger.info(f"input | {inputted_command}")
         await self.input_queue.put(inputted_command)
         await asyncio.sleep(0.1)
-    
+    except EOFError:
+      return
     except asyncio.CancelledError:
       return
     except Exception as e:
