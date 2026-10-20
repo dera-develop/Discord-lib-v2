@@ -930,7 +930,12 @@ class Interaction:
     roles: dict[snowflake, Role] | None=None
     channels: dict[snowflake, Channel] | None=None
     messages: dict[snowflake, Message] | None=None
-    attachments: dict[snowflake, Message.Attachment] | None=None
+    attachments: dict[snowflake, Message.Attachment] | None=None,
+  @dataclass
+  class PartialGuild:
+    locale: str
+    id: snowflake
+    features: list
   id: snowflake
   application_id: snowflake
   type: int
@@ -940,7 +945,7 @@ class Interaction:
   entitlements: list[Entitlement]
   authorizing_integration_owners: dict[Any, Any]
   attachment_size_limit: int
-  guild: Guild | None = None
+  guild: PartialGuild | None = None
   guild_id: snowflake | None = None
   channel: Channel | None = None
   channel_id: snowflake | None = None
