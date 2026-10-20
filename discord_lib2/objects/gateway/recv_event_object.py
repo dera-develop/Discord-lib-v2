@@ -930,7 +930,7 @@ class Interaction:
     roles: dict[snowflake, Role] | None=None
     channels: dict[snowflake, Channel] | None=None
     messages: dict[snowflake, Message] | None=None
-    attachments: dict[snowflake, Message.Attachment] | None=None,
+    attachments: dict[snowflake, Message.Attachment] | None=None
   @dataclass
   class PartialGuild:
     locale: str
