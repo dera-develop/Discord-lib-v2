@@ -61,9 +61,9 @@ source ./myenv/bin/activate
 cd ./myenv/Scripts && ./activate && ../..
 
 # 外部ライブラリをインストールします
-pip install aiohttp dacite
+pip install -r requirements.txt
 
-# 好きな名前のメインプログラムファイルを作成し実行します
+# メインプログラムファイルを作成し実行します
 python main.py
 ```
 
