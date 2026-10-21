@@ -202,8 +202,21 @@ class GuildMember:
   collectibles: User.Collectibles | None = None
 
 @dataclass
-class GuildMemberUpdate(GuildMember):
-  guild_id: snowflake | None = None
+class GuildMemberUpdate:
+  guild_id: snowflake
+  roles: list[snowflake]
+  user: User
+  nick: str | None = None
+  avatar: str | None = None
+  banner: str | None = None
+  joined_at: ISO8601timestamp | None = None
+  premium_since: ISO8601timestamp | None = None
+  deaf: bool | None = None
+  mute: bool | None = None
+  pending: bool | None = None
+  communication_disabled_until: ISO8601timestamp | None = None
+  avatar_decoration_data: User.AvatarDecorationData | None = None
+  collectibles: User.Collectibles | None = None
 
 @dataclass
 class VoiceState:
