@@ -50,9 +50,6 @@ class HttpRequestController:
   __RESPONCE_HEADER_RATELIMIT = "X-RateLimit-Remaining"
   __RESPONCE_HEADER_RATELIMIT_WAITTIME = "X-RateLimit-Reset-After"
 
-  __REQUEST_HEADER_CONTENT_TYPE_JSON = "application/json"
-  __REQUEST_HEADER_CONTENT_TYPE_FORM = "multipart/form-data"
-
   __REQUEST_TIMEOUT_TIME = 10
 
   def __init__(self, system_cache: system.SystemCacheVault, logger: Logger) -> None:
@@ -127,13 +124,10 @@ class HttpRequestController:
       return res_infos
   ##      ##
 
-  def __get_header(self, content_type: str, enable_token: bool):
+  def __get_header(self, enable_token: bool):
     header_base = {
-      "User-Agent": f"DiscordBot (https://github.com/dera-develop/Discord-lib-v2), 2.0",
-      "Content-Type": content_type
+      "User-Agent": f"DiscordBot (https://github.com/dera-develop/Discord-lib-v2), 2.0"
     }
-    if content_type == self.__REQUEST_HEADER_CONTENT_TYPE_FORM:
-      header_base.pop("Content-Type")
     if enable_token:
       header_base["Authorization"] = f"Bot {self.system_cache_vault.bot_token}"
     return header_base
@@ -171,24 +165,22 @@ class HttpRequestController:
       try:
         while True:
           req_infos = await self.request_queue.get()
+          header = self.__get_header(req_infos.request_need_token)
 
           #####debug
-          #self.logger.debug(f"Send request | type: {req_infos.request_type}, url: {req_infos.request_url}")
-          #self.logger.debug(f"body   // {req_infos.request_body}")
+          #self.logger.debug(f"Send request | type: {req_infos.request_type}, url: {req_infos.request_url}\n\theader: {header}\n\tbody: {req_infos.request_body}")
 
           if "form" in req_infos.request_type:
-            header = self.__get_header(self.__REQUEST_HEADER_CONTENT_TYPE_FORM, req_infos.request_need_token)
             try:
               res = await self.req_form_functions[req_infos.request_type](session, req_infos.request_url, header, req_infos.request_form)
             except asyncio.CancelledError:
               raise
             except Exception as e:
-              self.logger.exception(f"request worker error | reason: {str(e)}")
+              self.logger.exception(f"form request error | reason: {str(e)}")
               self.response_datas[req_infos.request_id] = None
               self.request_queue.task_done()
               continue
           else:
-            header = self.__get_header(self.__REQUEST_HEADER_CONTENT_TYPE_JSON, req_infos.request_need_token)
             try:
               res = await self.req_json_functions[req_infos.request_type](session, req_infos.request_url, header, req_infos.request_body)
             except asyncio.CancelledError:
@@ -204,7 +196,7 @@ class HttpRequestController:
               self.request_queue.task_done()
               continue
             except Exception as e:
-              self.logger.exception(f"request worker error | reason: {str(e)}")
+              self.logger.exception(f"json request error | reason: {str(e)}")
               self.response_datas[req_infos.request_id] = None
               self.request_queue.task_done()
               continue

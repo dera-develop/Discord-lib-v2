@@ -7,6 +7,12 @@ import asyncio
 class Exclude:
   pass
 
+class _FileData:
+  def __init__(self, file_name: str, file_type: str, file_data: bytes) -> None:
+    self.file_name = file_name
+    self.file_type = file_type
+    self.file_data = file_data
+
 class FormFile(Exclude):
   def __init__(self) -> None:
     self.files = {}
@@ -23,11 +29,7 @@ class FormFile(Exclude):
     file_data = await asyncio.to_thread(self.__get_file_binary, file_path)
 
     file_index = len(self.files)
-    self.files[f"files[{file_index}]"] = (
-      file_name,
-      file_data,
-      file_type
-    )
+    self.files[f"files[{file_index}]"] = _FileData(file_name, file_type, file_data)
 
 
 class RequestContentType:
@@ -50,7 +52,7 @@ def asdict_exclude_filter(obj) -> dict | list:
   else:
     return obj
   
-def asdict_file_filter(obj) -> dict:
+def asdict_file_filter(obj) -> dict[str, _FileData]:
   files_dict = {}
 
   if is_dataclass(obj):

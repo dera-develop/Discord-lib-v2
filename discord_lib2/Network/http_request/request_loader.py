@@ -86,7 +86,7 @@ class RequestLoader:
       if len(arg) >= 2 and arg[0] == "<" and arg[-1] == ">":
         variable_name = arg[1:-1]
         if url_variable_dict[variable_name] is None:
-          raise body_base.PayloadFormatError(f"'{variable_name}': Invalid URL argument.")
+          raise body_base.PayloadFormatError(f"invalid URL argument | require: {variable_name}")
         new_url_args.append(str(url_variable_dict[variable_name]).strip())
       else:
         new_url_args.append(arg)
@@ -112,8 +112,8 @@ class RequestLoader:
     if file_datas != {}:
       request_information.request_type = f"{request_object.req_type}_form"
       request_information.request_form.add_field("payload_json", json.dumps(request_body))
-      for key, value in file_datas.items():
-        request_information.request_form.add_field(key, value)
+      for key, file_data in file_datas.items():
+        request_information.request_form.add_field(name=key, value=file_data.file_data, filename=file_data.file_name, content_type=file_data.file_type)
 
     return request_information
 
