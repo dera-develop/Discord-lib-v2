@@ -23,7 +23,7 @@ class RequestLoader:
   def __init__(self, logger: Logger) -> None:
     self.logger = logger.get_child("HRL")
 
-  def request_load(
+  def load_request(
       self,
       request_object: body_base.BaseClass,
       request_query_object: query_base.BaseClass | None = None,

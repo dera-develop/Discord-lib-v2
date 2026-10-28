@@ -73,7 +73,7 @@ class Runtime:
     self.logger.debug("target: global_application_command")
     command_datas = self.application_commands["globals"]
     global_appcom_datas = []
-    req_data = self.http_request_loader.request_load(
+    req_data = self.http_request_loader.load_request(
       b_application_command.GetGlobalApplicationCommands(),
       q_application_command.GetGlobalApplicationCommands(with_localizations=True),
       application_id=self.data_cache_vault.data.application.id
@@ -92,7 +92,7 @@ class Runtime:
     for data in global_appcom_datas:
       if data.get("new"):
         req_dict = data.get("data")
-        req_data = self.http_request_loader.request_load(b_application_command.CreateGlobalApplicationCommand(req_dict), application_id=self.data_cache_vault.data.application.id)
+        req_data = self.http_request_loader.load_request(b_application_command.CreateGlobalApplicationCommand(req_dict), application_id=self.data_cache_vault.data.application.id)
         try:
           res = await self.http_request_controller.add_request(req_data)
           if res.ok:
@@ -102,7 +102,7 @@ class Runtime:
       elif data.get("edit"):
         req_dict = data.get("data")
         req_com_id = data.get("id")
-        req_data = self.http_request_loader.request_load(b_application_command.EditGlobalApplicationCommand(req_dict), application_id=self.data_cache_vault.data.application.id, command_id=req_com_id)
+        req_data = self.http_request_loader.load_request(b_application_command.EditGlobalApplicationCommand(req_dict), application_id=self.data_cache_vault.data.application.id, command_id=req_com_id)
         try:
           res = await self.http_request_controller.add_request(req_data)
           if res.ok:
@@ -111,7 +111,7 @@ class Runtime:
           self.logger.error("Failed request \"EditGlobalApplicationCommand\"")
       elif data.get("del"):
         req_com_id = data.get("id")
-        req_data = self.http_request_loader.request_load(b_application_command.DeleteGlobalApplicationCommand(), application_id=self.data_cache_vault.data.application.id, command_id=req_com_id)
+        req_data = self.http_request_loader.load_request(b_application_command.DeleteGlobalApplicationCommand(), application_id=self.data_cache_vault.data.application.id, command_id=req_com_id)
         try:
           res = await self.http_request_controller.add_request(req_data)
           if res is not None and res.ok:
@@ -128,7 +128,7 @@ class Runtime:
 
     # get current application
     self.logger.debug("get current application")
-    req_data = self.http_request_loader.request_load(b_application.GetCurrentApplication())
+    req_data = self.http_request_loader.load_request(b_application.GetCurrentApplication())
     res = None
     try:
       res = await self.http_request_controller.add_request(req_data)
@@ -153,7 +153,7 @@ class Runtime:
 
     await self.event_handler.start()
     self.logger.debug("get gateway url")
-    get_gateway = self.http_request_loader.request_load(b_gateway.GetGateway())
+    get_gateway = self.http_request_loader.load_request(b_gateway.GetGateway())
     try:
       res = await self.http_request_controller.add_request(get_gateway)
     except RequestFailedError:
