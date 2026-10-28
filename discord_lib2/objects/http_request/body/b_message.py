@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import ClassVar
 
 from discord_lib2.objects.http_request.body import body_base
@@ -185,7 +185,7 @@ class CreateMessage(__MessageBase):
   message_reference: MessageReference | Exclude = Exclude()
   components: list[component.ComponentClass] | Exclude = Exclude()
   sticker_ids: list[snowflake] | Exclude = Exclude()
-  files: FormFile = FormFile()
+  files: FormFile = field(default_factory=FormFile)
   payload_json: str | Exclude = Exclude()
   attachments: list[AttachmentRequest] | Exclude = Exclude()
   flags: int | Exclude = Exclude()

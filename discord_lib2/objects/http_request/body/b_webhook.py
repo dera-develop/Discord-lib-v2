@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import ClassVar
 
 from discord_lib2.objects.http_request.body import body_base
@@ -113,7 +113,7 @@ class EditWebhookMessage(__WebhookBase):
   flags: int | None | Exclude = Exclude()
   allowed_mentions: b_message.AllowedMentions | None | Exclude = Exclude()
   components: list[component.ComponentClass] | None | Exclude = Exclude()
-  files: FormFile = FormFile()
+  files: FormFile = field(default_factory=FormFile)
   payload_json: str | None | Exclude = Exclude()
   attachments: list[b_message.AttachmentRequest] | None | Exclude = Exclude()
   poll: b_poll.CreateRequest | None | Exclude = Exclude()
