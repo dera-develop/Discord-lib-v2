@@ -1,4 +1,4 @@
-# Gateway Event
+# GATEWAY EVENT
 `Gateway`接続で受信するイベントの，`op:0`, `DISPATCH`イベントをトリガーとし，ユーザーの任意処理を実行できます．
 
 使用するクラスは，`discord_lib2.event`の`GatewayEvent`です．
@@ -83,10 +83,10 @@ resources
 ###### data/guilds
 ボットが参加しているギルドの情報を，各ギルドのIDをキーとした辞書型で保存します．
 ```python
-resources.data.guilds["guild_id"] # -> guild cache object
+resources.cache.data.guilds["guild_id"] # -> guild cache object
 
-resources.data.guilds["guild_id"].name # -> guild name
-resources.data.guilds["guild_id"].channels["channel_id"].name # -> channel name
+resources.cache.data.guilds["guild_id"].name # -> guild name
+resources.cache.data.guilds["guild_id"].channels["channel_id"].name # -> channel name
 ```
 `DISPATCH`イベントの`GUILD_CREATE`イベントのデータ構造をベースにキャッシュの構造を構築しています．リスト型で送られてくるものは，`user_id`や`guild_id`等ユニークキーで判別可能なものは，それをキーとした辞書型に変換した後キャッシュ保存を行っています．
 構造の詳細は，[Guildsキャッシュソースコード](../discord_lib2/cache/user/guild.py)や[Discord公式ドキュメント[Guild Createイベント]](https://docs.discord.com/developers/events/gateway-events#guild-create)を確認してください．
@@ -110,48 +110,10 @@ resources.cache.data.users["user_id"].user.global_name # -> user global name
 デフォルトでは空の`dict`変数として宣言しているので，他の型で使う場合は，上書きで宣言をする必要があります．
 
 ##### HttpAPI
-APIへのリクエストを行う際に使用する関数が定義されています．
-各リクエストボディーやクエリ，リクエスト先については，[公式ドキュメント[APIリファレンス]](https://docs.discord.com/developers/reference)を確認してください．
+APIへのリクエストを行う際に使用する関数が定義されています．  
+詳細は，[HTTP API](http_api.md)ドキュメントを参照してください．  
+`load_request`と`request`はそれぞれ，ドキュメントの[リクエスト情報の作成セクション](http_api.md#リクエスト情報の作成)と[リクエストの送信セクション](http_api.md#リクエストの送信)です．
 
-リクエストは，以下の手順を踏み行います．
-1. リクエストボディーの作成
-リクエストボディーを作成します．リクエストボディーのほとんどは定義されており，`discord_lib2/objects/http_request/body/b_*.py`に定義されています．必要に応じてimportし使用します．また，各クラスは`dataclasses`ライブラリの`dataclass`を使用しています．
-2. クエリの作成
-リクエストに必要な場合（特にGetリクエスト等）は，クエリを作成します．クエリもほとんどが定義されており，`discord_lib2/objects/http_request/query/q_*.py`に定義されています．こちらも必要に応じてimportし使用します．こちらも各クラスが`dataclasses`ライブラリの`dataclass`を使用しています．
-3. リクエスト情報の生成
-`http_api.load_request`関数を使用し，リクエスト情報を生成します．戻り値は`RequestInfomation`です．
-・`request_object` リクエストボディーを設定します．
-・`request_query_object` リクエストクエリを設定します．
-・`*_id` リクエストの送信先に含める必要のある各種ID等を指定します．
-必要な`*_id`が指定されていない場合は，生成時に例外が発生します．
-4. リクエストの送信
-`http_api.request`関数を使用し，リクエストを送信します．戻り値は`requests.Responce`です．
-引数に **3** で作成した`RequestInfomation`をそのまま渡します．
-
-###### サンプルコード
-```python
-  # Get reaction request
-
-async def dispatch_event_function(self, resources, ...):
-  from discord_lib2.objects.http_request.body import b_message
-  from discord_lib2.objects.http_request.request_query import q_message
-
-  reactions = b_message.GetReactions()                        # request_body
-  reactions_query = q_message.GetReactions(type=0, limit=20)  # request_query
-  request_informations = resources.http_api.load_request(reactions, reactions_query, channel_id="0123456789", message_id="0123456789", emoji_id="0123456789")
-  await resources.http_api.request(request_informations)      # request
-```
-```python
-  # No query
-  # Create message request
-
-async def dispatch_event_function(self, resources, ...):
-  from discord_lib2.objects.http_request.body.b_message import CreateMessage
-
-  message = CreateMessage(content="Hello, World!")          # request_body
-  request_informations = resources.http_api.load_request(message, channel_id="0123456789")
-  await resources.http_api.request(request_informations)    # request
-```
 
 ##### gateway
 Gateway接続を通じて送信するリクエストを送信します．

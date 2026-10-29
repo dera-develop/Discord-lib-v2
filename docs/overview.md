@@ -1,6 +1,7 @@
-### Documents
+# Documents
 - [OVERVIEW](#overview)
-- [Gateway Event](gateway_event.md)
+- [HTTP API](http_api.md)
+- [GATEWAY EVENT](gateway_event.md)
 - [APPLICATION COMMAND](applicarion_commands.md)
 - [TERMINAL COMMAND](user_terminal_commands.md)
 
@@ -8,6 +9,12 @@
 ## 前提  
 このライブラリは，GATEWAYイベントを使用したボットの作成を前提としたライブラリです．  
 HTTPSリクエストのみを行うボットの作成には対応していません．  
+
+## 構成
+内部構成は以下の図のようになっています．
+> この図は，全体のイメージがつかみやすいよう簡略化されています．
+
+![architecture](./images/architecture.png)
   
 ## サンプルコード  
 サンプルコード群は，[ここ](../sample/)に保存されています．  
