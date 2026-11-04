@@ -2,40 +2,45 @@ from dataclasses import dataclass
 from typing import ClassVar
 
 from discord_lib2.objects.http_request.body import body_base
-from discord_lib2.objects.http_request.body.body_base import Exclude
+from discord_lib2.objects.http_request.body.body_base import Exclude, Base
+
+from discord_lib2.objects.http_request.format_checker import format_checker
 
 snowflake = str
+
+MF_CANLINKLOBBY = 1 << 0
+EXCLUDE = Exclude()
 
 @dataclass
 class __LobbyBase(body_base.BaseClass):
   req_base_url: ClassVar[str] = "/lobbies"
 
-MF_CANLINKLOBBY = 1 << 0
-
 @dataclass
-class LobbyMember:
+class LobbyMember(Base):
   id: snowflake
-  metadata: dict | None | Exclude = Exclude()
-  flags: int | Exclude = Exclude()
+  metadata: dict | None | Exclude=EXCLUDE
+  flags: int | Exclude=EXCLUDE
+  additional_name: str | None | Exclude=EXCLUDE
+
+  def format_check(self) -> None:
+    format_checker(self.metadata, "metadata", 0, 1000)
+    format_checker(self.additional_name, "additional_name", 1, 80)
+    return super().format_check()
 
 @dataclass
 class CreateLobby(__LobbyBase):
   req_url:  ClassVar[str] = ""
   req_type: ClassVar[str] = "post"
 
-  metadata: dict | None | Exclude = Exclude()
-  members: list[LobbyMember] | Exclude = Exclude()
-  idle_timeout_seconds: int | Exclude = Exclude()
+  metadata: dict | None | Exclude=EXCLUDE
+  members: list[LobbyMember] | Exclude=EXCLUDE
+  idle_timeout_seconds: int | Exclude=EXCLUDE
 
-  def format_check(self, filtered_dict) -> None:
-    if filtered_dict.get("metadata") is not None:
-      if len(filtered_dict.get("metadata")) > 1000:
-        raise body_base.PayloadFormatError("'metadata': The length must be 1000 or less.")
-    
-    if filtered_dict.get("members") is not None:
-      if filtered_dict.get("members").get("metadata") is not None:
-        if len(filtered_dict.get("members").get("metadata")) > 1000:
-          raise body_base.PayloadFormatError("'members/metadata': The length must be 1000 or less.")
+  def format_check(self) -> None:
+    format_checker(self.metadata, "metadata", 0, 1000)
+    format_checker(self.members, "members", 0, 25)
+    format_checker(self.idle_timeout_seconds, "idle_timeout_seconds", 5, 604800)
+    return super().format_check()
         
 @dataclass
 class CreateorJoinLobby(__LobbyBase):
@@ -43,25 +48,16 @@ class CreateorJoinLobby(__LobbyBase):
   req_type: ClassVar[str] = "put"
 
   secret: str
-  idle_timeout_seconds: int | Exclude = Exclude()
-  lobby_metadata: dict | None | Exclude = Exclude()
-  member_metadata: dict | None | Exclude = Exclude()
+  idle_timeout_seconds: int | Exclude=EXCLUDE
+  lobby_metadata: dict | None | Exclude=EXCLUDE
+  member_metadata: dict | None | Exclude=EXCLUDE
 
-  def format_check(self, filtered_dict) -> None:
-    if len(filtered_dict.get("secret")) > 250:
-      raise body_base.PayloadFormatError("'secret': It must be 250 characters or less.")
-    
-    if filtered_dict.get("idle_timeout_seconds") is not None:
-      if not 5 <= filtered_dict.get("idle_timeout_seconds") <= 604800:
-        raise body_base.PayloadFormatError("'idle_timeout_seconds': It must be between 5 and 604800.")
-
-    if filtered_dict.get("lobby_metadata") is not None:
-      if len(filtered_dict.get("lobby_metadata")) > 1000:
-        raise body_base.PayloadFormatError("'lobby_metadata': The length must be 1000 or less.")
-
-    if filtered_dict.get("member_metadata") is not None:
-      if len(filtered_dict.get("member_metadata")) > 1000:
-        raise body_base.PayloadFormatError("'memter_metadata': The length must be 1000 or less.")
+  def format_check(self) -> None:
+    format_checker(self.secret, "secret", 0, 250)
+    format_checker(self.idle_timeout_seconds, "idle_timeout_seconds", 5, 604800)
+    format_checker(self.lobby_metadata, "lobby_metadata", 0, 1000)
+    format_checker(self.member_metadata, "member_metadata", 0, 1000)
+    return super().format_check()
       
 @dataclass
 class GetLobby(__LobbyBase):
@@ -73,18 +69,15 @@ class ModifyLobby(__LobbyBase):
   req_url:  ClassVar[str] = "/<lobby.id>"
   req_type: ClassVar[str] = "patch"
 
-  metadata: dict | None | Exclude = Exclude()
-  members: list[LobbyMember] | Exclude = Exclude()
-  idle_timeout_seconds: int | Exclude = Exclude()
+  metadata: dict | None | Exclude=EXCLUDE
+  members: list[LobbyMember] | Exclude=EXCLUDE
+  idle_timeout_seconds: int | Exclude=EXCLUDE
 
-  def format_check(self, filtered_dict):
-    if filtered_dict.get("idle_timeout_seconds") is not None:
-      if not 5 <= filtered_dict.get("idle_timeout_seconds") <= 604800:
-        raise body_base.PayloadFormatError("'idle_timeout_seconds': It must be between 5 and 604800.")
-
-    if filtered_dict.get("metadata") is not None:
-      if len(filtered_dict.get("metadata")) > 1000:
-        raise body_base.PayloadFormatError("'metadata': The length must be 1000 or less.")
+  def format_check(self) -> None:
+    format_checker(self.metadata, "metadata", 0, 1000)
+    format_checker(self.members, "members", 0, 25)
+    format_checker(self.idle_timeout_seconds, "idle_timeout_seconds", 5, 604800)
+    return super().format_check()
       
 @dataclass
 class DeleteLobby(__LobbyBase):
@@ -96,13 +89,14 @@ class AddaMembertoaLobby(__LobbyBase):
   req_url:  ClassVar[str] = "/<lobby.id>/members/<user.id>"
   req_type: ClassVar[str] = "put"
 
-  metadata: dict | None | Exclude = Exclude()
-  flags: int | Exclude = Exclude()
+  metadata: dict | None | Exclude=EXCLUDE
+  flags: int | Exclude=EXCLUDE
+  additional_name: str | None | Exclude=EXCLUDE
 
-  def format_check(self, filtered_dict):
-    if filtered_dict.get("metadata") is not None:
-      if len(filtered_dict.get("metadata")) > 1000:
-        raise body_base.PayloadFormatError("'metadata': The length must be 1000 or less.")
+  def format_check(self) -> None:
+    format_checker(self.metadata, "metadata", 0, 1000)
+    format_checker(self.additional_name, "additional_name", 1, 80)
+    return super().format_check()
       
 @dataclass
 class BulkUpdateLobbyMembers(__LobbyBase):
@@ -110,14 +104,15 @@ class BulkUpdateLobbyMembers(__LobbyBase):
   req_type: ClassVar[str] = "post"
 
   id: snowflake
-  metadata: dict | None | Exclude = Exclude()
-  flags: int | Exclude = Exclude()
-  remove_member: bool | Exclude = Exclude()
+  metadata: dict | None | Exclude=EXCLUDE
+  flags: int | Exclude=EXCLUDE
+  additional_name: str | None | Exclude=EXCLUDE
+  remove_member: bool | Exclude=EXCLUDE
 
-  def format_check(self, filtered_dict):
-    if filtered_dict.get("metadata") is not None:
-      if len(filtered_dict.get("metadata")) > 1000:
-        raise body_base.PayloadFormatError("'metadata': The length must be 1000 or less.")
+  def format_check(self) -> None:
+    format_checker(self.metadata, "metadata", 0, 1000)
+    format_checker(self.additional_name, "additional_name", 1, 80)
+    return super().format_check()
 
 @dataclass
 class RemoveaMemberfromaLobby(__LobbyBase):
@@ -147,13 +142,12 @@ class SendLobbyMessage(__LobbyBase):
   req_type: ClassVar[str] = "post"
 
   content: str
-  metadata: dict | None | Exclude = Exclude()
-  flags: int | Exclude = Exclude()
+  metadata: dict | None | Exclude=EXCLUDE
+  flags: int | Exclude=EXCLUDE
 
-  def format_check(self, filtered_dict):
-    if filtered_dict.get("metadata") is not None:
-      if len(filtered_dict.get("metadata")) > 1000:
-        raise body_base.PayloadFormatError("'metadata': The length must be 1000 or less.")
+  def format_check(self) -> None:
+    format_checker(self.metadata, "metadata", 0, 1000)
+    return super().format_check()
 
 @dataclass
 class GetLobbyMessages(__LobbyBase):
@@ -167,6 +161,13 @@ class UpdateLobbyMessageModerationMetadata(__LobbyBase):
 
   def __init__(self, moderation_dict: dict) -> None:
     self.args = moderation_dict
+
+  def format_check(self) -> None:
+    format_checker(self.args, "moderation_dict", 0, 5)
+    for k, v in self.args.items():
+      format_checker(k, f"moderation_dict.{k}", 0, 1024)
+      format_checker(v, f"moderation_dict.{v}", 0, 2000)
+    return super().format_check()
   
   def get(self):
     return self.args

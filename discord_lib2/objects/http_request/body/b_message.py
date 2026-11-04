@@ -2,17 +2,16 @@ from dataclasses import dataclass, field
 from typing import ClassVar
 
 from discord_lib2.objects.http_request.body import body_base
-from discord_lib2.objects.http_request.body.body_base import Exclude
-from discord_lib2.objects.http_request.body.body_base import FormFile
+from discord_lib2.objects.http_request.body.body_base import Exclude, FormFile, Base
 
+from discord_lib2.objects.http_request.body import b_poll
 from discord_lib2.objects.other import component
+
+from discord_lib2.objects.http_request.format_checker import format_checker
 
 snowflake = str
 ISO8601timestamp = str
-
-@dataclass
-class __MessageBase(body_base.BaseClass):
-  req_base_url: ClassVar[str] = "/channels/<channel.id>"
+EXCLUDE = Exclude()
 
 F_CROSSPOSTED = 1 << 0
 F_IS_CROSSPOST = 1 << 1
@@ -29,6 +28,10 @@ F_HAS_SNAPSHOT = 1 << 14
 F_IS_COMPONENTS_V2 = 1 << 15
 
 @dataclass
+class __MessageBase(body_base.BaseClass):
+  req_base_url: ClassVar[str] = "/channels/<channel.id>"
+
+@dataclass
 class Embed(__MessageBase):
   ET_RICH: ClassVar[str] = "rich"
   ET_IMAGE: ClassVar[str] = "image"
@@ -36,6 +39,8 @@ class Embed(__MessageBase):
   ET_GIFV: ClassVar[str] = "gifv"
   ET_ARTICLE: ClassVar[str] = "article"
   ET_LINK: ClassVar[str] = "link"
+
+  __FC_EMBED_TYPE: ClassVar[tuple] = (ET_RICH, ET_IMAGE, ET_VIDEO, ET_GIFV, ET_ARTICLE, ET_LINK)
 
   MF_IS_ANIMATED: ClassVar[int] = 1 << 5
 
@@ -50,112 +55,155 @@ class Embed(__MessageBase):
     VICTOR_ANSWER_EMOJI_ANIMATED: ClassVar[str] = "victor_answer_emoji_animated"
 
   @dataclass
-  class Footer:
+  class Footer(Base):
     text: str
-    icon_url: str | Exclude = Exclude()
-    proxy_icon_url: str | Exclude = Exclude()
+    icon_url: str | Exclude=EXCLUDE
+    proxy_icon_url: str | Exclude=EXCLUDE
+
+    def format_check(self) -> None:
+      format_checker(self.text, "text", 0, 2048)
+      return super().format_check()
 
   @dataclass
-  class Image:
+  class Image(Base):
     url: str
-    proxy_url: str | Exclude = Exclude()
-    height: int | Exclude = Exclude()
-    width: int | Exclude = Exclude()
-    content_type: str | Exclude = Exclude()
-    placeholder: str | Exclude = Exclude()
-    placeholder_version: int | Exclude = Exclude()
-    description: str | Exclude = Exclude()
-    flags: int | Exclude = Exclude()
+    proxy_url: str | Exclude=EXCLUDE
+    height: int | Exclude=EXCLUDE
+    width: int | Exclude=EXCLUDE
+    content_type: str | Exclude=EXCLUDE
+    placeholder: str | Exclude=EXCLUDE
+    placeholder_version: int | Exclude=EXCLUDE
+    description: str | Exclude=EXCLUDE
+    flags: int | Exclude=EXCLUDE
 
   @dataclass
-  class Video:
-    url: str | Exclude = Exclude()
-    proxy_url: str | Exclude = Exclude()
-    height: int | Exclude = Exclude()
-    width: int | Exclude = Exclude()
-    content_type: str | Exclude = Exclude()
-    placeholder: str | Exclude = Exclude()
-    placeholder_version: int | Exclude = Exclude()
-    description: str | Exclude = Exclude()
-    flags: int | Exclude = Exclude()
+  class Video(Base):
+    url: str | Exclude=EXCLUDE
+    proxy_url: str | Exclude=EXCLUDE
+    height: int | Exclude=EXCLUDE
+    width: int | Exclude=EXCLUDE
+    content_type: str | Exclude=EXCLUDE
+    placeholder: str | Exclude=EXCLUDE
+    placeholder_version: int | Exclude=EXCLUDE
+    description: str | Exclude=EXCLUDE
+    flags: int | Exclude=EXCLUDE
 
   @dataclass
-  class Provider:
-    name: str | Exclude = Exclude()
-    url: str | Exclude = Exclude()
+  class Provider(Base):
+    name: str | Exclude=EXCLUDE
+    url: str | Exclude=EXCLUDE
 
   @dataclass
-  class Author:
+  class Author(Base):
     name: str
-    url: str | Exclude = Exclude()
-    icon_url: str | Exclude = Exclude()
-    proxy_icon_url: str | Exclude = Exclude()
+    url: str | Exclude=EXCLUDE
+    icon_url: str | Exclude=EXCLUDE
+    proxy_icon_url: str | Exclude=EXCLUDE
+
+    def format_check(self) -> None:
+      format_checker(self.name, "name", 0, 256)
+      return super().format_check()
 
   @dataclass
-  class Field:
+  class Field(Base):
     name: str
     value: str
-    inline: bool | Exclude = Exclude()
+    inline: bool | Exclude=EXCLUDE
 
-  title: str | Exclude = Exclude()
-  type: str | Exclude = Exclude()
-  description: str | Exclude = Exclude()
-  url: str | Exclude = Exclude()
-  timestamp: ISO8601timestamp | Exclude = Exclude()
-  color: int | Exclude = Exclude()
-  footer: Footer | Exclude = Exclude()
-  image: Image | Exclude = Exclude()
-  thumbnail: Image | Exclude = Exclude()
-  video: Video | Exclude = Exclude()
-  provider: Provider | Exclude = Exclude()
-  author: Author | Exclude = Exclude()
-  fields: list[Field] | Exclude = Exclude()
-  flags: int | Exclude = Exclude()
+    def format_check(self) -> None:
+      format_checker(self.name, "name", 0, 256)
+      format_checker(self.value, "value", 0, 1024)
+      return super().format_check()
+
+  title: str | Exclude=EXCLUDE
+  type: str | Exclude=EXCLUDE
+  description: str | Exclude=EXCLUDE
+  url: str | Exclude=EXCLUDE
+  timestamp: ISO8601timestamp | Exclude=EXCLUDE
+  color: int | Exclude=EXCLUDE
+  footer: Footer | Exclude=EXCLUDE
+  image: Image | Exclude=EXCLUDE
+  thumbnail: Image | Exclude=EXCLUDE
+  video: Video | Exclude=EXCLUDE
+  provider: Provider | Exclude=EXCLUDE
+  author: Author | Exclude=EXCLUDE
+  fields: list[Field] | Exclude=EXCLUDE
+  flags: int | Exclude=EXCLUDE
+
+  def format_check(self) -> None:
+    format_checker(self.title, "title", 0, 256)
+    format_checker(self.type, "type", in_list=self.__FC_EMBED_TYPE)
+    format_checker(self.description, "description", 0, 4096)
+    format_checker(self.fields, "fields", 0, 25)
+    return super().format_check()
 
 @dataclass
-class AllowedMentions:
+class AllowedMentions(Base):
   T_ROLE_MENTION: ClassVar[str] = "roles"
   T_USER_MENTIONS: ClassVar[str] = "users"
   T_EVERYONE_MENTIONS: ClassVar[str] = "everyone"
 
-  parse: list[str] | Exclude = Exclude()
-  roles: list[snowflake] | Exclude = Exclude()
-  users: list[snowflake] | Exclude = Exclude()
-  replied_user: bool | Exclude = Exclude()
+  __FC_ALLOWED_MENTION_TYPE: ClassVar[tuple] = (T_ROLE_MENTION, T_USER_MENTIONS, T_EVERYONE_MENTIONS)
+
+  parse: list[str] | Exclude=EXCLUDE
+  roles: list[snowflake] | Exclude=EXCLUDE
+  users: list[snowflake] | Exclude=EXCLUDE
+  replied_user: bool | Exclude=EXCLUDE
+
+  def format_check(self) -> None:
+    if isinstance(self.parse, list):
+      for p in self.parse:
+        format_checker(p, "parse", in_list=self.__FC_ALLOWED_MENTION_TYPE)
+    format_checker(self.roles, "roles", 0, 100)
+    format_checker(self.users, "users", 0, 100)
+    return super().format_check()
 
 @dataclass
-class MessageReference:
+class MessageReference(Base):
   T_DEFAULT: ClassVar[int] = 0
   T_FORWARD: ClassVar[int] = 1
 
-  type: int | Exclude = Exclude()
-  message_id: snowflake | Exclude = Exclude()
-  channel_id: snowflake | Exclude = Exclude()
-  guild_id: snowflake | Exclude = Exclude()
-  fail_if_not_exists: bool | Exclude = Exclude()
+  type: int | Exclude=EXCLUDE
+  message_id: snowflake | Exclude=EXCLUDE
+  channel_id: snowflake | Exclude=EXCLUDE
+  guild_id: snowflake | Exclude=EXCLUDE
+  fail_if_not_exists: bool | Exclude=EXCLUDE
+
+  def format_check(self) -> None:
+    format_checker(self.type, "type", in_list=(0, 1))
+    return super().format_check()
 
 @dataclass
-class AttachmentRequest:
+class AttachmentRequest(Base):
   id: snowflake | int
-  filename: str | Exclude = Exclude()
-  title: str | Exclude = Exclude()
-  description: str | Exclude = Exclude()
-  duration_secs: float | Exclude = Exclude()
-  waveform: str | Exclude = Exclude()
-  is_spoiler: bool | Exclude = Exclude()
+  filename: str | Exclude=EXCLUDE
+  title: str | Exclude=EXCLUDE
+  description: str | Exclude=EXCLUDE
+  duration_secs: float | Exclude=EXCLUDE
+  waveform: str | Exclude=EXCLUDE
+  is_spoiler: bool | Exclude=EXCLUDE
 
 @dataclass
-class ShardClientTheme:
+class ShardClientTheme(Base):
   BT_UNSET: ClassVar[int] = 0
   BT_DARK: ClassVar[int] = 1
   BT_LIGHT: ClassVar[int] = 2
   BT_DARKER: ClassVar[int] = 3
   BT_MIDNIGHT: ClassVar[int] = 4
 
+  __FC_BASE_THEME_TYPE: ClassVar[tuple] = (BT_UNSET, BT_DARK, BT_LIGHT, BT_DARKER, BT_MIDNIGHT)
+
   colors: list[str]
   gradient_angle: int
   base_mix: int
-  base_theme: int | Exclude = Exclude()
+  base_theme: int | Exclude=EXCLUDE
+
+  def format_check(self) -> None:
+    format_checker(self.colors, "colors", 0, 5)
+    format_checker(self.gradient_angle, "gradient_angle", 0, 360)
+    format_checker(self.base_mix, "base_mix", 0, 100)
+    format_checker(self.base_theme, "base_theme", in_list=self.__FC_BASE_THEME_TYPE)
+    return super().format_check()
 
 @dataclass
 class GetChannelMessage(__MessageBase):
@@ -177,20 +225,28 @@ class CreateMessage(__MessageBase):
   req_url:  ClassVar[str] = "/messages"
   req_type: ClassVar[str] = "post"
 
-  content: str | Exclude = Exclude()
-  nonce: int | str | Exclude = Exclude()
-  tts: bool | Exclude = Exclude()
-  embeds: list[Embed] | Exclude = Exclude()
-  allowed_mentions: AllowedMentions | Exclude = Exclude()
-  message_reference: MessageReference | Exclude = Exclude()
-  components: list[component.ComponentClass] | Exclude = Exclude()
-  sticker_ids: list[snowflake] | Exclude = Exclude()
+  content: str | Exclude=EXCLUDE
+  nonce: int | str | Exclude=EXCLUDE
+  tts: bool | Exclude=EXCLUDE
+  embeds: list[Embed] | Exclude=EXCLUDE
+  allowed_mentions: AllowedMentions | Exclude=EXCLUDE
+  message_reference: MessageReference | Exclude=EXCLUDE
+  components: list[component.ComponentClass] | Exclude=EXCLUDE
+  sticker_ids: list[snowflake] | Exclude=EXCLUDE
   files: FormFile = field(default_factory=FormFile)
-  payload_json: str | Exclude = Exclude()
-  attachments: list[AttachmentRequest] | Exclude = Exclude()
-  flags: int | Exclude = Exclude()
-  enforce_nonce: bool | Exclude = Exclude()
-  poll: ShardClientTheme | Exclude = Exclude()
+  payload_json: str | Exclude=EXCLUDE
+  attachments: list[AttachmentRequest] | Exclude=EXCLUDE
+  flags: int | Exclude=EXCLUDE
+  enforce_nonce: bool | Exclude=EXCLUDE
+  poll: b_poll.Poll | Exclude=EXCLUDE
+  shared_client_theme: ShardClientTheme | Exclude=EXCLUDE
+
+  def format_check(self) -> None:
+    format_checker(self.content, "content", 0, 2000)
+    format_checker(self.nonce, "nonce", 0, 25)
+    format_checker(self.nonce, "embeds", 0, 10)
+    format_checker(self.sticker_ids, "sticker_ids", 0, 3)
+    return super().format_check()
 
 @dataclass
 class CrosspostMessage(__MessageBase):
@@ -232,14 +288,19 @@ class EditMessage(__MessageBase):
   req_url:  ClassVar[str] = "/messages/<message.id>"
   req_type: ClassVar[str] = "patch"
 
-  content: str | None | Exclude = Exclude()
-  embeds: list[Embed] | None | Exclude = Exclude()
-  flags: int | None | Exclude = Exclude()
-  allowed_mentions: AllowedMentions | None | Exclude = Exclude()
-  components: list[component.ComponentClass] | None | Exclude = Exclude()
+  content: str | None | Exclude=EXCLUDE
+  embeds: list[Embed] | None | Exclude=EXCLUDE
+  flags: int | None | Exclude=EXCLUDE
+  allowed_mentions: AllowedMentions | None | Exclude=EXCLUDE
+  components: list[component.ComponentClass] | None | Exclude=EXCLUDE
   files: FormFile = FormFile()
-  payload_json: str | None | Exclude = Exclude()
-  attachments: list[AttachmentRequest] | None | Exclude = Exclude()
+  payload_json: str | None | Exclude=EXCLUDE
+  attachments: list[AttachmentRequest] | None | Exclude=EXCLUDE
+
+  def format_check(self) -> None:
+    format_checker(self.content, "content", 0, 2000)
+    format_checker(self.embeds, "embeds", 0, 10)
+    return super().format_check()
 
 @dataclass
 class DeleteMessage(__MessageBase):
@@ -252,6 +313,10 @@ class BulkDeleteMessages(__MessageBase):
   req_type: ClassVar[str] = "post"
 
   messages: list[snowflake]
+
+  def format_check(self) -> None:
+    format_checker(self.messages, "messages", 2, 100)
+    return super().format_check()
 
 @dataclass
 class GetChannelPins(__MessageBase):

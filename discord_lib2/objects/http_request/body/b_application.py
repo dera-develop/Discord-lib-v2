@@ -1,8 +1,7 @@
 from dataclasses import dataclass
-from typing import Literal, ClassVar
+from typing import ClassVar
 
 from discord_lib2.objects.http_request.body import body_base
-from discord_lib2.objects.http_request.body.body_base import Exclude
 
 base64icon = str
 snowflake  = str

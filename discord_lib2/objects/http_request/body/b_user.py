@@ -2,37 +2,40 @@ from dataclasses import dataclass
 from typing import ClassVar
 
 from discord_lib2.objects.http_request.body import body_base
-from discord_lib2.objects.http_request.body.body_base import Exclude
+from discord_lib2.objects.http_request.body.body_base import Exclude, Base
 
 from discord_lib2.objects.http_request.body import b_application_role_connection_metadata
 
+from discord_lib2.objects.http_request.format_checker import format_checker
+
 snowflake = str
 image_data = StopAsyncIteration
+EXCLUDE = Exclude()
 
 @dataclass
 class __UserBase(body_base.BaseClass):
   req_base_url: ClassVar[str] = "/users"
 
 @dataclass
-class AvatarDecorationData:
+class AvatarDecorationData(Base):
   asset: str
   sku_id: snowflake
 
 @dataclass
-class Nameplate:
+class Nameplate(Base):
   sku_id: snowflake
   asset: str
   label: str
   palette: str
 
 @dataclass
-class Collectibles:
+class Collectibles(Base):
   nameplate: Nameplate
 
 @dataclass
-class User:
+class User(Base):
   @dataclass
-  class PrimaryGuild:
+  class PrimaryGuild(Base):
     identity_guild_id: snowflake | None
     identity_enaabled: bool | None
     tag: str | None
@@ -56,27 +59,27 @@ class User:
   PT_NAME: ClassVar[int] = 0
   PT_NITRO_CLASSIC: ClassVar[int] = 1
   PT_NITRO: ClassVar[int] = 2
-  PT_NITRO_bASIC: ClassVar[int] = 3
+  PT_NITRO_BASIC: ClassVar[int] = 3
 
   id: snowflake
   username: str
   discriminator: str
   global_name: str | None
   avatar: str | None
-  bot: bool | Exclude = Exclude()
-  system: bool | Exclude = Exclude()
-  mfa_enabled: bool | Exclude = Exclude()
-  banner: str | None | Exclude = Exclude()
-  accent_color: int | None | Exclude = Exclude()
-  locale: str | Exclude = Exclude()
-  verified: bool | Exclude = Exclude()
-  email: str | None | Exclude = Exclude()
-  flags: int | Exclude = Exclude()
-  premium_type: int | Exclude = Exclude()
-  public_flags: int | Exclude = Exclude()
-  avatar_decoration_data: AvatarDecorationData | None | Exclude = Exclude()
-  collectibles: Collectibles | None | Exclude = Exclude()
-  primary_guild: PrimaryGuild | None | Exclude = Exclude()
+  bot: bool | Exclude=EXCLUDE
+  system: bool | Exclude=EXCLUDE
+  mfa_enabled: bool | Exclude=EXCLUDE
+  banner: str | None | Exclude=EXCLUDE
+  accent_color: int | None | Exclude=EXCLUDE
+  locale: str | Exclude=EXCLUDE
+  verified: bool | Exclude=EXCLUDE
+  email: str | None | Exclude=EXCLUDE
+  flags: int | Exclude=EXCLUDE
+  premium_type: int | Exclude=EXCLUDE
+  public_flags: int | Exclude=EXCLUDE
+  avatar_decoration_data: AvatarDecorationData | None | Exclude=EXCLUDE
+  collectibles: Collectibles | None | Exclude=EXCLUDE
+  primary_guild: PrimaryGuild | None | Exclude=EXCLUDE
 
 @dataclass
 class GetCurrentUser(__UserBase):
@@ -93,9 +96,9 @@ class ModifyCurrentUser(__UserBase):
   req_url:  ClassVar[str] = "/@me"
   req_type: ClassVar[str] = "patch"
 
-  username: str | Exclude = Exclude()
-  avatar: image_data | None | Exclude = Exclude()
-  banner: image_data | None | Exclude = Exclude()
+  username: str | Exclude=EXCLUDE
+  avatar: image_data | None | Exclude=EXCLUDE
+  banner: image_data | None | Exclude=EXCLUDE
 
 @dataclass
 class GetCurrentUserGuilds(__UserBase):
@@ -142,9 +145,14 @@ class UpdateCurrentUserApplicationRoleConnection(__UserBase):
   req_url:  ClassVar[str] = "/@me/applications/<application.id>/role-connection"
   req_type: ClassVar[str] = "put"
 
-  platform_name: str | Exclude = Exclude()
-  platform_username: str | Exclude = Exclude()
-  metadata: b_application_role_connection_metadata.ApplicationRoleConnectionMetadata | Exclude = Exclude()
+  platform_name: str | Exclude=EXCLUDE
+  platform_username: str | Exclude=EXCLUDE
+  metadata: b_application_role_connection_metadata.ApplicationRoleConnectionMetadata | Exclude=EXCLUDE
+
+  def format_check(self) -> None:
+    format_checker(self.platform_name, "platform_name", 0, 50)
+    format_checker(self.platform_username, "platform_username", 0, 100)
+    return super().format_check()
 
 @dataclass
 class DeleteCurrentUserApplicationRoleConnection(__UserBase):

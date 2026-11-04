@@ -1,4 +1,4 @@
-from dataclasses import dataclass, is_dataclass
+from dataclasses import dataclass, is_dataclass, fields
 from typing import ClassVar
 import os
 import mimetypes
@@ -62,21 +62,33 @@ def asdict_file_filter(obj) -> dict[str, _FileData]:
   return files_dict
 
 @dataclass
-class BaseClass:
+class Base:
+  def format_check(self) -> None:
+    for field in fields(self):
+      if isinstance(field, Base):
+        field.format_check()
+      elif isinstance(field, list):
+        for f in field:
+          if isinstance(f, Base):
+            f.format_check()
+      elif isinstance(field, dict):
+        for k, v in field.items():
+          if isinstance(v, Base):
+            v.format_check()
+
+@dataclass
+class BaseClass(Base):
   req_base_url: ClassVar[str] = ""
   req_url: ClassVar[str] = ""
   req_type: ClassVar[str] = ""
   req_need_token: ClassVar[bool] = True
-
-  def format_check(self, filtered_dict) -> None:
-    pass
   
   def get_files(self):
     return asdict_file_filter(self)
 
   def get(self) -> dict | list:
+    self.format_check()
     class_dict = asdict_exclude_filter(self)
-    self.format_check(class_dict)
     return class_dict
   
 class PayloadFormatError(Exception):

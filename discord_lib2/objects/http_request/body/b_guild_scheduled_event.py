@@ -2,17 +2,14 @@ from dataclasses import dataclass
 from typing import ClassVar
 
 from discord_lib2.objects.http_request.body import body_base
-from discord_lib2.objects.http_request.body.body_base import Exclude
+from discord_lib2.objects.http_request.body.body_base import Exclude, Base
+
+from discord_lib2.objects.http_request.format_checker import format_checker, PayloadFormatError
 
 snowflake = str
 image_data = str
 ISO8601timestamp = str
-
-entity_metadata_str = str
-
-@dataclass
-class __GuildScheduledEventBase(body_base.BaseClass):
-  req_base_url: ClassVar[str] = "/guilds/<guild.id>/scheduled-event"
+EXCLUDE = Exclude()
 
 PL_GUILD_ONLY = 2
 
@@ -58,13 +55,21 @@ ES_ACTIVE = 2
 ES_COMPLETED = 3
 ES_CANCELED = 4
 
+# format check
+FC_PRIVACY_LEVEL = tuple([PL_GUILD_ONLY])
+FC_ENTITY_TYPE = (ET_STAGE_INSTANCE, ET_VOICE, ET_EXTERNAL)
+
 @dataclass
-class N_Weekday:
+class __GuildScheduledEventBase(body_base.BaseClass):
+  req_base_url: ClassVar[str] = "/guilds/<guild.id>/scheduled-event"
+
+@dataclass
+class N_Weekday(Base):
   n: int
   day: int
 
 @dataclass
-class RecurrenceRule:
+class RecurrenceRule(Base):
   start: ISO8601timestamp
   # end: ISO8601timestamp
   frequency: int
@@ -75,6 +80,14 @@ class RecurrenceRule:
   by_month_day: list[int] | None
   # by_year_day: list[int] | None
   # count: int | None
+
+@dataclass
+class EntityMetadata(Base):
+  location: str | Exclude=EXCLUDE
+
+  def format_check(self) -> None:
+    format_checker(self.location, "location", 1, 100)
+    return super().format_check()
 
 
 @dataclass
@@ -87,65 +100,27 @@ class CreateGuildScheduledEvent(__GuildScheduledEventBase):
   req_url:  ClassVar[str] = ""
   req_type: ClassVar[str] = "post"
 
-  channel_id: snowflake | Exclude
-  entity_metadata: entity_metadata_str | Exclude
   name: str
   privacy_level: int
   scheduled_start_time: ISO8601timestamp
   entity_type: int
   recurrence_rule: RecurrenceRule
-  scheduled_end_time: ISO8601timestamp | Exclude = Exclude()
-  description: str | Exclude = Exclude()
-  image: image_data | Exclude = Exclude()
+  channel_id: snowflake | Exclude=EXCLUDE
+  entity_metadata: EntityMetadata | Exclude=EXCLUDE
+  scheduled_end_time: ISO8601timestamp | Exclude=EXCLUDE
+  description: str | Exclude=EXCLUDE
+  image: image_data | Exclude=EXCLUDE
 
-  def format_check(self, filtered_dict):
-    not_none_count = 0
-    if filtered_dict.get("by_weekday", 0) is not None:
-      not_none_count += 1
-    if filtered_dict.get("by_n_weekday", 0) is not None:
-      not_none_count += 1
-    if (filtered_dict.get("by_month", 0) is not None) and (filtered_dict.get("by_month_day", 0) is not None):
-      not_none_count += 1
-    if not_none_count != 1:
-      raise body_base.PayloadFormatError("The values are not mutually exclusive. | name: recurrence_rule")
-
-    if (filtered_dict.get("by_weekday") is not None):
-      if filtered_dict.get("frequency") != RRF_DAILY or filtered_dict.get("frequency") != RRF_WEEKLY:
-        raise body_base.PayloadFormatError("'by_weekday': The frequency must be DAILY or WEEKLY.")
-
-      if filtered_dict.get("frequency") == RRF_DAILY:
-        RRW_check = [RRW_MONDAY_FRIDAY, RRW_TUESDAY_SATURDAY, RRW_SUNDAY_THURSDAY, RRW_FRIDAY_AND_SATURDAY, RRW_SATURDAY_SUNDAY, RRW_SUNDAY_MONDAY]
-        if not filtered_dict.get("by_weekday") in RRW_check:
-          raise body_base.PayloadFormatError("'by_weekday': This format is not permitted.")
-      else:
-        if len(filtered_dict.get("by_weekday", "None")) != 1:
-          raise body_base.PayloadFormatError("'by_weekday': It must have a length of 1.")
-
-    if filtered_dict.get("by_n_weekday") is not None:
-      if filtered_dict.get("frequency") != RRF_MONTHLY:
-        raise body_base.PayloadFormatError("'by_n_weekday': The frequency must be MONTHLY.")
-      elif len(filtered_dict.get("by_n_weekday", "None")) != 1:
-        raise body_base.PayloadFormatError("'by_n_weekday': It must have a length of 1.")
-      
-    if filtered_dict.get("by_month") is not None:
-      if filtered_dict.get("frequency") != RRF_YEARLY:
-        raise body_base.PayloadFormatError("'by_month': The frequency must be YEARLY.")
-      if (filtered_dict.get("by_month") is None) or (filtered_dict.get("by_month_day") is None):
-        raise body_base.PayloadFormatError("'by_month', 'by_month_day': Both of these must be specified.")
-      if len(filtered_dict.get("by_month", "None")) != 1:
-        raise body_base.PayloadFormatError("'by_month': It must have a length of 1.")
-      if len(filtered_dict.get("by_month_day", "None")) != 1:
-        raise body_base.PayloadFormatError("'by_month_day': It must have a length of 1.")
-
-    if (filtered_dict.get("interval") != 1) or (filtered_dict.get("interval") != 2):
-      raise body_base.PayloadFormatError("'interval': It must be 1 or 2.")
-    if filtered_dict.get("interval") == 1:
-      pass
-    elif filtered_dict.get("interval") == 2:
-      if filtered_dict.get("frequency") != RRF_WEEKLY:
-        raise body_base.PayloadFormatError("'interval': When the interval is not 1, the frequency must be WEEKLY.")
-    else:
-      raise body_base.PayloadFormatError("'interval': It must be 1 or 2.")
+  def format_check(self) -> None:
+    format_checker(self.name, "name", 1, 100)
+    format_checker(self.description, "description", 1, 1000)
+    format_checker(self.privacy_level, "privacy_level", in_list=FC_PRIVACY_LEVEL)
+    format_checker(self.entity_type, "entity_type", in_list=FC_ENTITY_TYPE)
+    if isinstance(self.channel_id, Exclude) and self.entity_type != ET_EXTERNAL:
+      raise PayloadFormatError("channel_id", "required channel_id if `entity_type` is not `EXTERNAL`")
+    if isinstance(self.scheduled_end_time, Exclude) and self.entity_type == ET_EXTERNAL:
+      raise PayloadFormatError("scheduled_end_time", "required scheduled_end_time if `entity_type` is `EXTERNAL`")
+    return super().format_check()
   
 @dataclass
 class GetGuildScheduledEvent(__GuildScheduledEventBase):
@@ -157,17 +132,33 @@ class ModifyGuildScheduledEvent(__GuildScheduledEventBase):
   req_url:  ClassVar[str] = "/<guild_scheduled_event.id>"
   req_type: ClassVar[str] = "patch"
 
-  channel_id: snowflake | None | Exclude = Exclude()
-  entity_metadata: entity_metadata_str | None | Exclude = Exclude()
-  name: str | Exclude = Exclude()
-  privacy_level: int | Exclude = Exclude()
-  scheduled_start_time: ISO8601timestamp | Exclude = Exclude()
-  scheduled_end_time: ISO8601timestamp | Exclude = Exclude()
-  description: str | None | Exclude = Exclude()
-  entity_type: int | Exclude = Exclude()
-  status: int | Exclude = Exclude()
-  image: image_data | Exclude = Exclude()
-  recurrence_rule: RecurrenceRule | None | Exclude = Exclude()
+  channel_id: snowflake | None | Exclude=EXCLUDE
+  entity_metadata: EntityMetadata | None | Exclude=EXCLUDE
+  name: str | Exclude=EXCLUDE
+  privacy_level: int | Exclude=EXCLUDE
+  scheduled_start_time: ISO8601timestamp | Exclude=EXCLUDE
+  scheduled_end_time: ISO8601timestamp | Exclude=EXCLUDE
+  description: str | None | Exclude=EXCLUDE
+  entity_type: int | Exclude=EXCLUDE
+  status: int | Exclude=EXCLUDE
+  image: image_data | Exclude=EXCLUDE
+  recurrence_rule: RecurrenceRule | None | Exclude=EXCLUDE
+
+  def format_check(self) -> None:
+    format_checker(self.name, "name", 1, 100)
+    format_checker(self.description, "description", 1, 1000)
+    format_checker(self.privacy_level, "privacy_level", in_list=FC_PRIVACY_LEVEL)
+    format_checker(self.entity_type, "entity_type", in_list=FC_ENTITY_TYPE)
+    if self.entity_type == ET_EXTERNAL:
+      if self.channel_id is not None:
+        raise PayloadFormatError("channel_id", "required and need be set to None if `entity_type` is `EXTERNAL`")
+      if not isinstance(self.entity_metadata, EntityMetadata):
+        raise PayloadFormatError("entity_metadata", "required entity_metadata if `entity_type` is `EXTERNAL`")
+      if not isinstance(self.entity_metadata.location, str):
+        raise PayloadFormatError("entity_metadata.location", "required entity_metadata.location if `entity_type` is `EXTERNAL`")
+      if not isinstance(self.scheduled_end_time, ISO8601timestamp):
+        raise PayloadFormatError("scheduled_end_time", "required scheduled_end_time if `entity_type` is `EXTERNAL`")
+    return super().format_check()
 
 @dataclass
 class DeleteGuildScheduledEvent(__GuildScheduledEventBase):

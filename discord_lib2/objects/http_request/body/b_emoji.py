@@ -2,13 +2,14 @@ from dataclasses import dataclass
 from typing import ClassVar
 
 from discord_lib2.objects.http_request.body import body_base
-from discord_lib2.objects.http_request.body.body_base import Exclude
+from discord_lib2.objects.http_request.body.body_base import Exclude, Base
 
 from discord_lib2.objects.other import permissions
 from discord_lib2.objects.http_request.body import b_user
 
 snowflake  = str
 image_data = str
+EXCLUDE = Exclude()
 
 @dataclass
 class __EmojiBase(body_base.BaseClass):
@@ -19,15 +20,15 @@ class __EmojiApplicationBase(body_base.BaseClass):
   req_base_url: ClassVar[str] = "/applications/<application.id>/emojis"
 
 @dataclass
-class Emoji:
+class Emoji(Base):
   id: snowflake | None
   name: str | None
-  roles: list[permissions.Role] | Exclude = Exclude()
-  user: b_user.User | Exclude = Exclude()
-  require_colons: bool | Exclude = Exclude()
-  managed: bool | Exclude = Exclude()
-  animated: bool | Exclude = Exclude()
-  available: bool | Exclude = Exclude()
+  roles: list[permissions.Role] | Exclude=EXCLUDE
+  user: b_user.User | Exclude=EXCLUDE
+  require_colons: bool | Exclude=EXCLUDE
+  managed: bool | Exclude=EXCLUDE
+  animated: bool | Exclude=EXCLUDE
+  available: bool | Exclude=EXCLUDE
 
 @dataclass
 class ListGuildEmojis(__EmojiBase):
