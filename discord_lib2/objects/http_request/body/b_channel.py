@@ -206,7 +206,7 @@ class ModifyChannelGuildChannel(__ChannelBase):
     def __gen_str(select_list: list):
       return f"cannot be used unless `type` is one of {str(select_list)}"
     def __check_in_list(value, value_name: str, in_list: list):
-      if not isinstance(value, Exclude) and value not in in_list:
+      if not isinstance(value, Exclude|None) and not isinstance(self.type, Exclude|None) and self.type not in in_list:
         raise PayloadFormatError(value_name, __gen_str(in_list))
     # channel type check
     __check_in_list(self.topic, "topic", [CT_GUILD_TEXT, CT_GUILD_ANNOUNCEMENT, CT_GUILD_FORUM, CT_GUILD_MEDIA])

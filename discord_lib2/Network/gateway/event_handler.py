@@ -798,9 +798,9 @@ class EventHandler:
           if global_appcom.name == task_obj.data.name:
             func_get_autocomplete = get_autocomplete_func(task_obj.data.options, global_appcom._get_functions())
             datas = await func_get_autocomplete(data_object, self.appcom_resources)
-            req_list = b_interaction.InteractionCallbackAutocomplete([b_interaction.DCChoiceOption(key, value) for key, value in datas.items()])
+            req_list = b_interaction.InteractionCallbackAutocomplete([b_interaction.ACChoiceOption(key, value) for key, value in datas.items()])
             req_data = self.user_http_request.load_request(
-              b_interaction.CreateInteractionResponse(b_interaction.CALLBACK_APPLICATION_COMMAND_AUTOCOMPLETE_RESULT, data=req_list),
+              b_interaction.CreateInteractionResponse(b_interaction.CT_APPLICATION_COMMAND_AUTOCOMPLETE_RESULT, data=req_list),
               q_interaction.CreateInteractionResponse(with_response=True),
               interaction_id=task_obj.id,
               interaction_token=task_obj.token
@@ -819,9 +819,9 @@ class EventHandler:
           if client_appcom.name == task_obj.data.name:
             func_get_autocomplete = get_autocomplete_func(task_obj.data.options, client_appcom._get_functions())
             datas = await func_get_autocomplete(data_object, self.appcom_resources)
-            req_list = b_interaction.InteractionCallbackAutocomplete([b_interaction.DCChoiceOption(key, value) for key, value in datas.items()])
+            req_list = b_interaction.InteractionCallbackAutocomplete([b_interaction.ACChoiceOption(key, value) for key, value in datas.items()])
             req_data = self.user_http_request.load_request(
-              b_interaction.CreateInteractionResponse(b_interaction.CALLBACK_APPLICATION_COMMAND_AUTOCOMPLETE_RESULT, data=req_list),
+              b_interaction.CreateInteractionResponse(b_interaction.CT_APPLICATION_COMMAND_AUTOCOMPLETE_RESULT, data=req_list),
               q_interaction.CreateInteractionResponse(with_response=True),
               interaction_id=task_obj.id,
               interaction_token=task_obj.token

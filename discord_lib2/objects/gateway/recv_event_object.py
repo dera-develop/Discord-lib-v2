@@ -185,9 +185,9 @@ class Guild:
 
 @dataclass
 class GuildMember:
-  deaf: bool
-  mute: bool
   flags: int
+  deaf: bool | None = None
+  mute: bool | None = None
   user: User | None = None
   nick: str | None = None
   avatar: str | None = None
