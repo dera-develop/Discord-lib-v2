@@ -14,6 +14,7 @@ from discord_lib2.cache.system import system
 class RequestFailedError(Exception):
   def __init__(self, name: str) -> None:
     super().__init__(name)
+    self.name = name
 
 class RequestQueue(asyncio.Queue):
   async def put(self, item: RequestInformation) -> None:

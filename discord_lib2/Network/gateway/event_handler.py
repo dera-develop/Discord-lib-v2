@@ -4,7 +4,7 @@ from itertools import chain
 from dacite import from_dict
 
 from discord_lib2.logger import Logger
-from discord_lib2.exception_catcher2 import ExceptionCatcher2
+from discord_lib2.runtime.exception_catcher import ExceptionCatcher2
 from discord_lib2.cache.system.system import SystemCacheVault
 from discord_lib2.cache.user.data import DataCacheVault
 from discord_lib2.cache.user import guild as DataCacheGuild
@@ -14,8 +14,8 @@ from discord_lib2.objects.resources import UserEventResources, ApplicationComman
 from discord_lib2.objects.gateway.user_request import GatewayRequest
 from discord_lib2.objects.gateway import request_payload
 from discord_lib2.objects.http_request.user_request import HttpRequest
-from discord_lib2.Network.gateway.websocket2 import WebsocketController
-from discord_lib2.Network.http_request.http2 import HttpRequestController
+from discord_lib2.Network.gateway.websocket import WebsocketController
+from discord_lib2.Network.http_request.http import HttpRequestController
 from discord_lib2.Network.http_request.request_loader import RequestLoader
 from discord_lib2.command.appcom_diffchecker import checker_v2
 from discord_lib2.command.appcom_get_exe_data import get_appcom_exedata, get_autocomplete_func
@@ -41,7 +41,7 @@ class EventHandler:
       http_request_controller: HttpRequestController,
       user_event: GatewayEvent,
       http_request_loader: RequestLoader,
-      application_commands: dict
+      application_commands: dict[str, dict|list]
   ) -> None:
     self.__task_event_handler = None
     self.logger = logger.get_child("EventHandler")
@@ -66,8 +66,8 @@ class EventHandler:
       self.exception_catcher
     )
     self.user_event_functions = user_event
-    self.guild_application_commands: dict[str, list[GuildApplicationCommand]] = application_commands["guilds"]
-    self.global_application_commands: list[GlobalApplicationCommand] = application_commands["globals"]
+    self.guild_application_commands: dict[str, list[GuildApplicationCommand]] = application_commands["guilds"]  # type: ignore
+    self.global_application_commands: list[GlobalApplicationCommand] = application_commands["globals"]          # type: ignore
 
     self.event_name_functions = {
       "READY": self.ready,

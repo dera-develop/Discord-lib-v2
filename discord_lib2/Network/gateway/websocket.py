@@ -7,7 +7,7 @@ from typing import ClassVar
 from aiohttp.client_exceptions import ClientConnectorDNSError
 
 from discord_lib2.logger import Logger
-from discord_lib2.exception_catcher2 import ExceptionCatcher2
+from discord_lib2.runtime.exception_catcher import ExceptionCatcher2
 from discord_lib2.cache.system.system import SystemCacheVault
 from discord_lib2.Network.gateway import event_creators
 
@@ -215,7 +215,7 @@ class WebsocketController:
     try:
       self.logger.info(f"Task started | name: worker=event_trigger")
       while True:
-        event_payload = await self.event_queue_recv.get()
+        event_payload: dict = await self.event_queue_recv.get()
         op = event_payload.get("op")
         d  = event_payload.get("d")
         t  = event_payload.get("t")
