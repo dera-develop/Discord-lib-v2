@@ -1,6 +1,6 @@
 import json
 
-from discord_lib2.Network.gateway import structure_creator
+from discord_lib2.network.gateway import structure_creator
 
 snowflake = str
 

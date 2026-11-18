@@ -1,7 +1,7 @@
 from logging import Logger
 
-from discord_lib2.Network.http_request.http import HttpRequestController, RequestFailedError
-from discord_lib2.Network.http_request.request_loader import RequestLoader
+from discord_lib2.network.http_request.http import HttpRequestController, RequestFailedError
+from discord_lib2.network.http_request.request_loader import RequestLoader
 from discord_lib2.cache.user.data import DataCacheVault
 from discord_lib2.command.appcom_diffchecker import checker_v2
 

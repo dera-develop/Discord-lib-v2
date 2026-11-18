@@ -1,7 +1,7 @@
 from typing import Any, Literal
 
 from discord_lib2.objects.resources import UserEventResources, ApplicationCommandResources, UserTerminalCommandResources
-from discord_lib2.Network.http_request.request_loader import RequestInformation
+from discord_lib2.network.http_request.request_loader import RequestInformation
 
 from discord_lib2.objects.gateway import recv_event_object
 from discord_lib2.objects.http_request.body import body_base

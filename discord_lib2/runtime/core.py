@@ -8,11 +8,11 @@ from discord_lib2.cache.system.system import SystemCacheVault
 from discord_lib2.cache.user.data import DataCacheVault
 from discord_lib2.objects.gateway.user_request import GatewayRequest
 from discord_lib2.objects.http_request.user_request import HttpRequest
-from discord_lib2.Network.http_request.http import HttpRequestController
-from discord_lib2.Network.http_request.request_loader import RequestLoader
-from discord_lib2.Network.http_request.http import RequestFailedError
-from discord_lib2.Network.gateway.websocket import WebsocketController
-from discord_lib2.Network.gateway.event_handler import EventHandler
+from discord_lib2.network.http_request.http import HttpRequestController
+from discord_lib2.network.http_request.request_loader import RequestLoader
+from discord_lib2.network.http_request.http import RequestFailedError
+from discord_lib2.network.gateway.websocket import WebsocketController
+from discord_lib2.network.gateway.event_handler import EventHandler
 
 from discord_lib2.runtime.terminal import TerminalRT
 from discord_lib2.runtime.appcom_check import update_global_appcom

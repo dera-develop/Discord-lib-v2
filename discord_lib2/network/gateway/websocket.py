@@ -9,7 +9,7 @@ from aiohttp.client_exceptions import ClientConnectorDNSError
 from discord_lib2.logger import Logger
 from discord_lib2.runtime.exception_catcher import ExceptionCatcher2
 from discord_lib2.cache.system.system import SystemCacheVault
-from discord_lib2.Network.gateway import event_creators
+from discord_lib2.network.gateway import event_creators
 
 class WebsocketController:
   URL_GATEWAY_QUERY: ClassVar[str]  = "?v=10&encoding=json&compress=zlib-stream"

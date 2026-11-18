@@ -8,7 +8,7 @@ import json
 from multidict import CIMultiDictProxy, CIMultiDict
 
 from discord_lib2.logger import Logger
-from discord_lib2.Network.http_request.request_loader import RequestInformation
+from discord_lib2.network.http_request.request_loader import RequestInformation
 from discord_lib2.cache.system import system
 
 class RequestFailedError(Exception):
