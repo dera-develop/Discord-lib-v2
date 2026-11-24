@@ -184,7 +184,8 @@ class EventHandlerCore:
       "STAGE_INSTANCE_UPDATE": self.user_event_trigger.stage_instance_update,
       "STAGE_INSTANCE_DELETE": self.user_event_trigger.stage_instance_delete,
       "MESSAGE_POLL_VOTE_ADD": self.user_event_trigger.message_poll_vote_add,
-      "MESSAGE_POLL_VOTE_REMOVE": self.user_event_trigger.message_poll_vote_remove
+      "MESSAGE_POLL_VOTE_REMOVE": self.user_event_trigger.message_poll_vote_remove,
+      "__LIB_CLOSE_WEBSOCKET": self.user_event_trigger.gateway_close_event
     })
 
   def __regist_functions(self):

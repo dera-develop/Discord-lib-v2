@@ -17,7 +17,8 @@ class CacheConnection(CacheUpdateBase):
     self.gateway = gateway_controller
     self.event_functions = {
       "READY"   : self.ready,
-      "RESUMED" : self.resumed
+      "RESUMED" : self.resumed,
+      "__LIB_CLOSE_WEBSOCKET": self.close_gateway
     }
 
   def __update_system_cache(self, event_data: dict[str, Any]):
@@ -44,3 +45,6 @@ class CacheConnection(CacheUpdateBase):
 
   async def resumed(self, event_data: dict[str, Any]):
     return
+
+  async def close_gateway(self, event_data: dict[str, Any]):
+    pass

@@ -421,4 +421,4 @@ class UserEventTrigger:
 
   # __library event
   async def gateway_close_event(self, event_data: dict[str, Any]):
-    pass
+    await self.user_event.gateway_close_event(self.resources)
