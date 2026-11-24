@@ -12,10 +12,14 @@ from discord_lib2.network.http_request.http import HttpRequestController
 from discord_lib2.network.http_request.request_loader import RequestLoader
 from discord_lib2.network.http_request.http import RequestFailedError
 from discord_lib2.network.gateway.websocket import WebsocketController
-from discord_lib2.network.gateway.event_handler import EventHandler
+from discord_lib2.command.application_command import GuildApplicationCommand, GlobalApplicationCommand
+
+# new handler
+from discord_lib2.handler.core import EventHandlerCore
+from discord_lib2.objects.resources import UserEventResources, ApplicationCommandResources
 
 from discord_lib2.runtime.terminal import TerminalRT
-from discord_lib2.runtime.appcom_check import update_global_appcom
+from discord_lib2.command.appcom_updator import update_appcom
 from discord_lib2.runtime.exception_catcher import ExceptionCatcher2, StopConnection, ReConnection, ReStartConnection
 
 from discord_lib2.objects.gateway import recv_event_object
@@ -67,6 +71,9 @@ class Runtime:
     self.system_cache_vault.os_type     = os_type
     self.system_cache_vault.proxy       = proxy
 
+    self.ac_global: dict[str, GlobalApplicationCommand] = application_commands["globals"]
+    self.ac_guild: dict[str, dict[str, GuildApplicationCommand]] = application_commands["guilds"]
+
     self.exception_catcher = ExceptionCatcher2(logger_master)
     self.terminal_controller = TerminalRT(
       logger_master,
@@ -83,26 +90,39 @@ class Runtime:
       self.system_cache_vault,
       self.exception_catcher
     )
-    self.event_handler = EventHandler(
+    user_event_resources = UserEventResources(
+      GatewayRequest(self.gateway_controller),
+      HttpRequest(self.httpapi_request_controller, self.httpapi_request_loader),
+      self.data_cache_vault,
+      logger_master,
+      self.exception_catcher
+    )
+    appcom_resources = ApplicationCommandResources(
+      GatewayRequest(self.gateway_controller),
+      HttpRequest(self.httpapi_request_controller, self.httpapi_request_loader),
+      self.data_cache_vault,
+      logger_master,
+      self.exception_catcher
+    )
+    self.event_handler = EventHandlerCore(
       logger_master,
       self.exception_catcher,
-      self.system_cache_vault,
       self.data_cache_vault,
-      self.gateway_controller,
+      self.system_cache_vault,
       self.httpapi_request_controller,
-      user_event,
       self.httpapi_request_loader,
-      application_commands
+      self.gateway_controller,
+      user_event_resources,
+      appcom_resources,
+      application_commands,
+      user_event
     )
 
     self.terminal_controller.gen_resources(
       GatewayRequest(self.gateway_controller),
-      HttpRequest(self.httpapi_request_controller,
-      self.httpapi_request_loader),
+      HttpRequest(self.httpapi_request_controller, self.httpapi_request_loader),
       self.data_cache_vault
     )
-
-    self.application_commands = application_commands
 
   async def __start_base_workers(self):
     await self.terminal_controller.start()
@@ -223,12 +243,12 @@ class Runtime:
       await self.__stop_base_workers()
       return
 
-    await update_global_appcom(
+    await update_appcom(
       self.logger,
       self.httpapi_request_loader,
       self.httpapi_request_controller,
-      self.data_cache_vault,
-      self.application_commands["globals"]
+      self.data_cache_vault.data.application.id,
+      list(self.ac_global.values())
     )
 
     loop_task = asyncio.create_task(self.__connection_loop())

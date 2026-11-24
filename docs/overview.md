@@ -1,9 +1,11 @@
 # Documents
-- [OVERVIEW](#overview)
-- [HTTP API](http_api.md)
-- [GATEWAY EVENT](gateway_event.md)
-- [APPLICATION COMMAND](applicarion_commands.md)
-- [TERMINAL COMMAND](user_terminal_commands.md)
+|Document|内容|
+|:-|:-|
+|[OVERVIEW](#overview)|ライブラリの概要（このドキュメント）|
+|[HTTP API](http_api.md)|HttpAPIリクエストに関するドキュメント|
+|[GATEWAY EVENT](gateway_event.md)|GatewayのDispatchイベントのユーザー定義に関するドキュメント|
+|[APPLICATION COMMAND](applicarion_commands.md)|アプリケーションコマンドに関するドキュメント|
+|[TERMINAL COMMAND](user_terminal_commands.md)|ターミナルコマンドに関するドキュメント|
 
 # OVERVIEW  
 ## 前提  
@@ -15,7 +17,31 @@ HTTPSリクエストのみを行うボットの作成には対応していませ
 > この図は，全体のイメージがつかみやすいよう簡略化されています．
 
 ![architecture](./images/architecture.png)
-  
+
+このライブラリの軸になるのは，ランタイムとイベントハンドラです．
+
+### Runtime
+ランタイムは，`discord_lib2/runtime`にあります．Bot起動時は，`runtime/core Runtime`が呼び出されます．
+ランタイムでは主に，
+- 各タスクインスタンスの作成と実行管理
+- セッション制御
+を行っています．また，`runtime/terminal`でターミナル入力の受付管理も行っています．
+
+### EventHandler
+イベントハンドラは，`discord_lib2/handler`にあります．Bot起動時にランタイムで`handler/core EventHandlerCore`が呼び出され，非同期ウォーカーとして動作します．
+このハンドラは，Gatewayイベントの中の`Dispatch`イベントに応じて処理を実行します．
+#### 処理の順番
+イベントハンドラでは，主に3つのタスクを管理・実行します．．
+1. **キャッシュの更新**
+  イベントデータを使用し，各ギルドキャッシュやユーザーキャッシュを更新します．
+2. **内部タスクの実行**
+  アプリケーションコマンドの自動実行等の内部タスクを実行します．
+3. **ユーザーイベント関数の実行**
+  ユーザーが定義する`Dispatch`イベントに対応する処理を実行します．
+
+実行順は，ここに記述されている順番で実行されます．
+現在，`Dispatch`イベントタスクは全ギルド直列に実行されていますが，今後ギルド単位で平行にイベントの実行が出来るように変更する予定です．
+
 ## サンプルコード  
 サンプルコード群は，[ここ](../sample/)に保存されています．  
 ここでは，この中にある [hello_world.py](../sample/hello_world.py)をベースに解説を行います．  

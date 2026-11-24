@@ -2,6 +2,7 @@ from discord_lib2.network.gateway.structure_creator import Presence
 
 from discord_lib2.cache.system.resume import Resume
 from discord_lib2.cache.system.gateway import Gateway
+from discord_lib2.cache.system.channel_index import ChannelIndex
 
 class SystemCacheVault:
   bot_token: str
@@ -15,3 +16,4 @@ class SystemCacheVault:
 
   resume  = Resume()
   gateway = Gateway()
+  channel_index = ChannelIndex()

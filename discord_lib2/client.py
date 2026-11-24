@@ -8,6 +8,61 @@ from discord_lib2.event import GatewayEvent
 from discord_lib2.command.terminal_command import TerminalCommand
 from discord_lib2.command.application_command import GlobalApplicationCommand, GuildApplicationCommand
 
+class ApplicationCommandRegistError(Exception):
+  def __init__(self, *args: object) -> None:
+    super().__init__(*args)
+
+class ApplicationCommandExistsException(ApplicationCommandRegistError):
+  def __init__(self, name: str, guild_id: str|None=None) -> None:
+    super().__init__(f"command \"{name}\" is dumplicated in {"global command" if guild_id is None else f"guild command: {guild_id}"}")
+
+class ApplicationCommandRegister:
+  def __init__(self) -> None:
+    # {"guild_id": {"appcom_name": <appcom_object>}}
+    self.ac_guilds: dict[str, dict[str, GuildApplicationCommand]] = {}
+    # {"appcom_name": <appcom_object>}
+    self.ac_globals: dict[str, GlobalApplicationCommand] = {}
+
+  def __type_check(self, command_obj: GuildApplicationCommand|GlobalApplicationCommand, target_guild: str|None):
+    if isinstance(command_obj, GuildApplicationCommand):
+      if target_guild is None:
+        raise ApplicationCommandRegistError(f"Need argument \"target_guild\"")
+      if target_guild != "any":
+        try:
+          int(target_guild)
+        except ValueError:
+          raise ApplicationCommandRegistError(f"\"target_guild\" need \"any\" or guild_id (snowflake id)")
+
+  def __dumplicate_check(self, name, target_guild: str|None):
+    if target_guild is None:
+      if name in self.ac_globals:
+        raise ApplicationCommandExistsException(name)
+    else:
+      if target_guild == "any":
+        for guild, value in self.ac_guilds.items():
+          if name in value:
+            raise ApplicationCommandExistsException(name, guild)
+      else:
+        if name in self.ac_guilds[target_guild]:
+          raise ApplicationCommandExistsException(name, target_guild)
+
+  def __regist(self, command_obj: GuildApplicationCommand|GlobalApplicationCommand, target_guild: str):
+    if isinstance(command_obj, GuildApplicationCommand):
+      if target_guild not in self.ac_guilds:
+        self.ac_guilds[target_guild] = {}
+      self.ac_guilds[target_guild][command_obj.name] = command_obj
+    else:
+      self.ac_globals[command_obj.name] = command_obj
+
+  def add_command(self, command_obj: GuildApplicationCommand|GlobalApplicationCommand, target_guild: str):
+    self.__type_check(command_obj, target_guild)
+    self.__dumplicate_check(command_obj.name, target_guild)
+    self.__regist(command_obj, target_guild)
+
+  def get_appcoms(self):
+    return {"guilds": self.ac_guilds, "globals": self.ac_globals}
+
+
 class Bot:
   __INTENT_V_GUILDS                         = 1 << 0
   __INTENT_V_GUILD_MEMBERS                  = 1 << 1
@@ -31,30 +86,10 @@ class Bot:
   __INTENT_V_GUILD_MESSAGE_POLLS            = 1 << 24
   __INTENT_V_DIRECT_MESSAGE_POLLS           = 1 << 25
 
-
-
   def __init__(self, bot_token: str):
     self.bot_token        = bot_token
     self.os_type          = platform.system()
-    '''
-    {
-      "guilds: {
-        "<guild_id>": [
-          <guild_application_command_instance>,
-          ...
-        ],
-        ...
-      },
-      "globals": [
-        <global_application_command_instance>,
-        ...
-      ]
-    }
-    '''
-    self.__application_commands = {
-      "guilds": {},
-      "globals": []
-    }
+    self.__application_command_register = ApplicationCommandRegister()
 
     self.enable_guilds                         = True
     self.enable_guild_members                  = False
@@ -103,18 +138,11 @@ class Bot:
     if self.enable_direct_message_polls:          self.bot_intent += self.__INTENT_V_DIRECT_MESSAGE_POLLS
 
   def add_application_command(self, command_object: GlobalApplicationCommand | GuildApplicationCommand, target_guild: str=""):
-    if isinstance(command_object, GuildApplicationCommand):
-      if target_guild == "":
-        raise ValueError(f"Need argument \"target_guild\"")
-      if not target_guild in self.__application_commands["guilds"]:
-        self.__application_commands["guilds"][target_guild] = []
-      self.__application_commands["guilds"][target_guild].append(command_object)
-    if isinstance(command_object, GlobalApplicationCommand):
-      self.__application_commands["globals"].append(command_object)
+    self.__application_command_register.add_command(command_object, target_guild)
 
   def boot(self, event: GatewayEvent, logger: Logger, terminal_command: TerminalCommand | None=None, bootcycle: int=-1, proxy: str | None=None):
     self.__calc_bot_intent()
     if terminal_command is None:
       terminal_command = TerminalCommand()
-    __runtime = Runtime(self.bot_token, self.bot_intent, self.os_type, logger, bootcycle, event, terminal_command, self.__application_commands, proxy)
+    __runtime = Runtime(self.bot_token, self.bot_intent, self.os_type, logger, bootcycle, event, terminal_command, self.__application_command_register.get_appcoms(), proxy)
     asyncio.run(__runtime.boot())

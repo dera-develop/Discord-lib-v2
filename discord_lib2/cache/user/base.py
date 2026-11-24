@@ -1,13 +1,14 @@
-from typing import ClassVar, Any, Type
+from typing import ClassVar, Any, Type, TypeVar
 from logging import Logger
 
 snowflake = str
 ISO8601timestamp = str
+T = TypeVar("T")
 
 class UserCacheBase:
   replaces: ClassVar[dict[str, str]] = {}   # head_key_str: key_path
 
-  def update(self, data: dict):
+  def update(self, data):
     pass
 
 class KeyTypeException(Exception):

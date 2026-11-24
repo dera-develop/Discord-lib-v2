@@ -54,16 +54,16 @@ class User:
 class Ready:
   @dataclass
   class Application:
-    id: snowflake | None = None
-    flags: int | None = None
-    flags_new: str | None = None
+    id: snowflake
+    flags: int
+    flags_new: str
 
   v: int
   user: User
+  session_id: str
+  resume_gateway_url: str
+  application: Application
   guilds: list[b_guild.UnavailableGuild] = field(default_factory=list)
-  session_id: str | None = None
-  resume_gateway_url: str | None = None
-  application: Application = field(default_factory=Application)
   shard: list[list[int]] | None = None
 
 @dataclass
@@ -304,6 +304,11 @@ class Channel:
   default_thread_rate_limit_per_user: int | None = None
   default_sort_order: int | None = None
   default_forum_layout: int | None = None
+
+@dataclass
+class ChannelInfo:
+  guild_id: snowflake
+  channels: list[Channel]
 
 @dataclass
 class PresenceUpdate:
@@ -1073,3 +1078,49 @@ class VoiceServerUpdate:
 @dataclass
 class GuildMemberAdd(GuildMember):
   guild_id: snowflake | None = None
+
+@dataclass
+class MessagePollVote:
+  user_id: snowflake
+  channel_id: snowflake
+  message_id: snowflake
+  answer_id: int
+  guild_id: snowflake | None = None
+
+@dataclass
+class AutoModerationRule:
+  @dataclass
+  class Action:
+    @dataclass
+    class Metadata:
+      channel_id: snowflake
+      duration_seconds: int
+      custom_message: str | None=None
+    type: int
+    metadata: Metadata | None=None
+
+  id: snowflake
+  guild_id: snowflake
+  name: str
+  creator_id: snowflake
+  event_type: int
+  trigger_type: int
+  trigger_metadata: object
+  actions: list[Action]
+  enabled: bool
+  exempt_roles: list[snowflake]
+  exempt_channels: list[snowflake]
+
+@dataclass
+class AutoModerationActionExecution:
+  guild_id: snowflake
+  action: AutoModerationRule.Action
+  rule_id: snowflake
+  rule_trigger_type: int
+  user_id: snowflake
+  content: str
+  matched_keyword: str | None
+  matched_content: str | None
+  channel_id: snowflake | None = None
+  message_id: snowflake | None = None
+  alert_system_message_id: snowflake | None = None

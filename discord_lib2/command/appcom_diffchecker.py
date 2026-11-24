@@ -136,7 +136,7 @@ def __applicationcommand_set_namekey(datas) -> dict:
   return return_dict
 
 
-def checker_v2(server_appcom_datas: list, client_appcom_datas: list) -> list:
+def checker_v2(server_appcom_datas: list, client_appcom_datas: list[GuildApplicationCommand|GlobalApplicationCommand]) -> list:
   '''
   [
     { # create

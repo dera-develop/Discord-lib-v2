@@ -34,17 +34,6 @@ event = UserEvents()
 bot.boot(event, logger)  
 ```
 
-## Feature
-自身でこのライブラリを使用してBot開発を行っています．開発の際，ライブラリとして実装した方が良いと思った機能を段階的に実装していきます．  
-また，余力があれば音声接続機能も実装しようと考えています．
-
-## Dependencies  
-### Library  
-本ライブラリは，以下の Python ライブラリに依存しており，環境によっては追加インストールが必要になる場合があります．  
-- aiohttp
-- aioconsole
-- dacite
-
 ## Hot to use
 リポジトリをクローンし使用します．ライブラリ本体は`./discord_lib2`です．  
 ```shell
@@ -66,6 +55,17 @@ pip install -r requirements.txt
 # メインプログラムファイルを作成し実行します
 python main.py
 ```
+
+## Feature
+自身でこのライブラリを使用してBot開発を行っています．開発の際，ライブラリとして実装した方が良いと思った機能を段階的に実装していきます．  
+また，余力があれば音声接続機能も実装しようと考えています．
+
+## Dependencies  
+### Library  
+本ライブラリは，以下の Python ライブラリに依存しており，環境によっては追加インストールが必要になる場合があります．  
+- aiohttp
+- aioconsole
+- dacite
 
 ## Link  
 - [Discord Developer Portal](https://discord.com/developers/applications)  

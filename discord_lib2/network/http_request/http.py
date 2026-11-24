@@ -168,9 +168,6 @@ class HttpRequestController:
           req_infos = await self.request_queue.get()
           header = self.__get_header(req_infos.request_need_token)
 
-          #####debug
-          #self.logger.debug(f"Send request | type: {req_infos.request_type}, url: {req_infos.request_url}\n\theader: {header}\n\tbody: {req_infos.request_body}")
-
           if "form" in req_infos.request_type:
             try:
               res = await self.req_form_functions[req_infos.request_type](session, req_infos.request_url, header, req_infos.request_form)
@@ -204,8 +201,17 @@ class HttpRequestController:
 
           self.response_datas[req_infos.request_id] = res
 
-          #####debug
-          #self.logger.debug(f"Complete request | code: {res.status_code}")
+          if False:
+            self.logger.debug(
+              f"send request //\n"\
+              "== info ==\n"\
+              f"\ttarget: {req_infos.request_url}\n"\
+              f"\tmethod: {req_infos.request_type}\n"\
+              f"\tneed_token: {req_infos.request_need_token}\n"\
+              "== res header ==\n"\
+              f"\t{self.__RESPONCE_HEADER_RATELIMIT}: {res.headers.get(self.__RESPONCE_HEADER_RATELIMIT)}\n"\
+              f"\t{self.__RESPONCE_HEADER_RATELIMIT_WAITTIME}: {res.headers.get(self.__RESPONCE_HEADER_RATELIMIT_WAITTIME)}"
+            )
 
           if 200 <= res.status_code < 300:
             request_rate_limit = res.headers.get(self.__RESPONCE_HEADER_RATELIMIT)
